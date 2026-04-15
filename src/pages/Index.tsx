@@ -1,11 +1,13 @@
 import { useState } from "react";
 import WelcomeScreen from "@/components/WelcomeScreen";
 import OnboardingFlow, { type OnboardingData } from "@/components/OnboardingFlow";
+import ReflectiveQuestions, { type ReflectiveData } from "@/components/ReflectiveQuestions";
 import logo from "@/assets/logo.png";
 
 const Index = () => {
-  const [screen, setScreen] = useState<"welcome" | "onboarding" | "done">("welcome");
+  const [screen, setScreen] = useState<"welcome" | "onboarding" | "reflective" | "done">("welcome");
   const [userData, setUserData] = useState<OnboardingData | null>(null);
+  const [reflectiveData, setReflectiveData] = useState<ReflectiveData | null>(null);
 
   if (screen === "welcome") {
     return <WelcomeScreen onNext={() => setScreen("onboarding")} />;
@@ -16,6 +18,17 @@ const Index = () => {
       <OnboardingFlow
         onComplete={(data) => {
           setUserData(data);
+          setScreen("reflective");
+        }}
+      />
+    );
+  }
+
+  if (screen === "reflective") {
+    return (
+      <ReflectiveQuestions
+        onComplete={(data) => {
+          setReflectiveData(data);
           setScreen("done");
         }}
       />
@@ -32,7 +45,7 @@ const Index = () => {
         Welcome, {userData?.name}! 🎉
       </h1>
       <p className="text-muted-foreground text-sm text-center mb-6">
-        You're all set. Your 7-day journey starts now.
+        You're all set. Your personalised journey starts now.
       </p>
       <div className="w-full max-w-sm bg-card/60 backdrop-blur-sm rounded-2xl p-5 border border-border/50">
         <p className="text-xs text-muted-foreground mb-1">Your goal for the next 7 days:</p>
