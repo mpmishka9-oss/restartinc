@@ -156,7 +156,7 @@ const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
       style={{ background: "linear-gradient(180deg, hsl(220, 80%, 78%) 0%, hsl(195, 70%, 78%) 100%)" }}>
       
       {/* Progress */}
-      <div className="flex items-center gap-3 mb-8 text-foreground bg-primary-foreground border-destructive-foreground">
+      <div className="flex items-center gap-3 mb-8">
         {step > 0 && (
           <button onClick={handleBack} className="p-2 rounded-full bg-card/50 text-foreground">
             <ArrowLeft className="w-4 h-4" />
