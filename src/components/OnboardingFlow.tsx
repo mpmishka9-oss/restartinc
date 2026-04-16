@@ -142,7 +142,7 @@ const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
             <textarea
               value={data.goal}
               onChange={(e) => setData({ ...data, goal: e.target.value })}
-              placeholder="e.g., Complete my portfolio website..."
+              placeholder="e.g., Reduce stress and convert that into productivity......"
               rows={4}
               className="w-full px-5 py-4 rounded-xl bg-card/50 border border-border/50 text-foreground placeholder:text-muted-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none"
             />
