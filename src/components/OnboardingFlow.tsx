@@ -9,6 +9,7 @@ export interface OnboardingData {
   role: string;
   age: string;
   email: string;
+  gender: string;
   name: string;
   goal: string;
 }
@@ -29,19 +30,21 @@ const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
     role: "",
     age: "",
     email: "",
+    gender: "",
     name: "",
     goal: "",
   });
 
-  const totalSteps = 5;
+  const totalSteps = 6;
 
   const canProceed = () => {
     switch (step) {
       case 0: return data.role !== "";
       case 1: return data.age !== "";
       case 2: return data.email !== "";
-      case 3: return data.name !== "";
-      case 4: return data.goal !== "";
+      case 3: return data.gender !== "";
+      case 4: return data.name !== "";
+      case 5: return data.goal !== "";
       default: return false;
     }
   };
@@ -109,6 +112,16 @@ const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
         );
       case 3:
         return (
+          <div className="space-y-3">
+            <h2 className="text-xl font-bold text-foreground mb-1">What's your gender?</h2>
+            <p className="text-muted-foreground text-xs mb-4">Select one that fits</p>
+            {["Male", "Female", "Other"].map((g) => (
+              <SelectOption key={g} label={g} selected={data.gender === g} onClick={() => setData({ ...data, gender: g })} />
+            ))}
+          </div>
+        );
+      case 4:
+        return (
           <div className="space-y-4">
             <h2 className="text-xl font-bold text-foreground mb-1">What do you want to name yourself?</h2>
             <p className="text-muted-foreground text-xs mb-4">Pick a name you'd like us to call you</p>
@@ -121,7 +134,7 @@ const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
             />
           </div>
         );
-      case 4:
+      case 5:
         return (
           <div className="space-y-4">
             <h2 className="text-xl font-bold text-foreground mb-1">Your 7-day goal ✨</h2>
