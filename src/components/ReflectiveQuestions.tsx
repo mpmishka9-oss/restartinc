@@ -91,7 +91,7 @@ const ReflectiveQuestions = ({ onComplete }: ReflectiveQuestionsProps) => {
       }`}
     >
       <div className="flex items-center justify-between">
-        <span>{label}</span>
+        <span className="text-primary-foreground font-medium">{label}</span>
         {selected && <Check className="w-4 h-4 text-foreground" />}
       </div>
     </button>
