@@ -70,7 +70,7 @@ const ReflectiveQuestions = ({ onComplete }: ReflectiveQuestionsProps) => {
       onClick={onClick}
       className={`w-full text-left px-5 py-4 rounded-xl border transition-all text-sm font-medium ${
         selected
-          ? "bg-primary/40 border-primary text-foreground shadow-sm"
+          ? "bg-muted border-primary text-foreground shadow-sm"
           : "bg-card/50 border-border/50 text-foreground hover:bg-card/80"
       }`}
     >
@@ -334,7 +334,7 @@ const ReflectiveQuestions = ({ onComplete }: ReflectiveQuestionsProps) => {
         disabled={!canProceed()}
         className={`w-full py-4 rounded-2xl font-semibold text-base shadow-lg flex items-center justify-center gap-2 transition-all mt-6 ${
           canProceed()
-            ? "bg-primary text-primary-foreground hover:brightness-105 active:scale-[0.98]"
+            ? "bg-foreground text-primary-foreground hover:brightness-105 active:scale-[0.98]"
             : "bg-muted text-muted-foreground cursor-not-allowed"
         }`}
       >
