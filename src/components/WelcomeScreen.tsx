@@ -17,11 +17,11 @@ const WelcomeScreen = ({ onNext }: WelcomeScreenProps) => {
       <div className="flex-1 flex flex-col items-center justify-center w-full max-w-sm">
         <img src={logo} alt="reStart" className="w-48 h-48 object-contain mb-8 rounded-2xl" />
         
-        <h1 className="text-2xl font-bold text-foreground text-center mb-2 font-sans bg-destructive-foreground rounded-none">
+        <h1 className="text-2xl font-bold text-foreground text-center mb-2 font-sans rounded-none bg-muted-foreground">
           Welcome to reStart
         </h1>
         <p className="text-center text-sm mb-10 text-foreground">
-          Your journey to a better you begins here.
+          Helping your thoughts turn into momentum
         </p>
 
         {/* Privacy Promise */}
