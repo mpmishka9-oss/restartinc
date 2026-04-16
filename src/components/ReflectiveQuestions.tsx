@@ -132,9 +132,9 @@ const ReflectiveQuestions = ({ onComplete }: ReflectiveQuestionsProps) => {
       case 0:
         return (
           <div className="space-y-3">
-            <h2 className="text-xl font-bold text-foreground mb-1">Do any of these apply to you?</h2>
-            <p className="text-muted-foreground text-xs mb-4">Select one that fits</p>
-            {["I have ADHD / neurodivergent", "I work night shifts / irregular hours", "None of the above", "Prefer not to say"].map((o) => (
+            <h2 className="text-xl font-bold text-foreground mb-1">Be honest - what's going on?</h2>
+            <p className="text-muted-foreground text-xs mb-4">Select what resonates with you</p>
+            {["I'm highly ambitious and want to boost my productivity to achieve more", "Life's a bit too much right now (like stress, overwhelmed, anxiety & burnout)"].map((o) => (
               <SelectOption key={o} label={o} selected={data.condition === o} onClick={() => setData({ ...data, condition: o })} />
             ))}
           </div>
@@ -152,7 +152,7 @@ const ReflectiveQuestions = ({ onComplete }: ReflectiveQuestionsProps) => {
       case 2:
         return (
           <div className="space-y-3">
-            <h2 className="text-xl font-bold text-foreground mb-1">In one word, how are you feeling right now?</h2>
+            <h2 className="text-xl font-bold text-foreground mb-1">In one word, what best describes how you feel most of the day?</h2>
             <p className="text-muted-foreground text-xs mb-4">Pick the closest match</p>
             {["Anxious / worried", "Angry / frustrated", "Sad / low", "Overwhelmed / scattered", "Numb / empty", "Stressed / pressure", "Lost / confused", "I don't know"].map((o) => (
               <SelectOption key={o} label={o} selected={data.feeling === o} onClick={() => setData({ ...data, feeling: o })} />
