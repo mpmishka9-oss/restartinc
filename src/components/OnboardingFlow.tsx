@@ -68,7 +68,7 @@ const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
       }`}
     >
       <div className="flex items-center justify-between">
-        <span>{label}</span>
+        <span className="text-primary-foreground font-semibold rounded-none shadow-sm">{label}</span>
         {selected && <Check className="w-4 h-4 text-foreground" />}
       </div>
     </button>
@@ -156,7 +156,7 @@ const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
       style={{ background: "linear-gradient(180deg, hsl(220, 80%, 78%) 0%, hsl(195, 70%, 78%) 100%)" }}>
       
       {/* Progress */}
-      <div className="flex items-center gap-3 mb-8">
+      <div className="flex items-center gap-3 mb-8 text-foreground bg-primary-foreground border-destructive-foreground">
         {step > 0 && (
           <button onClick={handleBack} className="p-2 rounded-full bg-card/50 text-foreground">
             <ArrowLeft className="w-4 h-4" />
@@ -184,7 +184,7 @@ const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
         disabled={!canProceed()}
         className={`w-full py-4 rounded-2xl font-semibold text-base shadow-lg flex items-center justify-center gap-2 transition-all ${
           canProceed()
-            ? "bg-primary text-primary-foreground hover:brightness-105 active:scale-[0.98]"
+            ? "text-primary-foreground hover:brightness-105 active:scale-[0.98] bg-foreground"
             : "bg-muted text-muted-foreground cursor-not-allowed"
         }`}
       >
