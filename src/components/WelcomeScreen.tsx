@@ -17,7 +17,7 @@ const WelcomeScreen = ({ onNext }: WelcomeScreenProps) => {
       <div className="flex-1 flex flex-col items-center justify-center w-full max-w-sm">
         <img src={logo} alt="reStart" className="w-48 h-48 object-contain mb-8 rounded-2xl" />
         
-        <h1 className="text-2xl font-bold text-foreground text-center mb-2 font-sans rounded-none bg-sidebar-accent">
+        <h1 className="text-2xl font-bold text-foreground text-center mb-2 font-sans rounded-none bg-transparent">
           Welcome to reStart
         </h1>
         <p className="text-center text-sm mb-10 text-foreground">
@@ -55,7 +55,7 @@ const WelcomeScreen = ({ onNext }: WelcomeScreenProps) => {
       <button
         onClick={onNext}
         disabled={!agreed}
-        className="w-full max-w-sm py-4 rounded-2xl text-primary-foreground font-semibold text-base shadow-lg hover:brightness-105 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed bg-foreground"
+        className="w-full max-w-sm py-4 rounded-2xl text-primary-foreground font-semibold text-base shadow-lg hover:brightness-105 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed bg-foreground mx-0"
       >
         Let's Begin
       </button>
