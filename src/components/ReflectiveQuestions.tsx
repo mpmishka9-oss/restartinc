@@ -171,7 +171,7 @@ const ReflectiveQuestions = ({ onComplete }: ReflectiveQuestionsProps) => {
                   onClick={() => setData({ ...data, intensity: n })}
                   className={`w-9 h-9 rounded-full text-sm font-semibold transition-all flex items-center justify-center ${
                     data.intensity === n
-                      ? "bg-primary text-primary-foreground shadow-md scale-110"
+                      ? "bg-muted text-primary-foreground shadow-md scale-110 border-foreground"
                       : "bg-card/50 border border-border/50 text-foreground hover:bg-card/80"
                   }`}
                 >
