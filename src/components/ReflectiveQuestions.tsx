@@ -75,7 +75,7 @@ const ReflectiveQuestions = ({ onComplete }: ReflectiveQuestionsProps) => {
       }`}
     >
       <div className="flex items-center justify-between">
-        <span>{label}</span>
+        <span className="text-primary-foreground shadow-sm">{label}</span>
         {selected && <Check className="w-4 h-4 text-foreground" />}
       </div>
     </button>
@@ -301,7 +301,7 @@ const ReflectiveQuestions = ({ onComplete }: ReflectiveQuestionsProps) => {
       {/* Intro text on first step */}
       {step === 0 && (
         <div className="bg-card/60 backdrop-blur-sm rounded-2xl p-4 mb-6 border border-border/50">
-          <p className="text-foreground text-sm font-medium leading-relaxed">
+          <p className="text-sm font-medium leading-relaxed text-primary-foreground">
             Before continuing, here are a few questions to understand you better and give you a more personalised solution to help you reach your goal.
           </p>
         </div>
