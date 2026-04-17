@@ -37,7 +37,7 @@ const Index = () => {
           regular_practice: userData.regularPractice,
           wellness_attitude: userData.wellnessAttitude,
           path,
-          reflective_answers: reflective as unknown as Record<string, unknown>,
+          reflective_answers: reflective as never,
           chronotype: assigned,
           chronotype_scores: scores,
         }],
