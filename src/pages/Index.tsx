@@ -26,7 +26,7 @@ const Index = () => {
     const { error } = await supabase
       .from("user_responses")
       .upsert(
-        {
+        [{
           email: userData.email,
           name: userData.name,
           role: userData.role,
@@ -40,7 +40,7 @@ const Index = () => {
           reflective_answers: reflective as unknown as Record<string, unknown>,
           chronotype: assigned,
           chronotype_scores: scores,
-        },
+        }],
         { onConflict: "email" }
       );
 
