@@ -14,7 +14,63 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      user_responses: {
+        Row: {
+          age: string | null
+          chronotype: Database["public"]["Enums"]["chronotype"] | null
+          chronotype_scores: Json | null
+          created_at: string
+          email: string
+          gender: string | null
+          id: string
+          name: string | null
+          path: string | null
+          person_type: string | null
+          reflective_answers: Json
+          regular_practice: string | null
+          role: string | null
+          sleep_general: string | null
+          updated_at: string
+          wellness_attitude: string | null
+        }
+        Insert: {
+          age?: string | null
+          chronotype?: Database["public"]["Enums"]["chronotype"] | null
+          chronotype_scores?: Json | null
+          created_at?: string
+          email: string
+          gender?: string | null
+          id?: string
+          name?: string | null
+          path?: string | null
+          person_type?: string | null
+          reflective_answers?: Json
+          regular_practice?: string | null
+          role?: string | null
+          sleep_general?: string | null
+          updated_at?: string
+          wellness_attitude?: string | null
+        }
+        Update: {
+          age?: string | null
+          chronotype?: Database["public"]["Enums"]["chronotype"] | null
+          chronotype_scores?: Json | null
+          created_at?: string
+          email?: string
+          gender?: string | null
+          id?: string
+          name?: string | null
+          path?: string | null
+          person_type?: string | null
+          reflective_answers?: Json
+          regular_practice?: string | null
+          role?: string | null
+          sleep_general?: string | null
+          updated_at?: string
+          wellness_attitude?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +79,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      chronotype: "Lion" | "Bear" | "Owl" | "Dolphin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +206,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      chronotype: ["Lion", "Bear", "Owl", "Dolphin"],
+    },
   },
 } as const
