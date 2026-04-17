@@ -11,7 +11,10 @@ export interface OnboardingData {
   email: string;
   gender: string;
   name: string;
-  goal: string;
+  sleepGeneral: string;
+  personType: string;
+  regularPractice: string;
+  wellnessAttitude: string;
 }
 
 const roles = [
@@ -24,6 +27,34 @@ const roles = [
 
 const ages = ["Under 18", "18 - 24", "25 - 35", "36 - 45", "45+"];
 
+const sleepGeneralOptions = [
+  "I sleep well most nights — 7–8 hrs",
+  "It varies a lot — some nights good, some bad",
+  "I consistently sleep less than I should",
+  "I struggle to fall/stay asleep regularly",
+  "I crash hard but never feel rested",
+];
+
+const personTypeOptions = [
+  "A morning person",
+  "A night owl",
+  "Somewhere in between",
+];
+
+const regularPracticeOptions = [
+  "Exercise / movement",
+  "Meditation or breathwork",
+  "A consistent morning or evening routine",
+  "None of these yet",
+];
+
+const wellnessAttitudeOptions = [
+  "Open to trying anything",
+  "Prefer science-backed approaches",
+  "Drawn to holistic / ancient wisdom",
+  "Sceptical but curious",
+];
+
 const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
   const [step, setStep] = useState(0);
   const [data, setData] = useState<OnboardingData>({
@@ -32,10 +63,13 @@ const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
     email: "",
     gender: "",
     name: "",
-    goal: "",
+    sleepGeneral: "",
+    personType: "",
+    regularPractice: "",
+    wellnessAttitude: "",
   });
 
-  const totalSteps = 6;
+  const totalSteps = 9;
 
   const canProceed = () => {
     switch (step) {
@@ -44,7 +78,10 @@ const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
       case 2: return data.email !== "";
       case 3: return data.gender !== "";
       case 4: return data.name !== "";
-      case 5: return data.goal !== "";
+      case 5: return data.sleepGeneral !== "";
+      case 6: return data.personType !== "";
+      case 7: return data.regularPractice !== "";
+      case 8: return data.wellnessAttitude !== "";
       default: return false;
     }
   };
@@ -136,16 +173,42 @@ const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
         );
       case 5:
         return (
-          <div className="space-y-4">
-            <h2 className="text-xl font-bold text-foreground mb-1">Your 7-day goal ✨</h2>
-            <p className="text-muted-foreground text-xs mb-4">Write down one goal you want to achieve in the next 7 days</p>
-            <textarea
-              value={data.goal}
-              onChange={(e) => setData({ ...data, goal: e.target.value })}
-              placeholder="e.g., Reduce stress and convert that into productivity......"
-              rows={4}
-              className="w-full px-5 py-4 rounded-xl bg-card/50 border border-border/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none font-semibold text-foreground shadow-md"
-            />
+          <div className="space-y-3">
+            <h2 className="text-xl font-bold text-foreground mb-1">How would you describe your sleep in general?</h2>
+            <p className="text-muted-foreground text-xs mb-4">Select one that fits</p>
+            {sleepGeneralOptions.map((o) => (
+              <SelectOption key={o} label={o} selected={data.sleepGeneral === o} onClick={() => setData({ ...data, sleepGeneral: o })} />
+            ))}
+          </div>
+        );
+      case 6:
+        return (
+          <div className="space-y-3">
+            <h2 className="text-xl font-bold text-foreground mb-1">What type of person are you?</h2>
+            <p className="text-muted-foreground text-xs mb-4">Select one that fits</p>
+            {personTypeOptions.map((o) => (
+              <SelectOption key={o} label={o} selected={data.personType === o} onClick={() => setData({ ...data, personType: o })} />
+            ))}
+          </div>
+        );
+      case 7:
+        return (
+          <div className="space-y-3">
+            <h2 className="text-xl font-bold text-foreground mb-1">Which of these is currently a regular part of your life?</h2>
+            <p className="text-muted-foreground text-xs mb-4">Select one that fits</p>
+            {regularPracticeOptions.map((o) => (
+              <SelectOption key={o} label={o} selected={data.regularPractice === o} onClick={() => setData({ ...data, regularPractice: o })} />
+            ))}
+          </div>
+        );
+      case 8:
+        return (
+          <div className="space-y-3">
+            <h2 className="text-xl font-bold text-foreground mb-1">How do you feel about wellness practices like breath-work, cold exposure, journaling or herbal routines?</h2>
+            <p className="text-muted-foreground text-xs mb-4">Select one that fits</p>
+            {wellnessAttitudeOptions.map((o) => (
+              <SelectOption key={o} label={o} selected={data.wellnessAttitude === o} onClick={() => setData({ ...data, wellnessAttitude: o })} />
+            ))}
           </div>
         );
     }
