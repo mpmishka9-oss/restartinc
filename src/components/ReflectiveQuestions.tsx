@@ -3,13 +3,22 @@ import { ArrowLeft, ArrowRight, Check } from "lucide-react";
 
 export interface ReflectiveData {
   condition: string;
-  sleep: string;
-  feeling: string;
-  intensity: number;
+  // Productivity branch
+  goalsFeeling: string[];
+  energyToday: string;
+  slowingDown: string[];
+  clarityToday: string;
+  workload: string;
+  workingMode: string;
+  successLook: string;
+  focusTime: string;
+  productivitySupport: string;
+  // Wellbeing branch
+  emotionalState: string[];
+  feelFrequency: string;
   bodyLocation: string;
   feelingStart: string;
-  driver: string[];
-  driverOther: string;
+  rootCause: string;
   affect: string;
   feltBefore: string;
   triedAlready: string[];
@@ -20,44 +29,81 @@ interface ReflectiveQuestionsProps {
   onComplete: (data: ReflectiveData) => void;
 }
 
-const totalSteps = 11;
+const PRODUCTIVITY = "I'm highly ambitious and want to boost my productivity to achieve more";
+const WELLBEING = "Life's a bit too much right now (like stress, overwhelmed, anxiety & burnout)";
 
 const ReflectiveQuestions = ({ onComplete }: ReflectiveQuestionsProps) => {
   const [step, setStep] = useState(0);
   const [data, setData] = useState<ReflectiveData>({
     condition: "",
-    sleep: "",
-    feeling: "",
-    intensity: 5,
+    goalsFeeling: [],
+    energyToday: "",
+    slowingDown: [],
+    clarityToday: "",
+    workload: "",
+    workingMode: "",
+    successLook: "",
+    focusTime: "",
+    productivitySupport: "",
+    emotionalState: [],
+    feelFrequency: "",
     bodyLocation: "",
     feelingStart: "",
-    driver: [],
-    driverOther: "",
+    rootCause: "",
     affect: "",
     feltBefore: "",
     triedAlready: [],
     supportType: "",
   });
 
+  // Total steps = 1 (condition) + 10 (branch). Both branches have 10 questions.
+  const totalSteps = 11;
+
+  const isProductivity = data.condition === PRODUCTIVITY;
+  const isWellbeing = data.condition === WELLBEING;
+
   const canProceed = () => {
-    switch (step) {
-      case 0: return data.condition !== "";
-      case 1: return data.sleep !== "";
-      case 2: return data.feeling !== "";
-      case 3: return true; // intensity always has a value
-      case 4: return data.bodyLocation !== "";
-      case 5: return data.feelingStart !== "";
-      case 6: return data.driver.length > 0;
-      case 7: return data.affect !== "";
-      case 8: return data.feltBefore !== "";
-      case 9: return data.triedAlready.length > 0;
-      case 10: return data.supportType !== "";
-      default: return false;
+    if (step === 0) return data.condition !== "";
+
+    if (isProductivity) {
+      switch (step) {
+        case 1: return data.goalsFeeling.length > 0;
+        case 2: return data.energyToday !== "";
+        case 3: return data.slowingDown.length > 0;
+        case 4: return data.clarityToday !== "";
+        case 5: return data.workload !== "";
+        case 6: return data.workingMode !== "";
+        case 7: return data.successLook !== "";
+        case 8: return data.focusTime !== "";
+        case 9: return data.productivitySupport !== "";
+        case 10: return true;
+        default: return false;
+      }
     }
+
+    if (isWellbeing) {
+      switch (step) {
+        case 1: return data.emotionalState.length > 0;
+        case 2: return data.feelFrequency !== "";
+        case 3: return data.bodyLocation !== "";
+        case 4: return data.feelingStart !== "";
+        case 5: return data.rootCause !== "";
+        case 6: return data.affect !== "";
+        case 7: return data.feltBefore !== "";
+        case 8: return data.triedAlready.length > 0;
+        case 9: return data.supportType !== "";
+        case 10: return true;
+        default: return false;
+      }
+    }
+    return false;
   };
 
+  // Effective last meaningful step is 9 (10 questions: index 0..9)
+  const lastStep = 9;
+
   const handleNext = () => {
-    if (step < totalSteps - 1) setStep(step + 1);
+    if (step < lastStep) setStep(step + 1);
     else onComplete(data);
   };
 
@@ -97,199 +143,227 @@ const ReflectiveQuestions = ({ onComplete }: ReflectiveQuestionsProps) => {
     </button>
   );
 
-  const toggleDriverOption = (option: string) => {
-    if (option === "Multiple things at once") {
-      if (data.driver.includes(option)) {
-        setData({ ...data, driver: [], driverOther: "" });
-      } else {
-        setData({ ...data, driver: [option] });
-      }
-      return;
-    }
-    // If "Multiple things at once" is selected, allow adding sub-options
-    if (data.driver.includes("Multiple things at once")) {
-      const subOptions = data.driver.filter(d => d !== "Multiple things at once");
-      if (subOptions.includes(option)) {
-        setData({ ...data, driver: ["Multiple things at once", ...subOptions.filter(d => d !== option)] });
-      } else {
-        setData({ ...data, driver: ["Multiple things at once", ...subOptions, option] });
-      }
-      return;
-    }
-    setData({ ...data, driver: [option] });
-  };
-
-  const toggleTriedOption = (option: string) => {
-    if (data.triedAlready.includes(option)) {
-      setData({ ...data, triedAlready: data.triedAlready.filter(t => t !== option) });
+  const toggleMulti = (key: "goalsFeeling" | "slowingDown" | "emotionalState" | "triedAlready", option: string) => {
+    const arr = data[key];
+    if (arr.includes(option)) {
+      setData({ ...data, [key]: arr.filter((t) => t !== option) });
     } else {
-      setData({ ...data, triedAlready: [...data.triedAlready, option] });
+      setData({ ...data, [key]: [...arr, option] });
     }
   };
 
   const renderStep = () => {
-    switch (step) {
-      case 0:
-        return (
-          <div className="space-y-3">
-            <h2 className="text-xl font-bold text-foreground mb-1">Be honest - what's going on?</h2>
-            <p className="text-muted-foreground text-xs mb-4">Select what resonates with you</p>
-            {["I'm highly ambitious and want to boost my productivity to achieve more", "Life's a bit too much right now (like stress, overwhelmed, anxiety & burnout)"].map((o) => (
-              <SelectOption key={o} label={o} selected={data.condition === o} onClick={() => setData({ ...data, condition: o })} />
-            ))}
-          </div>
-        );
-      case 1:
-        return (
-          <div className="space-y-3">
-            <h2 className="text-xl font-bold text-foreground mb-1">How was your sleep last night?</h2>
-            <p className="text-muted-foreground text-xs mb-4">Be honest — no judgement here</p>
-            {["Slept well, fully rested", "Slept okay, a bit tired", "Slept poorly, quite tired", "Did not sleep / pulled an all-nighter"].map((o) => (
-              <SelectOption key={o} label={o} selected={data.sleep === o} onClick={() => setData({ ...data, sleep: o })} />
-            ))}
-          </div>
-        );
-      case 2:
-        return (
-          <div className="space-y-3">
-            <h2 className="text-xl font-bold text-foreground mb-1">In one word, what best describes how you feel most of the day?</h2>
-            <p className="text-muted-foreground text-xs mb-4">Pick the closest match</p>
-            {["Anxious / worried", "Angry / frustrated", "Sad / low", "Overwhelmed / scattered", "Numb / empty", "Stressed / pressure", "Lost / confused", "I don't know"].map((o) => (
-              <SelectOption key={o} label={o} selected={data.feeling === o} onClick={() => setData({ ...data, feeling: o })} />
-            ))}
-          </div>
-        );
-      case 3:
-        return (
-          <div className="space-y-4">
-            <h2 className="text-xl font-bold text-foreground mb-1">How intense is this feeling?</h2>
-            <p className="text-muted-foreground text-xs mb-6">Tap a number to select</p>
-            <div className="flex justify-between gap-1">
-              {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
-                <button
-                  key={n}
-                  onClick={() => setData({ ...data, intensity: n })}
-                  className={`w-9 h-9 rounded-full text-sm font-semibold transition-all flex items-center justify-center ${
-                    data.intensity === n
-                      ? "bg-muted text-primary-foreground shadow-md scale-110 border-foreground"
-                      : "bg-card/50 border border-border/50 text-foreground hover:bg-card/80"
-                  }`}
-                >
-                  {n}
-                </button>
+    if (step === 0) {
+      return (
+        <div className="space-y-3">
+          <h2 className="text-xl font-bold text-foreground mb-1">Be honest - what's going on?</h2>
+          <p className="text-muted-foreground text-xs mb-4">Select what resonates with you</p>
+          {[PRODUCTIVITY, WELLBEING].map((o) => (
+            <SelectOption
+              key={o}
+              label={o}
+              selected={data.condition === o}
+              onClick={() => setData({ ...data, condition: o })}
+            />
+          ))}
+        </div>
+      );
+    }
+
+    if (isProductivity) {
+      switch (step) {
+        case 1:
+          return (
+            <div className="space-y-3">
+              <h2 className="text-xl font-bold text-foreground mb-1">How do you feel about your goals/work right now?</h2>
+              <p className="text-muted-foreground text-xs mb-4">Select all that apply</p>
+              {["Driven", "Pressured", "Stuck", "Overwhelmed / stressed", "Unfocused", "Indifferent", "Unsure"].map((o) => (
+                <MultiSelectOption key={o} label={o} selected={data.goalsFeeling.includes(o)} onClick={() => toggleMulti("goalsFeeling", o)} />
               ))}
             </div>
-            <div className="flex justify-between text-xs text-muted-foreground mt-1 px-1">
-              <span>Barely noticeable</span>
-              <span>Overwhelming</span>
+          );
+        case 2:
+          return (
+            <div className="space-y-3">
+              <h2 className="text-xl font-bold text-foreground mb-1">How has your energy been today?</h2>
+              <p className="text-muted-foreground text-xs mb-4">Pick the closest match</p>
+              {["High - ready to go", "Decent - can work, but not at my peak", "Low - struggling to get started", "Drained - no motivation"].map((o) => (
+                <SelectOption key={o} label={o} selected={data.energyToday === o} onClick={() => setData({ ...data, energyToday: o })} />
+              ))}
             </div>
-          </div>
-        );
-      case 4:
-        return (
-          <div className="space-y-3">
-            <h2 className="text-xl font-bold text-foreground mb-1">Where in your body do you feel it the most?</h2>
-            <p className="text-muted-foreground text-xs mb-4">Tune into your body</p>
-            {["Stomach / gut", "Head / temples", "Throat / neck", "Whole body", "I don't feel it physically"].map((o) => (
-              <SelectOption key={o} label={o} selected={data.bodyLocation === o} onClick={() => setData({ ...data, bodyLocation: o })} />
-            ))}
-          </div>
-        );
-      case 5:
-        return (
-          <div className="space-y-3">
-            <h2 className="text-xl font-bold text-foreground mb-1">When did this feeling start?</h2>
-            <p className="text-muted-foreground text-xs mb-4">Try to recall</p>
-            {["Just now — something specific triggered it", "A few hours ago", "Since I woke up", "Been there for a few days", "I genuinely don't know"].map((o) => (
-              <SelectOption key={o} label={o} selected={data.feelingStart === o} onClick={() => setData({ ...data, feelingStart: o })} />
-            ))}
-          </div>
-        );
-      case 6: {
-        const isMultiple = data.driver.includes("Multiple things at once");
-        const driverOptions = [
-          "Work / studies / performance pressure",
-          "Relationship / friendship / a person",
-          "Own thoughts about myself",
-          "Health (mine / someone else's)",
-          "Nothing specific",
-          "Multiple things at once",
-        ];
-        return (
-          <div className="space-y-3">
-            <h2 className="text-xl font-bold text-foreground mb-1">What seems to be driving this feeling?</h2>
-            <p className="text-muted-foreground text-xs mb-4">{isMultiple ? "Select all that apply" : "Select one"}</p>
-            {driverOptions.map((o) => (
-              <MultiSelectOption
-                key={o}
-                label={o}
-                selected={data.driver.includes(o)}
-                onClick={() => toggleDriverOption(o)}
-              />
-            ))}
-            {isMultiple && (
-              <input
-                type="text"
-                value={data.driverOther}
-                onChange={(e) => setData({ ...data, driverOther: e.target.value })}
-                placeholder="Others (optional)"
-                className="w-full px-5 py-4 rounded-xl bg-card/50 border border-border/50 text-foreground placeholder:text-muted-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-              />
-            )}
-          </div>
-        );
+          );
+        case 3:
+          return (
+            <div className="space-y-3">
+              <h2 className="text-xl font-bold text-foreground mb-1">What's slowing you down the most right now?</h2>
+              <p className="text-muted-foreground text-xs mb-4">Select all that apply</p>
+              {["Distractions (Phone, people, environment)", "Overthinking / perfectionism", "Low energy / fatigue", "Too many things at once", "Lack of direction", "Procrastination"].map((o) => (
+                <MultiSelectOption key={o} label={o} selected={data.slowingDown.includes(o)} onClick={() => toggleMulti("slowingDown", o)} />
+              ))}
+            </div>
+          );
+        case 4:
+          return (
+            <div className="space-y-3">
+              <h2 className="text-xl font-bold text-foreground mb-1">How clear are you on what you need to do today?</h2>
+              <p className="text-muted-foreground text-xs mb-4">Pick the closest match</p>
+              {["Very clear - I know exactly what to do", "Somewhat clear - but not fully structured", "Vague - I have ideas but no clear plan", "No clarity - I feel lost"].map((o) => (
+                <SelectOption key={o} label={o} selected={data.clarityToday === o} onClick={() => setData({ ...data, clarityToday: o })} />
+              ))}
+            </div>
+          );
+        case 5:
+          return (
+            <div className="space-y-3">
+              <h2 className="text-xl font-bold text-foreground mb-1">What does your workload feel like right now?</h2>
+              <p className="text-muted-foreground text-xs mb-4">Pick the closest match</p>
+              {["Under control", "Slightly heavy but manageable", "Overloaded", "Chaotic - I don't know where to start"].map((o) => (
+                <SelectOption key={o} label={o} selected={data.workload === o} onClick={() => setData({ ...data, workload: o })} />
+              ))}
+            </div>
+          );
+        case 6:
+          return (
+            <div className="space-y-3">
+              <h2 className="text-xl font-bold text-foreground mb-1">How are you currently working?</h2>
+              <p className="text-muted-foreground text-xs mb-4">Pick the closest match</p>
+              {["Deep focus - locked in", "Starting and stopping frequently", "Avoiding / delaying tasks", "Busy, but not making real progress"].map((o) => (
+                <SelectOption key={o} label={o} selected={data.workingMode === o} onClick={() => setData({ ...data, workingMode: o })} />
+              ))}
+            </div>
+          );
+        case 7:
+          return (
+            <div className="space-y-3">
+              <h2 className="text-xl font-bold text-foreground mb-1">What does a successful session look like for you today?</h2>
+              <p className="text-muted-foreground text-xs mb-4">Pick the closest match</p>
+              {["Crushing a key deliverable", "Making meaningful progress on a big goal", "Clearing the noise so I can focus", "Honestly, just getting unstuck"].map((o) => (
+                <SelectOption key={o} label={o} selected={data.successLook === o} onClick={() => setData({ ...data, successLook: o })} />
+              ))}
+            </div>
+          );
+        case 8:
+          return (
+            <div className="space-y-3">
+              <h2 className="text-xl font-bold text-foreground mb-1">How much time can you realistically focus right now?</h2>
+              <p className="text-muted-foreground text-xs mb-4">Pick the closest match</p>
+              {["60+ minutes", "30–60 minutes", "10–30 minutes", "Less than 10 minutes"].map((o) => (
+                <SelectOption key={o} label={o} selected={data.focusTime === o} onClick={() => setData({ ...data, focusTime: o })} />
+              ))}
+            </div>
+          );
+        case 9:
+          return (
+            <div className="space-y-3">
+              <h2 className="text-xl font-bold text-foreground mb-1">What kind of support do you need right now?</h2>
+              <p className="text-muted-foreground text-xs mb-4">Pick the closest match</p>
+              {["Help getting started", "Focus support (stay on track)", "Energy boost / reset", "Quick win - something fast"].map((o) => (
+                <SelectOption key={o} label={o} selected={data.productivitySupport === o} onClick={() => setData({ ...data, productivitySupport: o })} />
+              ))}
+            </div>
+          );
       }
-      case 7:
-        return (
-          <div className="space-y-3">
-            <h2 className="text-xl font-bold text-foreground mb-1">How is this feeling affecting you right now?</h2>
-            <p className="text-muted-foreground text-xs mb-4">What resonates the most?</p>
-            {["Can't focus / concentrate", "Feels like withdrawing / isolating", "I'm going through motions but not present", "I physically feel unwell (headache, stress, fatigue)", "Spiralling in my thoughts"].map((o) => (
-              <SelectOption key={o} label={o} selected={data.affect === o} onClick={() => setData({ ...data, affect: o })} />
-            ))}
-          </div>
-        );
-      case 8:
-        return (
-          <div className="space-y-3">
-            <h2 className="text-xl font-bold text-foreground mb-1">Have you felt this way before?</h2>
-            <p className="text-muted-foreground text-xs mb-4">Think back</p>
-            {["Yes, this is very familiar — it comes back often", "Yes, but usually milder than this", "Rarely — this feels unusual for me", "No, this is new for me"].map((o) => (
-              <SelectOption key={o} label={o} selected={data.feltBefore === o} onClick={() => setData({ ...data, feltBefore: o })} />
-            ))}
-          </div>
-        );
-      case 9:
-        return (
-          <div className="space-y-3">
-            <h2 className="text-xl font-bold text-foreground mb-1">What have you already tried?</h2>
-            <p className="text-muted-foreground text-xs mb-4">Select all that apply</p>
-            {["Nothing yet", "Distraction (scrolling, music, TV)", "Talking to someone about it", "Exercise / movement", "Food / drink", "Breathing / meditation / sleeping"].map((o) => (
-              <MultiSelectOption
-                key={o}
-                label={o}
-                selected={data.triedAlready.includes(o)}
-                onClick={() => toggleTriedOption(o)}
-              />
-            ))}
-          </div>
-        );
-      case 10:
-        return (
-          <div className="space-y-3">
-            <h2 className="text-xl font-bold text-foreground mb-1">What kind of support feels right to you?</h2>
-            <p className="text-muted-foreground text-xs mb-4">We'll tailor your experience</p>
-            {[
-              "Something physical that I can do with my body",
-              "Something I can think through mentally",
-              "A calming practice / ritual",
-              "Something quick — under 5 minutes",
-              "Something I can do tonight before sleeping",
-            ].map((o) => (
-              <SelectOption key={o} label={o} selected={data.supportType === o} onClick={() => setData({ ...data, supportType: o })} />
-            ))}
-          </div>
-        );
+    }
+
+    if (isWellbeing) {
+      switch (step) {
+        case 1:
+          return (
+            <div className="space-y-3">
+              <h2 className="text-xl font-bold text-foreground mb-1">Which of these best describes your emotional state lately?</h2>
+              <p className="text-muted-foreground text-xs mb-4">Select all that apply</p>
+              {["Anxious / worried", "Angry / Frustrated", "Sad / Low", "Overwhelmed / scattered", "Numb / empty", "Stressed / pressure", "Lost / confused", "I don't know"].map((o) => (
+                <MultiSelectOption key={o} label={o} selected={data.emotionalState.includes(o)} onClick={() => toggleMulti("emotionalState", o)} />
+              ))}
+            </div>
+          );
+        case 2:
+          return (
+            <div className="space-y-3">
+              <h2 className="text-xl font-bold text-foreground mb-1">How often do you feel this way?</h2>
+              <p className="text-muted-foreground text-xs mb-4">Pick the closest match</p>
+              {["Almost everyday", "A few times a week", "Occasionally", "This is a recent shift - it's new"].map((o) => (
+                <SelectOption key={o} label={o} selected={data.feelFrequency === o} onClick={() => setData({ ...data, feelFrequency: o })} />
+              ))}
+            </div>
+          );
+        case 3:
+          return (
+            <div className="space-y-3">
+              <h2 className="text-xl font-bold text-foreground mb-1">Where in your body do you feel it the most?</h2>
+              <p className="text-muted-foreground text-xs mb-4">Tune into your body</p>
+              {["Stomach / gut", "Head / temples", "Throat / neck", "Whole body", "I don't feel it physically"].map((o) => (
+                <SelectOption key={o} label={o} selected={data.bodyLocation === o} onClick={() => setData({ ...data, bodyLocation: o })} />
+              ))}
+            </div>
+          );
+        case 4:
+          return (
+            <div className="space-y-3">
+              <h2 className="text-xl font-bold text-foreground mb-1">When did this feeling start?</h2>
+              <p className="text-muted-foreground text-xs mb-4">Try to recall</p>
+              {["Just now - something specific triggered it", "A few hours ago", "Since I woke up", "Been there for a few days", "I genuinely don't know"].map((o) => (
+                <SelectOption key={o} label={o} selected={data.feelingStart === o} onClick={() => setData({ ...data, feelingStart: o })} />
+              ))}
+            </div>
+          );
+        case 5:
+          return (
+            <div className="space-y-3">
+              <h2 className="text-xl font-bold text-foreground mb-1">Do you have a sense of what's been at the root of this for you?</h2>
+              <p className="text-muted-foreground text-xs mb-4">Pick the closest match</p>
+              {["A specific life event or situation", "A slow build-up over time", "It comes in cycles - I don't always know why", "I genuinely have no idea"].map((o) => (
+                <SelectOption key={o} label={o} selected={data.rootCause === o} onClick={() => setData({ ...data, rootCause: o })} />
+              ))}
+            </div>
+          );
+        case 6:
+          return (
+            <div className="space-y-3">
+              <h2 className="text-xl font-bold text-foreground mb-1">How is this feeling affecting you right now?</h2>
+              <p className="text-muted-foreground text-xs mb-4">What resonates the most?</p>
+              {["Can't focus / concentrate", "Feels like withdrawing / isolating", "I'm going through motions but not present", "I physically feel unwell (headache, stress, fatigue)", "Spiralling in my thoughts"].map((o) => (
+                <SelectOption key={o} label={o} selected={data.affect === o} onClick={() => setData({ ...data, affect: o })} />
+              ))}
+            </div>
+          );
+        case 7:
+          return (
+            <div className="space-y-3">
+              <h2 className="text-xl font-bold text-foreground mb-1">Have you felt this way before?</h2>
+              <p className="text-muted-foreground text-xs mb-4">Think back</p>
+              {["Yes, this is very familiar - it comes back often", "Yes, but usually milder than this", "Rarely - this feels unusual for me", "No, this is new for me"].map((o) => (
+                <SelectOption key={o} label={o} selected={data.feltBefore === o} onClick={() => setData({ ...data, feltBefore: o })} />
+              ))}
+            </div>
+          );
+        case 8:
+          return (
+            <div className="space-y-3">
+              <h2 className="text-xl font-bold text-foreground mb-1">What have you already tried?</h2>
+              <p className="text-muted-foreground text-xs mb-4">Select all that apply</p>
+              {["Nothing yet", "Distraction (scrolling, music, TV)", "Talking to someone about it", "Exercise / movement", "Food / drink", "Breathing / meditation / sleeping"].map((o) => (
+                <MultiSelectOption key={o} label={o} selected={data.triedAlready.includes(o)} onClick={() => toggleMulti("triedAlready", o)} />
+              ))}
+            </div>
+          );
+        case 9:
+          return (
+            <div className="space-y-3">
+              <h2 className="text-xl font-bold text-foreground mb-1">What kind of support feels right to you?</h2>
+              <p className="text-muted-foreground text-xs mb-4">We'll tailor your experience</p>
+              {[
+                "Something physical that I can do with my body",
+                "Something I can think through mentally",
+                "A calming practice / ritual",
+                "Something quick - under 5 minutes",
+                "Something I can do tonight before sleeping",
+              ].map((o) => (
+                <SelectOption key={o} label={o} selected={data.supportType === o} onClick={() => setData({ ...data, supportType: o })} />
+              ))}
+            </div>
+          );
+      }
     }
   };
 
@@ -338,8 +412,8 @@ const ReflectiveQuestions = ({ onComplete }: ReflectiveQuestionsProps) => {
             : "bg-muted text-muted-foreground cursor-not-allowed"
         }`}
       >
-        {step === totalSteps - 1 ? "Finish" : "Continue"}
-        {step < totalSteps - 1 && canProceed() && <ArrowRight className="w-4 h-4" />}
+        {step === lastStep ? "Finish" : "Continue"}
+        {step < lastStep && canProceed() && <ArrowRight className="w-4 h-4" />}
       </button>
     </div>
   );

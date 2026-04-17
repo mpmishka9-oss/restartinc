@@ -48,8 +48,8 @@ const Index = () => {
         You're all set. Your personalised journey starts now.
       </p>
       <div className="w-full max-w-sm bg-card/60 backdrop-blur-sm rounded-2xl p-5 border border-border/50">
-        <p className="text-xs text-muted-foreground mb-1">Your goal for the next 7 days:</p>
-        <p className="text-foreground font-medium text-sm">{userData?.goal}</p>
+        <p className="text-xs text-muted-foreground mb-1">Support style you chose:</p>
+        <p className="text-foreground font-medium text-sm">{reflectiveData?.supportType || reflectiveData?.productivitySupport}</p>
       </div>
     </div>
   );
