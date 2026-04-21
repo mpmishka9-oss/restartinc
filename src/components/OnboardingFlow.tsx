@@ -113,16 +113,14 @@ const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
   const SelectOption = ({ label, selected, onClick }: { label: string; selected: boolean; onClick: () => void }) => (
     <button
       onClick={onClick}
-      className={`w-full text-left px-5 py-4 rounded-xl border transition-all text-sm font-medium ${
+      className={`w-full text-center px-4 py-5 rounded-2xl border-2 transition-all text-sm font-medium min-h-[88px] flex items-center justify-center relative ${
         selected
-          ? "bg-primary/40 border-primary text-foreground shadow-sm"
-          : "bg-card/50 border-border/50 text-foreground hover:bg-card/80"
+          ? "bg-primary/40 border-primary text-foreground shadow-md scale-[0.98]"
+          : "bg-card/60 border-border/50 text-foreground hover:bg-card/80 hover:border-border shadow-sm"
       }`}
     >
-      <div className="flex items-center justify-between">
-        <span className="text-primary-foreground font-semibold rounded-none shadow-sm">{label}</span>
-        {selected && <Check className="w-4 h-4 text-foreground" />}
-      </div>
+      <span className="text-primary-foreground font-semibold leading-snug">{label}</span>
+      {selected && <Check className="w-4 h-4 text-foreground absolute top-2 right-2" />}
     </button>
   );
 
@@ -130,22 +128,26 @@ const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
     switch (step) {
       case 0:
         return (
-          <div className="space-y-3">
+          <div>
             <h2 className="text-xl font-bold text-foreground mb-1">What describes you best right now?</h2>
             <p className="text-muted-foreground text-xs mb-4">Select one that fits</p>
-            {roles.map((r) => (
-              <SelectOption key={r} label={r} selected={data.role === r} onClick={() => selectAndAdvance("role", r)} />
-            ))}
+            <div className="grid grid-cols-2 gap-3">
+              {roles.map((r) => (
+                <SelectOption key={r} label={r} selected={data.role === r} onClick={() => selectAndAdvance("role", r)} />
+              ))}
+            </div>
           </div>
         );
       case 1:
         return (
-          <div className="space-y-3">
+          <div>
             <h2 className="text-xl font-bold text-foreground mb-1">What's your age group?</h2>
             <p className="text-muted-foreground text-xs mb-4">This helps us tailor your experience</p>
-            {ages.map((a) => (
-              <SelectOption key={a} label={a} selected={data.age === a} onClick={() => selectAndAdvance("age", a)} />
-            ))}
+            <div className="grid grid-cols-2 gap-3">
+              {ages.map((a) => (
+                <SelectOption key={a} label={a} selected={data.age === a} onClick={() => selectAndAdvance("age", a)} />
+              ))}
+            </div>
           </div>
         );
       case 2:
@@ -164,12 +166,14 @@ const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
         );
       case 3:
         return (
-          <div className="space-y-3">
+          <div>
             <h2 className="text-xl font-bold text-foreground mb-1">What's your gender?</h2>
             <p className="text-muted-foreground text-xs mb-4">Select one that fits</p>
-            {["Male", "Female", "Other"].map((g) => (
-              <SelectOption key={g} label={g} selected={data.gender === g} onClick={() => selectAndAdvance("gender", g)} />
-            ))}
+            <div className="grid grid-cols-2 gap-3">
+              {["Male", "Female", "Other"].map((g) => (
+                <SelectOption key={g} label={g} selected={data.gender === g} onClick={() => selectAndAdvance("gender", g)} />
+              ))}
+            </div>
           </div>
         );
       case 4:
@@ -188,42 +192,50 @@ const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
         );
       case 5:
         return (
-          <div className="space-y-3">
+          <div>
             <h2 className="text-xl font-bold text-foreground mb-1">How would you describe your sleep in general?</h2>
             <p className="text-muted-foreground text-xs mb-4">Select one that fits</p>
-            {sleepGeneralOptions.map((o) => (
-              <SelectOption key={o} label={o} selected={data.sleepGeneral === o} onClick={() => selectAndAdvance("sleepGeneral", o)} />
-            ))}
+            <div className="grid grid-cols-2 gap-3">
+              {sleepGeneralOptions.map((o) => (
+                <SelectOption key={o} label={o} selected={data.sleepGeneral === o} onClick={() => selectAndAdvance("sleepGeneral", o)} />
+              ))}
+            </div>
           </div>
         );
       case 6:
         return (
-          <div className="space-y-3">
+          <div>
             <h2 className="text-xl font-bold text-foreground mb-1">What type of person are you?</h2>
             <p className="text-muted-foreground text-xs mb-4">Select one that fits</p>
-            {personTypeOptions.map((o) => (
-              <SelectOption key={o} label={o} selected={data.personType === o} onClick={() => selectAndAdvance("personType", o)} />
-            ))}
+            <div className="grid grid-cols-2 gap-3">
+              {personTypeOptions.map((o) => (
+                <SelectOption key={o} label={o} selected={data.personType === o} onClick={() => selectAndAdvance("personType", o)} />
+              ))}
+            </div>
           </div>
         );
       case 7:
         return (
-          <div className="space-y-3">
+          <div>
             <h2 className="text-xl font-bold text-foreground mb-1">Which of these is currently a regular part of your life?</h2>
             <p className="text-muted-foreground text-xs mb-4">Select one that fits</p>
-            {regularPracticeOptions.map((o) => (
-              <SelectOption key={o} label={o} selected={data.regularPractice === o} onClick={() => selectAndAdvance("regularPractice", o)} />
-            ))}
+            <div className="grid grid-cols-2 gap-3">
+              {regularPracticeOptions.map((o) => (
+                <SelectOption key={o} label={o} selected={data.regularPractice === o} onClick={() => selectAndAdvance("regularPractice", o)} />
+              ))}
+            </div>
           </div>
         );
       case 8:
         return (
-          <div className="space-y-3">
+          <div>
             <h2 className="text-xl font-bold text-foreground mb-1">How do you feel about wellness practices like breath-work, cold exposure, journaling or herbal routines?</h2>
             <p className="text-muted-foreground text-xs mb-4">Select one that fits</p>
-            {wellnessAttitudeOptions.map((o) => (
-              <SelectOption key={o} label={o} selected={data.wellnessAttitude === o} onClick={() => selectAndAdvance("wellnessAttitude", o)} />
-            ))}
+            <div className="grid grid-cols-2 gap-3">
+              {wellnessAttitudeOptions.map((o) => (
+                <SelectOption key={o} label={o} selected={data.wellnessAttitude === o} onClick={() => selectAndAdvance("wellnessAttitude", o)} />
+              ))}
+            </div>
           </div>
         );
     }
