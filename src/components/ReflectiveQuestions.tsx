@@ -373,7 +373,10 @@ const ReflectiveQuestions = ({ onComplete }: ReflectiveQuestionsProps) => {
                 "Something quick - under 5 minutes",
                 "Something I can do tonight before sleeping",
               ].map((o) => (
-                <SelectOption key={o} label={o} selected={data.supportType === o} onClick={() => setData({ ...data, supportType: o })} />
+                <SelectOption key={o} label={o} selected={data.supportType === o} onClick={() => {
+                  setData({ ...data, supportType: o });
+                  setTimeout(() => onComplete({ ...data, supportType: o }), 150);
+                }} />
               ))}
             </div>
           );
