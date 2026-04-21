@@ -128,22 +128,26 @@ const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
     switch (step) {
       case 0:
         return (
-          <div className="space-y-3">
+          <div>
             <h2 className="text-xl font-bold text-foreground mb-1">What describes you best right now?</h2>
             <p className="text-muted-foreground text-xs mb-4">Select one that fits</p>
-            {roles.map((r) => (
-              <SelectOption key={r} label={r} selected={data.role === r} onClick={() => selectAndAdvance("role", r)} />
-            ))}
+            <div className="grid grid-cols-2 gap-3">
+              {roles.map((r) => (
+                <SelectOption key={r} label={r} selected={data.role === r} onClick={() => selectAndAdvance("role", r)} />
+              ))}
+            </div>
           </div>
         );
       case 1:
         return (
-          <div className="space-y-3">
+          <div>
             <h2 className="text-xl font-bold text-foreground mb-1">What's your age group?</h2>
             <p className="text-muted-foreground text-xs mb-4">This helps us tailor your experience</p>
-            {ages.map((a) => (
-              <SelectOption key={a} label={a} selected={data.age === a} onClick={() => selectAndAdvance("age", a)} />
-            ))}
+            <div className="grid grid-cols-2 gap-3">
+              {ages.map((a) => (
+                <SelectOption key={a} label={a} selected={data.age === a} onClick={() => selectAndAdvance("age", a)} />
+              ))}
+            </div>
           </div>
         );
       case 2:
