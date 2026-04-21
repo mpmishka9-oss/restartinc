@@ -1,4 +1,3 @@
-import { Sparkles } from "lucide-react";
 import { CHRONOTYPE_INFO, type Chronotype } from "@/lib/chronotype";
 
 interface ChronotypeResultProps {
@@ -16,7 +15,7 @@ const ChronotypeResult = ({ chronotype, name }: ChronotypeResultProps) => {
     >
       <div className="w-full max-w-sm flex flex-col items-center">
         <div className="w-16 h-16 rounded-full bg-card/60 backdrop-blur-sm flex items-center justify-center mb-6 border border-border/50">
-          <Sparkles className="w-7 h-7 text-foreground" />
+          <span className="text-3xl" role="img" aria-label="Bear">🐻</span>
         </div>
 
         {name && (
