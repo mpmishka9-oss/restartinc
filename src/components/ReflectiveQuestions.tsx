@@ -111,6 +111,17 @@ const ReflectiveQuestions = ({ onComplete }: ReflectiveQuestionsProps) => {
     if (step > 0) setStep(step - 1);
   };
 
+  const advanceSoon = () => {
+    setTimeout(() => {
+      setStep((s) => (s < lastStep ? s + 1 : s));
+    }, 150);
+  };
+
+  const setSingle = <K extends keyof ReflectiveData>(key: K, value: ReflectiveData[K]) => {
+    setData({ ...data, [key]: value });
+    advanceSoon();
+  };
+
   const SelectOption = ({ label, selected, onClick }: { label: string; selected: boolean; onClick: () => void }) => (
     <button
       onClick={onClick}
