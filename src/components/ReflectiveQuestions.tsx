@@ -199,7 +199,7 @@ const ReflectiveQuestions = ({ onComplete }: ReflectiveQuestionsProps) => {
               <h2 className="text-xl font-bold text-foreground mb-1">How has your energy been today?</h2>
               <p className="text-muted-foreground text-xs mb-4">Pick the closest match</p>
               {["High - ready to go", "Decent - can work, but not at my peak", "Low - struggling to get started", "Drained - no motivation"].map((o) => (
-                <SelectOption key={o} label={o} selected={data.energyToday === o} onClick={() => setData({ ...data, energyToday: o })} />
+                <SelectOption key={o} label={o} selected={data.energyToday === o} onClick={() => setSingle("energyToday", o)} />
               ))}
             </div>
           );
@@ -219,7 +219,7 @@ const ReflectiveQuestions = ({ onComplete }: ReflectiveQuestionsProps) => {
               <h2 className="text-xl font-bold text-foreground mb-1">How clear are you on what you need to do today?</h2>
               <p className="text-muted-foreground text-xs mb-4">Pick the closest match</p>
               {["Very clear - I know exactly what to do", "Somewhat clear - but not fully structured", "Vague - I have ideas but no clear plan", "No clarity - I feel lost"].map((o) => (
-                <SelectOption key={o} label={o} selected={data.clarityToday === o} onClick={() => setData({ ...data, clarityToday: o })} />
+                <SelectOption key={o} label={o} selected={data.clarityToday === o} onClick={() => setSingle("clarityToday", o)} />
               ))}
             </div>
           );
@@ -229,7 +229,7 @@ const ReflectiveQuestions = ({ onComplete }: ReflectiveQuestionsProps) => {
               <h2 className="text-xl font-bold text-foreground mb-1">What does your workload feel like right now?</h2>
               <p className="text-muted-foreground text-xs mb-4">Pick the closest match</p>
               {["Under control", "Slightly heavy but manageable", "Overloaded", "Chaotic - I don't know where to start"].map((o) => (
-                <SelectOption key={o} label={o} selected={data.workload === o} onClick={() => setData({ ...data, workload: o })} />
+                <SelectOption key={o} label={o} selected={data.workload === o} onClick={() => setSingle("workload", o)} />
               ))}
             </div>
           );
@@ -239,7 +239,7 @@ const ReflectiveQuestions = ({ onComplete }: ReflectiveQuestionsProps) => {
               <h2 className="text-xl font-bold text-foreground mb-1">How are you currently working?</h2>
               <p className="text-muted-foreground text-xs mb-4">Pick the closest match</p>
               {["Deep focus - locked in", "Starting and stopping frequently", "Avoiding / delaying tasks", "Busy, but not making real progress"].map((o) => (
-                <SelectOption key={o} label={o} selected={data.workingMode === o} onClick={() => setData({ ...data, workingMode: o })} />
+                <SelectOption key={o} label={o} selected={data.workingMode === o} onClick={() => setSingle("workingMode", o)} />
               ))}
             </div>
           );
@@ -249,7 +249,7 @@ const ReflectiveQuestions = ({ onComplete }: ReflectiveQuestionsProps) => {
               <h2 className="text-xl font-bold text-foreground mb-1">What does a successful session look like for you today?</h2>
               <p className="text-muted-foreground text-xs mb-4">Pick the closest match</p>
               {["Crushing a key deliverable", "Making meaningful progress on a big goal", "Clearing the noise so I can focus", "Honestly, just getting unstuck"].map((o) => (
-                <SelectOption key={o} label={o} selected={data.successLook === o} onClick={() => setData({ ...data, successLook: o })} />
+                <SelectOption key={o} label={o} selected={data.successLook === o} onClick={() => setSingle("successLook", o)} />
               ))}
             </div>
           );
@@ -259,7 +259,7 @@ const ReflectiveQuestions = ({ onComplete }: ReflectiveQuestionsProps) => {
               <h2 className="text-xl font-bold text-foreground mb-1">How much time can you realistically focus right now?</h2>
               <p className="text-muted-foreground text-xs mb-4">Pick the closest match</p>
               {["60+ minutes", "30–60 minutes", "10–30 minutes", "Less than 10 minutes"].map((o) => (
-                <SelectOption key={o} label={o} selected={data.focusTime === o} onClick={() => setData({ ...data, focusTime: o })} />
+                <SelectOption key={o} label={o} selected={data.focusTime === o} onClick={() => setSingle("focusTime", o)} />
               ))}
             </div>
           );
@@ -269,7 +269,10 @@ const ReflectiveQuestions = ({ onComplete }: ReflectiveQuestionsProps) => {
               <h2 className="text-xl font-bold text-foreground mb-1">What kind of support do you need right now?</h2>
               <p className="text-muted-foreground text-xs mb-4">Pick the closest match</p>
               {["Help getting started", "Focus support (stay on track)", "Energy boost / reset", "Quick win - something fast"].map((o) => (
-                <SelectOption key={o} label={o} selected={data.productivitySupport === o} onClick={() => setData({ ...data, productivitySupport: o })} />
+                <SelectOption key={o} label={o} selected={data.productivitySupport === o} onClick={() => {
+                  setData({ ...data, productivitySupport: o });
+                  setTimeout(() => onComplete({ ...data, productivitySupport: o }), 150);
+                }} />
               ))}
             </div>
           );
