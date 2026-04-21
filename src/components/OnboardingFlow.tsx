@@ -168,7 +168,7 @@ const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
             <h2 className="text-xl font-bold text-foreground mb-1">What's your gender?</h2>
             <p className="text-muted-foreground text-xs mb-4">Select one that fits</p>
             {["Male", "Female", "Other"].map((g) => (
-              <SelectOption key={g} label={g} selected={data.gender === g} onClick={() => setData({ ...data, gender: g })} />
+              <SelectOption key={g} label={g} selected={data.gender === g} onClick={() => selectAndAdvance("gender", g)} />
             ))}
           </div>
         );
@@ -192,7 +192,7 @@ const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
             <h2 className="text-xl font-bold text-foreground mb-1">How would you describe your sleep in general?</h2>
             <p className="text-muted-foreground text-xs mb-4">Select one that fits</p>
             {sleepGeneralOptions.map((o) => (
-              <SelectOption key={o} label={o} selected={data.sleepGeneral === o} onClick={() => setData({ ...data, sleepGeneral: o })} />
+              <SelectOption key={o} label={o} selected={data.sleepGeneral === o} onClick={() => selectAndAdvance("sleepGeneral", o)} />
             ))}
           </div>
         );
@@ -202,7 +202,7 @@ const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
             <h2 className="text-xl font-bold text-foreground mb-1">What type of person are you?</h2>
             <p className="text-muted-foreground text-xs mb-4">Select one that fits</p>
             {personTypeOptions.map((o) => (
-              <SelectOption key={o} label={o} selected={data.personType === o} onClick={() => setData({ ...data, personType: o })} />
+              <SelectOption key={o} label={o} selected={data.personType === o} onClick={() => selectAndAdvance("personType", o)} />
             ))}
           </div>
         );
@@ -212,7 +212,7 @@ const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
             <h2 className="text-xl font-bold text-foreground mb-1">Which of these is currently a regular part of your life?</h2>
             <p className="text-muted-foreground text-xs mb-4">Select one that fits</p>
             {regularPracticeOptions.map((o) => (
-              <SelectOption key={o} label={o} selected={data.regularPractice === o} onClick={() => setData({ ...data, regularPractice: o })} />
+              <SelectOption key={o} label={o} selected={data.regularPractice === o} onClick={() => selectAndAdvance("regularPractice", o)} />
             ))}
           </div>
         );
@@ -222,7 +222,7 @@ const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
             <h2 className="text-xl font-bold text-foreground mb-1">How do you feel about wellness practices like breath-work, cold exposure, journaling or herbal routines?</h2>
             <p className="text-muted-foreground text-xs mb-4">Select one that fits</p>
             {wellnessAttitudeOptions.map((o) => (
-              <SelectOption key={o} label={o} selected={data.wellnessAttitude === o} onClick={() => setData({ ...data, wellnessAttitude: o })} />
+              <SelectOption key={o} label={o} selected={data.wellnessAttitude === o} onClick={() => selectAndAdvance("wellnessAttitude", o)} />
             ))}
           </div>
         );
