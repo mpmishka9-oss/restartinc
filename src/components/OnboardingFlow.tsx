@@ -95,6 +95,21 @@ const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
     if (step > 0) setStep(step - 1);
   };
 
+  const advance = () => {
+    if (step < totalSteps - 1) setStep(step + 1);
+    else onComplete(data);
+  };
+
+  const selectAndAdvance = <K extends keyof OnboardingData>(key: K, value: OnboardingData[K]) => {
+    setData({ ...data, [key]: value });
+    setTimeout(() => {
+      setStep((s) => (s < totalSteps - 1 ? s + 1 : s));
+    }, 150);
+    if (step === totalSteps - 1) {
+      setTimeout(() => onComplete({ ...data, [key]: value }), 150);
+    }
+  };
+
   const SelectOption = ({ label, selected, onClick }: { label: string; selected: boolean; onClick: () => void }) => (
     <button
       onClick={onClick}
