@@ -297,7 +297,7 @@ const ReflectiveQuestions = ({ onComplete }: ReflectiveQuestionsProps) => {
               <h2 className="text-xl font-bold text-foreground mb-1">How often do you feel this way?</h2>
               <p className="text-muted-foreground text-xs mb-4">Pick the closest match</p>
               {["Almost everyday", "A few times a week", "Occasionally", "This is a recent shift - it's new"].map((o) => (
-                <SelectOption key={o} label={o} selected={data.feelFrequency === o} onClick={() => setData({ ...data, feelFrequency: o })} />
+                <SelectOption key={o} label={o} selected={data.feelFrequency === o} onClick={() => setSingle("feelFrequency", o)} />
               ))}
             </div>
           );
@@ -307,7 +307,7 @@ const ReflectiveQuestions = ({ onComplete }: ReflectiveQuestionsProps) => {
               <h2 className="text-xl font-bold text-foreground mb-1">Where in your body do you feel it the most?</h2>
               <p className="text-muted-foreground text-xs mb-4">Tune into your body</p>
               {["Stomach / gut", "Head / temples", "Throat / neck", "Whole body", "I don't feel it physically"].map((o) => (
-                <SelectOption key={o} label={o} selected={data.bodyLocation === o} onClick={() => setData({ ...data, bodyLocation: o })} />
+                <SelectOption key={o} label={o} selected={data.bodyLocation === o} onClick={() => setSingle("bodyLocation", o)} />
               ))}
             </div>
           );
@@ -317,7 +317,7 @@ const ReflectiveQuestions = ({ onComplete }: ReflectiveQuestionsProps) => {
               <h2 className="text-xl font-bold text-foreground mb-1">When did this feeling start?</h2>
               <p className="text-muted-foreground text-xs mb-4">Try to recall</p>
               {["Just now - something specific triggered it", "A few hours ago", "Since I woke up", "Been there for a few days", "I genuinely don't know"].map((o) => (
-                <SelectOption key={o} label={o} selected={data.feelingStart === o} onClick={() => setData({ ...data, feelingStart: o })} />
+                <SelectOption key={o} label={o} selected={data.feelingStart === o} onClick={() => setSingle("feelingStart", o)} />
               ))}
             </div>
           );
@@ -327,7 +327,7 @@ const ReflectiveQuestions = ({ onComplete }: ReflectiveQuestionsProps) => {
               <h2 className="text-xl font-bold text-foreground mb-1">Do you have a sense of what's been at the root of this for you?</h2>
               <p className="text-muted-foreground text-xs mb-4">Pick the closest match</p>
               {["A specific life event or situation", "A slow build-up over time", "It comes in cycles - I don't always know why", "I genuinely have no idea"].map((o) => (
-                <SelectOption key={o} label={o} selected={data.rootCause === o} onClick={() => setData({ ...data, rootCause: o })} />
+                <SelectOption key={o} label={o} selected={data.rootCause === o} onClick={() => setSingle("rootCause", o)} />
               ))}
             </div>
           );
@@ -337,7 +337,7 @@ const ReflectiveQuestions = ({ onComplete }: ReflectiveQuestionsProps) => {
               <h2 className="text-xl font-bold text-foreground mb-1">How is this feeling affecting you right now?</h2>
               <p className="text-muted-foreground text-xs mb-4">What resonates the most?</p>
               {["Can't focus / concentrate", "Feels like withdrawing / isolating", "I'm going through motions but not present", "I physically feel unwell (headache, stress, fatigue)", "Spiralling in my thoughts"].map((o) => (
-                <SelectOption key={o} label={o} selected={data.affect === o} onClick={() => setData({ ...data, affect: o })} />
+                <SelectOption key={o} label={o} selected={data.affect === o} onClick={() => setSingle("affect", o)} />
               ))}
             </div>
           );
@@ -347,7 +347,7 @@ const ReflectiveQuestions = ({ onComplete }: ReflectiveQuestionsProps) => {
               <h2 className="text-xl font-bold text-foreground mb-1">Have you felt this way before?</h2>
               <p className="text-muted-foreground text-xs mb-4">Think back</p>
               {["Yes, this is very familiar - it comes back often", "Yes, but usually milder than this", "Rarely - this feels unusual for me", "No, this is new for me"].map((o) => (
-                <SelectOption key={o} label={o} selected={data.feltBefore === o} onClick={() => setData({ ...data, feltBefore: o })} />
+                <SelectOption key={o} label={o} selected={data.feltBefore === o} onClick={() => setSingle("feltBefore", o)} />
               ))}
             </div>
           );
