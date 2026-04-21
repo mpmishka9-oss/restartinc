@@ -235,11 +235,13 @@ const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
       
       {/* Progress */}
       <div className="flex items-center gap-3 mb-8">
-        {step > 0 && (
-          <button onClick={handleBack} className="p-2 rounded-full bg-card/50 text-foreground">
-            <ArrowLeft className="w-4 h-4" />
-          </button>
-        )}
+        <button
+          onClick={handleBack}
+          disabled={step === 0}
+          className="p-2 rounded-full bg-card/50 text-foreground disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          <ArrowLeft className="w-4 h-4" />
+        </button>
         <div className="flex-1 flex gap-1.5">
           {Array.from({ length: totalSteps }).map((_, i) => (
             <div
