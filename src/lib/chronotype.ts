@@ -256,23 +256,27 @@ export function assignChronotype(onboarding: OnboardingData, reflective: Reflect
   return { chronotype: pickWinner(scores), scores };
 }
 
-export const CHRONOTYPE_INFO: Record<Chronotype, { tagline: string; strength: string; challenge: string }> = {
+export const CHRONOTYPE_INFO: Record<Chronotype, { emoji: string; tagline: string; strength: string; challenge: string }> = {
   Lion: {
+    emoji: "🦁",
     tagline: "Early riser with sharp morning focus. A natural leader who thrives on structure.",
     strength: "You convert intention into action faster than most.",
     challenge: "You can over-extend and burn out before you notice.",
   },
   Bear: {
+    emoji: "🐻",
     tagline: "You follow the sun — steady mid-morning energy and a balanced rhythm.",
     strength: "You're consistent, social, and get things done without drama.",
     challenge: "Stress builds quietly — you may notice it only after it's piled up.",
   },
   Owl: {
+    emoji: "🦉",
     tagline: "Your mind comes alive in the evening. Creative and introspective by nature.",
     strength: "You think in original, non-obvious ways most people miss.",
     challenge: "Society's early schedule fights your wiring — mornings can feel heavy.",
   },
   Dolphin: {
+    emoji: "🐬",
     tagline: "Light, sensitive sleeper. A perceptive, perfectionistic mind that rarely switches off.",
     strength: "You notice nuance and care deeply about getting things right.",
     challenge: "Your mind runs hot — wired but tired is a familiar state.",
