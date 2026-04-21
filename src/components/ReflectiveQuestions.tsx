@@ -165,14 +165,16 @@ const ReflectiveQuestions = ({ onComplete }: ReflectiveQuestionsProps) => {
         <div className="space-y-3">
           <h2 className="text-xl font-bold text-foreground mb-1">Be honest - what's going on?</h2>
           <p className="text-muted-foreground text-xs mb-4">Select what resonates with you</p>
-          {[PRODUCTIVITY, WELLBEING].map((o) => (
-            <SelectOption
-              key={o}
-              label={o}
-              selected={data.condition === o}
-              onClick={() => setSingle("condition", o)}
-            />
-          ))}
+          <div className="grid grid-cols-1 gap-3">
+            {[PRODUCTIVITY, WELLBEING].map((o) => (
+              <SelectOption
+                key={o}
+                label={o}
+                selected={data.condition === o}
+                onClick={() => setSingle("condition", o)}
+              />
+            ))}
+          </div>
         </div>
       );
     }
