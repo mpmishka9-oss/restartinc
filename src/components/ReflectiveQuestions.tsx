@@ -125,32 +125,28 @@ const ReflectiveQuestions = ({ onComplete }: ReflectiveQuestionsProps) => {
   const SelectOption = ({ label, selected, onClick }: { label: string; selected: boolean; onClick: () => void }) => (
     <button
       onClick={onClick}
-      className={`w-full text-left px-5 py-4 rounded-xl border transition-all text-sm font-medium ${
+      className={`w-full text-center px-4 py-5 rounded-2xl border-2 transition-all text-sm font-medium min-h-[88px] flex items-center justify-center relative ${
         selected
-          ? "bg-muted border-primary text-foreground shadow-sm"
-          : "bg-card/50 border-border/50 text-foreground hover:bg-card/80"
+          ? "bg-primary/40 border-primary text-foreground shadow-md scale-[0.98]"
+          : "bg-card/60 border-border/50 text-foreground hover:bg-card/80 hover:border-border shadow-sm"
       }`}
     >
-      <div className="flex items-center justify-between">
-        <span className="text-primary-foreground shadow-sm">{label}</span>
-        {selected && <Check className="w-4 h-4 text-foreground" />}
-      </div>
+      <span className="text-primary-foreground font-semibold leading-snug">{label}</span>
+      {selected && <Check className="w-4 h-4 text-foreground absolute top-2 right-2" />}
     </button>
   );
 
   const MultiSelectOption = ({ label, selected, onClick }: { label: string; selected: boolean; onClick: () => void }) => (
     <button
       onClick={onClick}
-      className={`w-full text-left px-5 py-4 rounded-xl border transition-all text-sm font-medium ${
+      className={`w-full text-center px-4 py-5 rounded-2xl border-2 transition-all text-sm font-medium min-h-[88px] flex items-center justify-center relative ${
         selected
-          ? "bg-primary/40 border-primary text-foreground shadow-sm"
-          : "bg-card/50 border-border/50 text-foreground hover:bg-card/80"
+          ? "bg-primary/40 border-primary text-foreground shadow-md scale-[0.98]"
+          : "bg-card/60 border-border/50 text-foreground hover:bg-card/80 hover:border-border shadow-sm"
       }`}
     >
-      <div className="flex items-center justify-between">
-        <span className="text-primary-foreground font-medium">{label}</span>
-        {selected && <Check className="w-4 h-4 text-foreground" />}
-      </div>
+      <span className="text-primary-foreground font-semibold leading-snug">{label}</span>
+      {selected && <Check className="w-4 h-4 text-foreground absolute top-2 right-2" />}
     </button>
   );
 
