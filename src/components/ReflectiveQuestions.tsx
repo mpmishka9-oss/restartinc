@@ -174,7 +174,7 @@ const ReflectiveQuestions = ({ onComplete }: ReflectiveQuestionsProps) => {
               key={o}
               label={o}
               selected={data.condition === o}
-              onClick={() => setData({ ...data, condition: o })}
+              onClick={() => setSingle("condition", o)}
             />
           ))}
         </div>
