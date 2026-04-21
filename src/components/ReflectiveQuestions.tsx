@@ -111,6 +111,17 @@ const ReflectiveQuestions = ({ onComplete }: ReflectiveQuestionsProps) => {
     if (step > 0) setStep(step - 1);
   };
 
+  const advanceSoon = () => {
+    setTimeout(() => {
+      setStep((s) => (s < lastStep ? s + 1 : s));
+    }, 150);
+  };
+
+  const setSingle = <K extends keyof ReflectiveData>(key: K, value: ReflectiveData[K]) => {
+    setData({ ...data, [key]: value });
+    advanceSoon();
+  };
+
   const SelectOption = ({ label, selected, onClick }: { label: string; selected: boolean; onClick: () => void }) => (
     <button
       onClick={onClick}
@@ -163,7 +174,7 @@ const ReflectiveQuestions = ({ onComplete }: ReflectiveQuestionsProps) => {
               key={o}
               label={o}
               selected={data.condition === o}
-              onClick={() => setData({ ...data, condition: o })}
+              onClick={() => setSingle("condition", o)}
             />
           ))}
         </div>
@@ -188,7 +199,7 @@ const ReflectiveQuestions = ({ onComplete }: ReflectiveQuestionsProps) => {
               <h2 className="text-xl font-bold text-foreground mb-1">How has your energy been today?</h2>
               <p className="text-muted-foreground text-xs mb-4">Pick the closest match</p>
               {["High - ready to go", "Decent - can work, but not at my peak", "Low - struggling to get started", "Drained - no motivation"].map((o) => (
-                <SelectOption key={o} label={o} selected={data.energyToday === o} onClick={() => setData({ ...data, energyToday: o })} />
+                <SelectOption key={o} label={o} selected={data.energyToday === o} onClick={() => setSingle("energyToday", o)} />
               ))}
             </div>
           );
@@ -208,7 +219,7 @@ const ReflectiveQuestions = ({ onComplete }: ReflectiveQuestionsProps) => {
               <h2 className="text-xl font-bold text-foreground mb-1">How clear are you on what you need to do today?</h2>
               <p className="text-muted-foreground text-xs mb-4">Pick the closest match</p>
               {["Very clear - I know exactly what to do", "Somewhat clear - but not fully structured", "Vague - I have ideas but no clear plan", "No clarity - I feel lost"].map((o) => (
-                <SelectOption key={o} label={o} selected={data.clarityToday === o} onClick={() => setData({ ...data, clarityToday: o })} />
+                <SelectOption key={o} label={o} selected={data.clarityToday === o} onClick={() => setSingle("clarityToday", o)} />
               ))}
             </div>
           );
@@ -218,7 +229,7 @@ const ReflectiveQuestions = ({ onComplete }: ReflectiveQuestionsProps) => {
               <h2 className="text-xl font-bold text-foreground mb-1">What does your workload feel like right now?</h2>
               <p className="text-muted-foreground text-xs mb-4">Pick the closest match</p>
               {["Under control", "Slightly heavy but manageable", "Overloaded", "Chaotic - I don't know where to start"].map((o) => (
-                <SelectOption key={o} label={o} selected={data.workload === o} onClick={() => setData({ ...data, workload: o })} />
+                <SelectOption key={o} label={o} selected={data.workload === o} onClick={() => setSingle("workload", o)} />
               ))}
             </div>
           );
@@ -228,7 +239,7 @@ const ReflectiveQuestions = ({ onComplete }: ReflectiveQuestionsProps) => {
               <h2 className="text-xl font-bold text-foreground mb-1">How are you currently working?</h2>
               <p className="text-muted-foreground text-xs mb-4">Pick the closest match</p>
               {["Deep focus - locked in", "Starting and stopping frequently", "Avoiding / delaying tasks", "Busy, but not making real progress"].map((o) => (
-                <SelectOption key={o} label={o} selected={data.workingMode === o} onClick={() => setData({ ...data, workingMode: o })} />
+                <SelectOption key={o} label={o} selected={data.workingMode === o} onClick={() => setSingle("workingMode", o)} />
               ))}
             </div>
           );
@@ -238,7 +249,7 @@ const ReflectiveQuestions = ({ onComplete }: ReflectiveQuestionsProps) => {
               <h2 className="text-xl font-bold text-foreground mb-1">What does a successful session look like for you today?</h2>
               <p className="text-muted-foreground text-xs mb-4">Pick the closest match</p>
               {["Crushing a key deliverable", "Making meaningful progress on a big goal", "Clearing the noise so I can focus", "Honestly, just getting unstuck"].map((o) => (
-                <SelectOption key={o} label={o} selected={data.successLook === o} onClick={() => setData({ ...data, successLook: o })} />
+                <SelectOption key={o} label={o} selected={data.successLook === o} onClick={() => setSingle("successLook", o)} />
               ))}
             </div>
           );
@@ -248,7 +259,7 @@ const ReflectiveQuestions = ({ onComplete }: ReflectiveQuestionsProps) => {
               <h2 className="text-xl font-bold text-foreground mb-1">How much time can you realistically focus right now?</h2>
               <p className="text-muted-foreground text-xs mb-4">Pick the closest match</p>
               {["60+ minutes", "30–60 minutes", "10–30 minutes", "Less than 10 minutes"].map((o) => (
-                <SelectOption key={o} label={o} selected={data.focusTime === o} onClick={() => setData({ ...data, focusTime: o })} />
+                <SelectOption key={o} label={o} selected={data.focusTime === o} onClick={() => setSingle("focusTime", o)} />
               ))}
             </div>
           );
@@ -258,7 +269,10 @@ const ReflectiveQuestions = ({ onComplete }: ReflectiveQuestionsProps) => {
               <h2 className="text-xl font-bold text-foreground mb-1">What kind of support do you need right now?</h2>
               <p className="text-muted-foreground text-xs mb-4">Pick the closest match</p>
               {["Help getting started", "Focus support (stay on track)", "Energy boost / reset", "Quick win - something fast"].map((o) => (
-                <SelectOption key={o} label={o} selected={data.productivitySupport === o} onClick={() => setData({ ...data, productivitySupport: o })} />
+                <SelectOption key={o} label={o} selected={data.productivitySupport === o} onClick={() => {
+                  setData({ ...data, productivitySupport: o });
+                  setTimeout(() => onComplete({ ...data, productivitySupport: o }), 150);
+                }} />
               ))}
             </div>
           );
@@ -283,7 +297,7 @@ const ReflectiveQuestions = ({ onComplete }: ReflectiveQuestionsProps) => {
               <h2 className="text-xl font-bold text-foreground mb-1">How often do you feel this way?</h2>
               <p className="text-muted-foreground text-xs mb-4">Pick the closest match</p>
               {["Almost everyday", "A few times a week", "Occasionally", "This is a recent shift - it's new"].map((o) => (
-                <SelectOption key={o} label={o} selected={data.feelFrequency === o} onClick={() => setData({ ...data, feelFrequency: o })} />
+                <SelectOption key={o} label={o} selected={data.feelFrequency === o} onClick={() => setSingle("feelFrequency", o)} />
               ))}
             </div>
           );
@@ -293,7 +307,7 @@ const ReflectiveQuestions = ({ onComplete }: ReflectiveQuestionsProps) => {
               <h2 className="text-xl font-bold text-foreground mb-1">Where in your body do you feel it the most?</h2>
               <p className="text-muted-foreground text-xs mb-4">Tune into your body</p>
               {["Stomach / gut", "Head / temples", "Throat / neck", "Whole body", "I don't feel it physically"].map((o) => (
-                <SelectOption key={o} label={o} selected={data.bodyLocation === o} onClick={() => setData({ ...data, bodyLocation: o })} />
+                <SelectOption key={o} label={o} selected={data.bodyLocation === o} onClick={() => setSingle("bodyLocation", o)} />
               ))}
             </div>
           );
@@ -303,7 +317,7 @@ const ReflectiveQuestions = ({ onComplete }: ReflectiveQuestionsProps) => {
               <h2 className="text-xl font-bold text-foreground mb-1">When did this feeling start?</h2>
               <p className="text-muted-foreground text-xs mb-4">Try to recall</p>
               {["Just now - something specific triggered it", "A few hours ago", "Since I woke up", "Been there for a few days", "I genuinely don't know"].map((o) => (
-                <SelectOption key={o} label={o} selected={data.feelingStart === o} onClick={() => setData({ ...data, feelingStart: o })} />
+                <SelectOption key={o} label={o} selected={data.feelingStart === o} onClick={() => setSingle("feelingStart", o)} />
               ))}
             </div>
           );
@@ -313,7 +327,7 @@ const ReflectiveQuestions = ({ onComplete }: ReflectiveQuestionsProps) => {
               <h2 className="text-xl font-bold text-foreground mb-1">Do you have a sense of what's been at the root of this for you?</h2>
               <p className="text-muted-foreground text-xs mb-4">Pick the closest match</p>
               {["A specific life event or situation", "A slow build-up over time", "It comes in cycles - I don't always know why", "I genuinely have no idea"].map((o) => (
-                <SelectOption key={o} label={o} selected={data.rootCause === o} onClick={() => setData({ ...data, rootCause: o })} />
+                <SelectOption key={o} label={o} selected={data.rootCause === o} onClick={() => setSingle("rootCause", o)} />
               ))}
             </div>
           );
@@ -323,7 +337,7 @@ const ReflectiveQuestions = ({ onComplete }: ReflectiveQuestionsProps) => {
               <h2 className="text-xl font-bold text-foreground mb-1">How is this feeling affecting you right now?</h2>
               <p className="text-muted-foreground text-xs mb-4">What resonates the most?</p>
               {["Can't focus / concentrate", "Feels like withdrawing / isolating", "I'm going through motions but not present", "I physically feel unwell (headache, stress, fatigue)", "Spiralling in my thoughts"].map((o) => (
-                <SelectOption key={o} label={o} selected={data.affect === o} onClick={() => setData({ ...data, affect: o })} />
+                <SelectOption key={o} label={o} selected={data.affect === o} onClick={() => setSingle("affect", o)} />
               ))}
             </div>
           );
@@ -333,7 +347,7 @@ const ReflectiveQuestions = ({ onComplete }: ReflectiveQuestionsProps) => {
               <h2 className="text-xl font-bold text-foreground mb-1">Have you felt this way before?</h2>
               <p className="text-muted-foreground text-xs mb-4">Think back</p>
               {["Yes, this is very familiar - it comes back often", "Yes, but usually milder than this", "Rarely - this feels unusual for me", "No, this is new for me"].map((o) => (
-                <SelectOption key={o} label={o} selected={data.feltBefore === o} onClick={() => setData({ ...data, feltBefore: o })} />
+                <SelectOption key={o} label={o} selected={data.feltBefore === o} onClick={() => setSingle("feltBefore", o)} />
               ))}
             </div>
           );
@@ -359,7 +373,10 @@ const ReflectiveQuestions = ({ onComplete }: ReflectiveQuestionsProps) => {
                 "Something quick - under 5 minutes",
                 "Something I can do tonight before sleeping",
               ].map((o) => (
-                <SelectOption key={o} label={o} selected={data.supportType === o} onClick={() => setData({ ...data, supportType: o })} />
+                <SelectOption key={o} label={o} selected={data.supportType === o} onClick={() => {
+                  setData({ ...data, supportType: o });
+                  setTimeout(() => onComplete({ ...data, supportType: o }), 150);
+                }} />
               ))}
             </div>
           );

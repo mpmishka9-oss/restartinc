@@ -95,6 +95,21 @@ const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
     if (step > 0) setStep(step - 1);
   };
 
+  const advance = () => {
+    if (step < totalSteps - 1) setStep(step + 1);
+    else onComplete(data);
+  };
+
+  const selectAndAdvance = <K extends keyof OnboardingData>(key: K, value: OnboardingData[K]) => {
+    setData({ ...data, [key]: value });
+    setTimeout(() => {
+      setStep((s) => (s < totalSteps - 1 ? s + 1 : s));
+    }, 150);
+    if (step === totalSteps - 1) {
+      setTimeout(() => onComplete({ ...data, [key]: value }), 150);
+    }
+  };
+
   const SelectOption = ({ label, selected, onClick }: { label: string; selected: boolean; onClick: () => void }) => (
     <button
       onClick={onClick}
@@ -119,7 +134,7 @@ const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
             <h2 className="text-xl font-bold text-foreground mb-1">What describes you best right now?</h2>
             <p className="text-muted-foreground text-xs mb-4">Select one that fits</p>
             {roles.map((r) => (
-              <SelectOption key={r} label={r} selected={data.role === r} onClick={() => setData({ ...data, role: r })} />
+              <SelectOption key={r} label={r} selected={data.role === r} onClick={() => selectAndAdvance("role", r)} />
             ))}
           </div>
         );
@@ -129,7 +144,7 @@ const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
             <h2 className="text-xl font-bold text-foreground mb-1">What's your age group?</h2>
             <p className="text-muted-foreground text-xs mb-4">This helps us tailor your experience</p>
             {ages.map((a) => (
-              <SelectOption key={a} label={a} selected={data.age === a} onClick={() => setData({ ...data, age: a })} />
+              <SelectOption key={a} label={a} selected={data.age === a} onClick={() => selectAndAdvance("age", a)} />
             ))}
           </div>
         );
@@ -153,7 +168,7 @@ const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
             <h2 className="text-xl font-bold text-foreground mb-1">What's your gender?</h2>
             <p className="text-muted-foreground text-xs mb-4">Select one that fits</p>
             {["Male", "Female", "Other"].map((g) => (
-              <SelectOption key={g} label={g} selected={data.gender === g} onClick={() => setData({ ...data, gender: g })} />
+              <SelectOption key={g} label={g} selected={data.gender === g} onClick={() => selectAndAdvance("gender", g)} />
             ))}
           </div>
         );
@@ -177,7 +192,7 @@ const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
             <h2 className="text-xl font-bold text-foreground mb-1">How would you describe your sleep in general?</h2>
             <p className="text-muted-foreground text-xs mb-4">Select one that fits</p>
             {sleepGeneralOptions.map((o) => (
-              <SelectOption key={o} label={o} selected={data.sleepGeneral === o} onClick={() => setData({ ...data, sleepGeneral: o })} />
+              <SelectOption key={o} label={o} selected={data.sleepGeneral === o} onClick={() => selectAndAdvance("sleepGeneral", o)} />
             ))}
           </div>
         );
@@ -187,7 +202,7 @@ const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
             <h2 className="text-xl font-bold text-foreground mb-1">What type of person are you?</h2>
             <p className="text-muted-foreground text-xs mb-4">Select one that fits</p>
             {personTypeOptions.map((o) => (
-              <SelectOption key={o} label={o} selected={data.personType === o} onClick={() => setData({ ...data, personType: o })} />
+              <SelectOption key={o} label={o} selected={data.personType === o} onClick={() => selectAndAdvance("personType", o)} />
             ))}
           </div>
         );
@@ -197,7 +212,7 @@ const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
             <h2 className="text-xl font-bold text-foreground mb-1">Which of these is currently a regular part of your life?</h2>
             <p className="text-muted-foreground text-xs mb-4">Select one that fits</p>
             {regularPracticeOptions.map((o) => (
-              <SelectOption key={o} label={o} selected={data.regularPractice === o} onClick={() => setData({ ...data, regularPractice: o })} />
+              <SelectOption key={o} label={o} selected={data.regularPractice === o} onClick={() => selectAndAdvance("regularPractice", o)} />
             ))}
           </div>
         );
@@ -207,7 +222,7 @@ const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
             <h2 className="text-xl font-bold text-foreground mb-1">How do you feel about wellness practices like breath-work, cold exposure, journaling or herbal routines?</h2>
             <p className="text-muted-foreground text-xs mb-4">Select one that fits</p>
             {wellnessAttitudeOptions.map((o) => (
-              <SelectOption key={o} label={o} selected={data.wellnessAttitude === o} onClick={() => setData({ ...data, wellnessAttitude: o })} />
+              <SelectOption key={o} label={o} selected={data.wellnessAttitude === o} onClick={() => selectAndAdvance("wellnessAttitude", o)} />
             ))}
           </div>
         );
@@ -220,11 +235,13 @@ const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
       
       {/* Progress */}
       <div className="flex items-center gap-3 mb-8">
-        {step > 0 && (
-          <button onClick={handleBack} className="p-2 rounded-full bg-card/50 text-foreground">
-            <ArrowLeft className="w-4 h-4" />
-          </button>
-        )}
+        <button
+          onClick={handleBack}
+          disabled={step === 0}
+          className="p-2 rounded-full bg-card/50 text-foreground disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          <ArrowLeft className="w-4 h-4" />
+        </button>
         <div className="flex-1 flex gap-1.5">
           {Array.from({ length: totalSteps }).map((_, i) => (
             <div
