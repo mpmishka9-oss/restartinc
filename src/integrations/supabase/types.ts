@@ -14,10 +14,90 @@ export type Database = {
   }
   public: {
     Tables: {
+      check_ins: {
+        Row: {
+          assigned_level: number | null
+          created_at: string
+          detected_state: Database["public"]["Enums"]["detected_state"] | null
+          dosha: string | null
+          id: string
+          message: string | null
+          severity_score: number | null
+          suggested_practice_types: Json | null
+          user_id: string
+          warm_response: string | null
+        }
+        Insert: {
+          assigned_level?: number | null
+          created_at?: string
+          detected_state?: Database["public"]["Enums"]["detected_state"] | null
+          dosha?: string | null
+          id?: string
+          message?: string | null
+          severity_score?: number | null
+          suggested_practice_types?: Json | null
+          user_id: string
+          warm_response?: string | null
+        }
+        Update: {
+          assigned_level?: number | null
+          created_at?: string
+          detected_state?: Database["public"]["Enums"]["detected_state"] | null
+          dosha?: string | null
+          id?: string
+          message?: string | null
+          severity_score?: number | null
+          suggested_practice_types?: Json | null
+          user_id?: string
+          warm_response?: string | null
+        }
+        Relationships: []
+      }
+      practices: {
+        Row: {
+          created_at: string
+          estimated_minutes: number
+          id: string
+          level_1: string
+          level_2: string
+          level_3: string
+          state: Database["public"]["Enums"]["detected_state"]
+          system: Database["public"]["Enums"]["practice_system"]
+          title: string
+          why_it_works: string
+        }
+        Insert: {
+          created_at?: string
+          estimated_minutes?: number
+          id?: string
+          level_1: string
+          level_2: string
+          level_3: string
+          state: Database["public"]["Enums"]["detected_state"]
+          system: Database["public"]["Enums"]["practice_system"]
+          title: string
+          why_it_works: string
+        }
+        Update: {
+          created_at?: string
+          estimated_minutes?: number
+          id?: string
+          level_1?: string
+          level_2?: string
+          level_3?: string
+          state?: Database["public"]["Enums"]["detected_state"]
+          system?: Database["public"]["Enums"]["practice_system"]
+          title?: string
+          why_it_works?: string
+        }
+        Relationships: []
+      }
       user_responses: {
         Row: {
           age: string | null
           chronotype: Database["public"]["Enums"]["chronotype"] | null
+          chronotype_description: string | null
+          chronotype_headline: string | null
           chronotype_scores: Json | null
           created_at: string
           email: string
@@ -30,12 +110,15 @@ export type Database = {
           regular_practice: string | null
           role: string | null
           sleep_general: string | null
+          streak_days: number
           updated_at: string
           wellness_attitude: string | null
         }
         Insert: {
           age?: string | null
           chronotype?: Database["public"]["Enums"]["chronotype"] | null
+          chronotype_description?: string | null
+          chronotype_headline?: string | null
           chronotype_scores?: Json | null
           created_at?: string
           email: string
@@ -48,12 +131,15 @@ export type Database = {
           regular_practice?: string | null
           role?: string | null
           sleep_general?: string | null
+          streak_days?: number
           updated_at?: string
           wellness_attitude?: string | null
         }
         Update: {
           age?: string | null
           chronotype?: Database["public"]["Enums"]["chronotype"] | null
+          chronotype_description?: string | null
+          chronotype_headline?: string | null
           chronotype_scores?: Json | null
           created_at?: string
           email?: string
@@ -66,6 +152,7 @@ export type Database = {
           regular_practice?: string | null
           role?: string | null
           sleep_general?: string | null
+          streak_days?: number
           updated_at?: string
           wellness_attitude?: string | null
         }
@@ -80,6 +167,8 @@ export type Database = {
     }
     Enums: {
       chronotype: "Lion" | "Bear" | "Owl" | "Dolphin"
+      detected_state: "anxiety" | "stress" | "burnout" | "overwhelm"
+      practice_system: "neuro" | "ayurveda"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -208,6 +297,8 @@ export const Constants = {
   public: {
     Enums: {
       chronotype: ["Lion", "Bear", "Owl", "Dolphin"],
+      detected_state: ["anxiety", "stress", "burnout", "overwhelm"],
+      practice_system: ["neuro", "ayurveda"],
     },
   },
 } as const
