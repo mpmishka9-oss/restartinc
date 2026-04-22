@@ -34,10 +34,10 @@ const PracticeCard = ({ p, level, chronotype }: { p: Practice; level: 1 | 2 | 3;
         </span>
         <span className="text-[10px] text-muted-foreground flex items-center gap-1"><Clock className="w-3 h-3" />{p.estimated_minutes} min</span>
       </div>
-      <h4 className="text-sm font-semibold text-foreground mb-1">{p.title}</h4>
+      <h4 className="text-sm font-semibold mb-1 text-primary-foreground">{p.title}</h4>
       <p className="text-xs italic text-muted-foreground mb-2">Why this works: {p.why_it_works}</p>
-      <p className="text-xs text-foreground/90 leading-relaxed mb-2">{instructions}</p>
-      <p className="text-[10px] text-foreground/70">⏰ {slot.label}{slot.alt ? ` · ${slot.alt}` : ""}</p>
+      <p className="text-xs leading-relaxed mb-2 text-secondary-foreground">{instructions}</p>
+      <p className="text-[10px] text-primary-foreground">⏰ {slot.label}{slot.alt ? ` · ${slot.alt}` : ""}</p>
     </div>
   );
 };
