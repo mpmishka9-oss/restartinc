@@ -81,7 +81,7 @@ const CheckInScreen = ({ userId, daysSinceSignup, streakDays, onComplete }: Prop
           <div className="mt-2 space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="bg-card/70 backdrop-blur-sm rounded-2xl p-5 border border-border/50">
               <p className="text-xs uppercase tracking-wide text-muted-foreground mb-2">Didi</p>
-              <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{warm}</p>
+              <p className="text-sm leading-relaxed whitespace-pre-wrap text-primary-foreground">{warm}</p>
             </div>
             <button
               onClick={() => onComplete({ detected_state: result.detected_state, assigned_level: result.assigned_level })}
