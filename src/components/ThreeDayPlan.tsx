@@ -36,7 +36,7 @@ const PracticeCard = ({ p, level, chronotype }: { p: Practice; level: 1 | 2 | 3;
       </div>
       <h4 className="text-sm font-semibold mb-1 text-primary-foreground">{p.title}</h4>
       <p className="text-xs italic text-muted-foreground mb-2">Why this works: {p.why_it_works}</p>
-      <p className="text-xs leading-relaxed mb-2 text-secondary-foreground">{instructions}</p>
+      <p className="text-xs leading-relaxed mb-2 text-primary-foreground">{instructions}</p>
       <p className="text-[10px] text-primary-foreground">⏰ {slot.label}{slot.alt ? ` · ${slot.alt}` : ""}</p>
     </div>
   );
