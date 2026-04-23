@@ -1,28 +1,28 @@
-import { Heart, Calendar, Sparkles } from "lucide-react";
+import { Home, Sparkles, Calendar, User } from "lucide-react";
+export type AppTab = "home" | "practices" | "plan" | "profile";
 
-export type AppTab = "checkin" | "plan" | "practices";
+const items = [
+  { id: "home" as AppTab, label: "Home", Icon: Home },
+  { id: "practices" as AppTab, label: "Practices", Icon: Sparkles },
+  { id: "plan" as AppTab, label: "Plan", Icon: Calendar },
+  { id: "profile" as AppTab, label: "Profile", Icon: User },
+];
 
-const BottomNav = ({ active, onChange }: { active: AppTab; onChange: (t: AppTab) => void }) => {
-  const items: { id: AppTab; label: string; Icon: typeof Heart }[] = [
-    { id: "checkin", label: "Check-in", Icon: Heart },
-    { id: "plan", label: "Plan", Icon: Calendar },
-    { id: "practices", label: "Practices", Icon: Sparkles },
-  ];
-  return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-card/80 backdrop-blur-md border-t border-border/50 z-50">
-      <div className="max-w-md mx-auto flex justify-around py-2">
-        {items.map(({ id, label, Icon }) => (
+const BottomNav = ({ active, onChange }: { active: AppTab; onChange: (t: AppTab) => void }) => (
+  <nav className="fixed bottom-0 left-0 right-0 glass-strong border-t border-white/30 z-50">
+    <div className="max-w-md mx-auto flex justify-around py-2.5">
+      {items.map(({ id, label, Icon }) => {
+        const a = active === id;
+        return (
           <button key={id} onClick={() => onChange(id)}
-            className={`flex flex-col items-center gap-0.5 px-4 py-2 rounded-xl transition-all ${
-              active === id ? "text-foreground" : "text-muted-foreground"
-            }`}>
-            <Icon className={`w-5 h-5 ${active === id ? "fill-foreground/10" : ""}`} />
-            <span className="text-[10px] font-medium">{label}</span>
+            className="flex flex-col items-center gap-1 px-4 py-1.5 btn-press relative">
+            <Icon className={`w-5 h-5 ${a ? "text-primary" : "text-foreground/35"}`} strokeWidth={1.5} />
+            <span className={`text-[10px] font-light ${a ? "text-primary" : "text-foreground/35"}`}>{label}</span>
+            {a && <span className="absolute -bottom-0.5 w-1 h-1 rounded-full bg-accent" />}
           </button>
-        ))}
-      </div>
-    </nav>
-  );
-};
-
+        );
+      })}
+    </div>
+  </nav>
+);
 export default BottomNav;

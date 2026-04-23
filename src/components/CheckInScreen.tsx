@@ -1,94 +1,106 @@
 import { useState } from "react";
-import { Send, Loader2 } from "lucide-react";
+import { ArrowRight, Send } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { useProfile } from "@/hooks/useProfile";
+import { todayPrompt, levelPoetic } from "@/lib/restartData";
 import { toast } from "sonner";
 
-interface Props {
-  userId: string;
-  daysSinceSignup: number;
-  streakDays: number;
-  onComplete: (result: {
-    detected_state: string;
-    assigned_level: number;
-  }) => void;
-}
+interface Props { onDone: () => void; onSeePractices: () => void; }
 
-const CheckInScreen = ({ userId, daysSinceSignup, streakDays, onComplete }: Props) => {
+const CheckInScreen = ({ onDone, onSeePractices }: Props) => {
+  const { user } = useAuth();
+  const { profile } = useProfile();
   const [message, setMessage] = useState("");
-  const [warm, setWarm] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<any>(null);
+  const [response, setResponse] = useState<any>(null);
 
   const submit = async () => {
-    if (!message.trim()) return;
+    if (!message.trim() || !user) return;
     setLoading(true);
-    setWarm(null);
     try {
       const { data, error } = await supabase.functions.invoke("check-in", {
-        body: { message, days_since_signup: daysSinceSignup, streak_days: streakDays },
+        body: { message, path: profile?.path ?? "emotional", onboarding_answers: profile?.onboarding_answers ?? {} },
       });
       if (error) throw error;
-      setWarm(data.warm_response);
-      setResult(data);
+      if (data?.error) throw new Error(data.error);
+      setResponse(data);
 
-      const { error: insErr } = await supabase.from("check_ins").insert({
-        user_id: userId,
+      await supabase.from("check_ins").insert({
+        user_id: user.id,
         message,
-        warm_response: data.warm_response,
+        didi_response: data.warm,
         detected_state: data.detected_state,
         severity_score: data.severity_score,
         assigned_level: data.assigned_level,
         dosha: data.dosha,
-        suggested_practice_types: data.suggested_practice_types,
+        level_description: data.level_description,
+        practices_shown: data.suggested_practices ?? [],
       });
-      if (insErr) console.error(insErr);
-    } catch (e) {
-      console.error(e);
-      toast.error("Couldn't reach Didi. Try again.");
+    } catch (e: any) {
+      toast.error(e.message ?? "Something felt off — try again?");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex flex-col px-6 py-8 pb-28"
-      style={{ background: "linear-gradient(180deg, hsl(220, 80%, 78%) 0%, hsl(195, 70%, 78%) 100%)" }}>
+    <div className="min-h-screen flex flex-col px-6 py-10 pb-32 bg-deep-gradient">
       <div className="max-w-md w-full mx-auto flex-1 flex flex-col">
-        <h1 className="text-2xl font-bold text-foreground mb-1">How are you, really?</h1>
-        <p className="text-xs text-muted-foreground mb-6">Didi is listening — share what's on your mind.</p>
+        <p className="text-white/70 text-xs tracking-widest uppercase mb-1">reStart</p>
+        <h1 className="font-serif text-white text-[22px]">Hey {profile?.name?.trim() || "friend"}</h1>
+        <p className="font-serif italic text-white text-[18px] mt-4 leading-snug">{todayPrompt()}</p>
 
-        <textarea
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          disabled={!!warm}
-          rows={5}
-          placeholder="I've been feeling..."
-          className="w-full px-5 py-4 rounded-2xl bg-card/60 border border-border/50 text-foreground placeholder:text-muted-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none mb-4"
-        />
-
-        {!warm && (
-          <button
-            onClick={submit}
-            disabled={loading || !message.trim()}
-            className="w-full py-4 rounded-2xl bg-foreground text-primary-foreground font-semibold flex items-center justify-center gap-2 disabled:opacity-50"
-          >
-            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-            {loading ? "Didi is reflecting..." : "Share with Didi"}
-          </button>
+        {!response && (
+          <div className="mt-6 relative">
+            <textarea
+              value={message}
+              onChange={e => setMessage(e.target.value)}
+              rows={6}
+              placeholder="Whatever's on your mind…"
+              className="w-full bg-transparent border-b border-white/30 focus:border-white/70 outline-none py-3 text-white placeholder:text-white/40 text-[15px] leading-loose resize-none"
+            />
+            <button onClick={submit} disabled={loading || !message.trim()}
+              className="absolute right-0 -bottom-2 translate-y-full w-12 h-12 rounded-full bg-accent text-foreground flex items-center justify-center btn-press disabled:opacity-50"
+              style={{ transition: "transform 400ms" }}
+              onMouseDown={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = "rotate(360deg)"; }}>
+              <Send className="w-5 h-5" />
+            </button>
+          </div>
         )}
 
-        {warm && (
-          <div className="mt-2 space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="bg-card/70 backdrop-blur-sm rounded-2xl p-5 border border-border/50">
-              <p className="text-xs uppercase tracking-wide text-muted-foreground mb-2">Didi</p>
-              <p className="text-sm leading-relaxed whitespace-pre-wrap text-primary-foreground">{warm}</p>
+        {loading && (
+          <div className="mt-16 flex flex-col items-center">
+            <div className="dot-loader mb-3"><span/><span/><span/></div>
+            <p className="font-serif italic text-white">Didi is here…</p>
+          </div>
+        )}
+
+        {response && (
+          <div className="mt-10 fade-up">
+            <div className="glass-strong rounded-[20px] p-6">
+              <p className="font-serif italic text-foreground text-[16px] leading-relaxed whitespace-pre-wrap">
+                {response.warm}
+              </p>
+              <div className="mt-5 flex flex-wrap gap-2">
+                {response.detected_state && (
+                  <span className="px-3 py-1 rounded-full bg-accent text-foreground text-[11px]">
+                    Today feels like: <span className="capitalize">{response.detected_state}</span>
+                  </span>
+                )}
+              </div>
+              {response.assigned_level && (
+                <p className="text-[12px] text-primary-deep/80 font-light mt-3 italic">
+                  {response.level_description ?? levelPoetic[response.assigned_level]}
+                </p>
+              )}
             </div>
-            <button
-              onClick={() => onComplete({ detected_state: result.detected_state, assigned_level: result.assigned_level })}
-              className="w-full py-4 rounded-2xl bg-foreground text-primary-foreground font-semibold"
-            >
-              See my 3-day plan
+            <button onClick={onSeePractices}
+              className="mt-6 w-full py-3.5 rounded-[16px] bg-accent text-foreground font-medium btn-press flex items-center justify-center gap-2 fade-up"
+              style={{ animationDelay: "300ms" }}>
+              See today's practices <ArrowRight className="w-4 h-4" />
             </button>
+            <button onClick={onDone} className="mt-3 w-full text-white/80 text-sm">Back home</button>
           </div>
         )}
       </div>

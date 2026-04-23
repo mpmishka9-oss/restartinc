@@ -5,60 +5,63 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const SYSTEM_PROMPT = `You are a wellness guide for the app Restart. Based on the user's onboarding answers, assign them one chronotype: Lion (early riser, peak morning energy), Bear (solar rhythm, steady energy, afternoon dip), Owl (night owl, creative peak in evenings), or Dolphin (light sleeper, anxious tendencies, variable energy). Return ONLY a JSON object with fields: chronotype (one of: Lion/Bear/Owl/Dolphin), headline (8 words max describing their rhythm), and description (2 warm sentences about what this means for their day).`;
+const SYSTEM_PROMPT = `You are a wellness guide for the reStart app.
+Based on the user's onboarding answers, assign them ONE chronotype:
+- Lion (early riser, peak morning energy, strategic)
+- Bear (solar rhythm, steady energy, afternoon dip)
+- Wolf (night owl, creative peak in evenings, slow mornings)
+- Dolphin (light sleeper, anxious tendencies, variable energy, highly sensitive)
+
+Return ONLY a valid JSON object with these exact lowercase fields:
+{
+  "chronotype": "lion" | "bear" | "wolf" | "dolphin",
+  "headline": "max 8 words describing their rhythm",
+  "description": "exactly 2 warm sentences about what this means for their day",
+  "animal_emoji": "🦁" | "🐻" | "🐺" | "🐬"
+}
+No prose, no markdown — JSON only.`;
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
-
   try {
-    const { onboarding_answers } = await req.json();
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
+    const { onboarding_answers, path } = await req.json();
+    const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
+    if (!ANTHROPIC_API_KEY) throw new Error("ANTHROPIC_API_KEY not configured");
 
-    const resp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const userMsg = `Path: ${path}\nAnswers: ${JSON.stringify(onboarding_answers)}`;
+
+    const resp = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
+        "x-api-key": ANTHROPIC_API_KEY,
+        "anthropic-version": "2023-06-01",
+        "content-type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
-        messages: [
-          { role: "system", content: SYSTEM_PROMPT },
-          { role: "user", content: JSON.stringify(onboarding_answers) },
-        ],
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 400,
+        system: SYSTEM_PROMPT,
+        messages: [{ role: "user", content: userMsg }],
       }),
     });
 
     if (!resp.ok) {
       const t = await resp.text();
-      console.error("AI gateway error", resp.status, t);
-      if (resp.status === 429) {
-        return new Response(JSON.stringify({ error: "Rate limited, please try again shortly." }), {
-          status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-      if (resp.status === 402) {
-        return new Response(JSON.stringify({ error: "AI credits exhausted. Add funds in Settings → Workspace." }), {
-          status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
+      console.error("Anthropic error", resp.status, t);
+      const status = resp.status === 429 ? 429 : resp.status === 402 ? 402 : 500;
       return new Response(JSON.stringify({ error: "AI error", detail: t }), {
-        status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
     const data = await resp.json();
-    const text = data.choices?.[0]?.message?.content ?? "";
-    // Extract JSON object
+    const text = data.content?.[0]?.text ?? "";
     const match = text.match(/\{[\s\S]*\}/);
     if (!match) throw new Error("No JSON in AI response");
     const parsed = JSON.parse(match[0]);
 
-    // Normalize chronotype to capitalized
-    const ct = String(parsed.chronotype || "").trim();
-    const normalized = ct.charAt(0).toUpperCase() + ct.slice(1).toLowerCase();
-    const valid = ["Lion", "Bear", "Owl", "Dolphin"].includes(normalized) ? normalized : "Bear";
+    const ct = String(parsed.chronotype || "").toLowerCase().trim();
+    const valid = ["lion","bear","wolf","dolphin"].includes(ct) ? ct : "bear";
 
     return new Response(JSON.stringify({
       chronotype: valid,

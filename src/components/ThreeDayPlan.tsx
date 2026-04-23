@@ -1,110 +1,102 @@
 import { useEffect, useState } from "react";
-import { ChevronDown, Clock, Sparkles } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import type { Chronotype } from "@/lib/chronotype";
-import { CHRONOTYPE_SLOT } from "@/lib/chronotypeSlots";
+import { useAuth } from "@/hooks/useAuth";
+import { useProfile } from "@/hooks/useProfile";
+import type { Tables } from "@/integrations/supabase/types";
+import type { Chronotype } from "@/lib/restartData";
+import PracticeCard from "./PracticeCard";
 import { toast } from "sonner";
 
-interface Practice {
-  id: string;
-  state: string;
-  system: "neuro" | "ayurveda";
-  title: string;
-  why_it_works: string;
-  estimated_minutes: number;
-  level_1: string; level_2: string; level_3: string;
-}
+type CheckIn = Tables<"check_ins">;
+type Practice = Tables<"practices">;
 
-interface Props {
-  chronotype: Chronotype;
-  detectedState: string;
-  onSave: () => void;
-}
-
-const PracticeCard = ({ p, level, chronotype }: { p: Practice; level: 1 | 2 | 3; chronotype: Chronotype }) => {
-  const slot = CHRONOTYPE_SLOT[chronotype];
-  const instructions = level === 1 ? p.level_1 : level === 2 ? p.level_2 : p.level_3;
-  return (
-    <div className="bg-card/70 backdrop-blur-sm rounded-2xl p-4 border border-border/50">
-      <div className="flex items-center justify-between mb-2">
-        <span className={`text-[10px] uppercase tracking-wide font-bold px-2 py-0.5 rounded-full ${
-          p.system === "neuro" ? "bg-accent/30 text-accent-foreground" : "bg-primary/40 text-primary-foreground"
-        }`}>
-          {p.system === "neuro" ? "Neuro" : "Ayurveda"}
-        </span>
-        <span className="text-[10px] text-muted-foreground flex items-center gap-1"><Clock className="w-3 h-3" />{p.estimated_minutes} min</span>
-      </div>
-      <h4 className="text-sm font-semibold mb-1 text-primary-foreground">{p.title}</h4>
-      <p className="text-xs italic text-muted-foreground mb-2">Why this works: {p.why_it_works}</p>
-      <p className="text-xs leading-relaxed mb-2 text-primary-foreground">{instructions}</p>
-      <p className="text-[10px] text-primary-foreground">⏰ {slot.label}{slot.alt ? ` · ${slot.alt}` : ""}</p>
-    </div>
-  );
-};
-
-const DayCard = ({ title, defaultOpen, children }: { title: string; defaultOpen?: boolean; children: React.ReactNode }) => {
+const DayCard = ({ title, label, children, defaultOpen }: { title: string; label: string; children: React.ReactNode; defaultOpen?: boolean }) => {
   const [open, setOpen] = useState(!!defaultOpen);
   return (
-    <div className="bg-card/60 backdrop-blur-sm rounded-2xl border border-border/50 overflow-hidden">
-      <button onClick={() => setOpen(!open)} className="w-full flex items-center justify-between px-5 py-4 text-left">
-        <span className="text-base font-semibold text-foreground">{title}</span>
-        <ChevronDown className={`w-4 h-4 text-foreground transition-transform ${open ? "rotate-180" : ""}`} />
+    <div className="glass rounded-[20px] overflow-hidden">
+      <button onClick={() => setOpen(!open)} className="w-full flex items-center justify-between px-5 py-4 btn-press">
+        <div className="text-left flex items-center gap-3">
+          <span className="font-medium text-foreground">{title}</span>
+          <span className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full bg-accent text-foreground">{label}</span>
+        </div>
+        <ChevronDown className={`w-4 h-4 text-primary transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
-      {open && <div className="px-4 pb-4 space-y-3">{children}</div>}
+      {open && <div className="px-4 pb-4 space-y-3 fade-up">{children}</div>}
     </div>
   );
 };
 
-const ThreeDayPlan = ({ chronotype, detectedState, onSave }: Props) => {
+const ThreeDayPlan = () => {
+  const { user } = useAuth();
+  const { profile } = useProfile();
+  const [latestCi, setLatestCi] = useState<CheckIn | null>(null);
   const [practices, setPractices] = useState<Practice[]>([]);
   const [loading, setLoading] = useState(true);
+  const [saved, setSaved] = useState(false);
 
   useEffect(() => {
+    if (!user) return;
     (async () => {
-      const { data, error } = await supabase.from("practices").select("*").eq("state", detectedState as any);
-      if (error) { console.error(error); toast.error("Couldn't load practices"); }
-      setPractices((data ?? []) as Practice[]);
+      const { data: ci } = await supabase.from("check_ins").select("*")
+        .eq("user_id", user.id).order("created_at", { ascending: false }).limit(1).maybeSingle();
+      setLatestCi(ci);
+      if (ci?.detected_state) {
+        const { data: ps } = await supabase.from("practices").select("*").eq("state", ci.detected_state);
+        setPractices(ps ?? []);
+      }
       setLoading(false);
     })();
-  }, [detectedState]);
+  }, [user]);
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+  if (loading) return <div className="min-h-screen flex items-center justify-center bg-app"><div className="dot-loader"><span/><span/><span/></div></div>;
 
-  // alternate neuro/ayurveda
+  if (!latestCi) {
+    return <div className="min-h-screen flex items-center justify-center bg-app px-6 pb-28">
+      <p className="font-serif italic text-primary text-center">Complete your check-in to see your plan.</p>
+    </div>;
+  }
+
+  const level = (latestCi.assigned_level ?? 1) as 1|2|3;
+  const ct = (profile?.chronotype ?? null) as Chronotype | null;
   const neuro = practices.filter(p => p.system === "neuro");
   const ayur = practices.filter(p => p.system === "ayurveda");
   const day1 = [neuro[0], ayur[0]].filter(Boolean);
-  const day2 = [ayur[0], neuro[0]].filter(Boolean);
+  const day2 = [ayur[1] ?? ayur[0], neuro[1] ?? neuro[0]].filter(Boolean);
   const day3 = [neuro[0], ayur[0]].filter(Boolean);
+  const day3Bonus = (level + 1 > 3 ? 3 : level + 1) as 1|2|3;
+
+  const save = async () => {
+    if (!user || saved) return;
+    await supabase.from("plans").insert({
+      user_id: user.id, check_in_id: latestCi.id,
+      day_1: day1.map(p => p.id), day_2: day2.map(p => p.id), day_3: day3.map(p => p.id),
+    });
+    setSaved(true); toast.success("Plan saved");
+  };
 
   return (
-    <div className="min-h-screen px-6 py-8 pb-28"
-      style={{ background: "linear-gradient(180deg, hsl(220, 80%, 78%) 0%, hsl(195, 70%, 78%) 100%)" }}>
+    <div className="min-h-screen bg-app pb-32 px-6 pt-10">
       <div className="max-w-md mx-auto">
-        <div className="flex items-center gap-2 mb-1">
-          <Sparkles className="w-4 h-4 text-foreground" />
-          <p className="text-xs uppercase tracking-widest text-muted-foreground">Your 3-day plan</p>
-        </div>
-        <h1 className="text-2xl font-bold text-foreground mb-6">A reset, paced for you</h1>
+        <h1 className="font-serif text-[26px] text-foreground">Your 3-Day Plan</h1>
+        <p className="font-serif italic text-[14px] text-primary mt-1">Built for where you are right now</p>
 
-        <div className="space-y-4 mb-8">
-          <DayCard title="Day 1 — Gentle reset" defaultOpen>
-            {day1.map(p => <PracticeCard key={"d1"+p.id} p={p} level={1} chronotype={chronotype} />)}
-          </DayCard>
-          <DayCard title="Day 2 — Building momentum">
-            {day2.map(p => <PracticeCard key={"d2"+p.id} p={p} level={1} chronotype={chronotype} />)}
-          </DayCard>
-          <DayCard title="Day 3 — Going deeper">
-            {day3.slice(0,2).map(p => <PracticeCard key={"d3a"+p.id} p={p} level={1} chronotype={chronotype} />)}
-            {day3[0] && <PracticeCard key={"d3b"+day3[0].id} p={day3[0]} level={2} chronotype={chronotype} />}
-          </DayCard>
+        <div className="mt-6 space-y-4">
+          <div className="fade-up"><DayCard title="Day 1" label="Gentle reset" defaultOpen>
+            {day1.map(p => <PracticeCard key={"d1"+p.id} practice={p} level={level} chronotype={ct} />)}
+          </DayCard></div>
+          <div className="fade-up" style={{ animationDelay: "100ms" }}><DayCard title="Day 2" label="Building momentum">
+            {day2.map(p => <PracticeCard key={"d2"+p.id} practice={p} level={level} chronotype={ct} />)}
+          </DayCard></div>
+          <div className="fade-up" style={{ animationDelay: "200ms" }}><DayCard title="Day 3" label="Going deeper">
+            {day3.map(p => <PracticeCard key={"d3"+p.id} practice={p} level={level} chronotype={ct} />)}
+            {day3[0] && <PracticeCard key={"d3b"+day3[0].id} practice={day3[0]} level={day3Bonus} chronotype={ct} />}
+          </DayCard></div>
         </div>
 
-        <button
-          onClick={onSave}
-          className="w-full py-4 rounded-2xl bg-foreground text-primary-foreground font-semibold shadow-lg"
-        >
-          Save my plan
+        <button onClick={save}
+          className={`mt-8 w-full py-4 rounded-[20px] font-medium btn-press ${saved ? "bg-accent text-foreground" : "bg-primary text-white"}`}>
+          {saved ? "Plan saved ✓" : "Save my plan"}
         </button>
       </div>
     </div>
