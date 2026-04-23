@@ -2,60 +2,144 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Sans:wght@300;400;500&display=swap');
 
 @layer base {
   :root {
-    --background: 213 68% 90%;
-    --foreground: 60 100% 84%;
+    /* reStart palette */
+    --background: 210 100% 97%;          /* #F0F7FF */
+    --foreground: 215 33% 15%;            /* #1A2433 */
 
-    --card: 210 60% 95%;
-    --card-foreground: 220 60% 20%;
+    --primary: 209 64% 73%;               /* #8CBEE8 sky */
+    --primary-foreground: 0 0% 100%;
+    --primary-deep: 207 47% 56%;          /* #6BA8D4 */
 
-    --popover: 210 60% 95%;
-    --popover-foreground: 220 60% 20%;
+    --accent: 60 100% 84%;                /* #FEFFAF butter */
+    --accent-foreground: 215 33% 15%;
 
-    --primary: 50 95% 65%;
-    --primary-foreground: 220 60% 20%;
+    --sage: 138 36% 75%;                  /* #A8D5BA */
+    --warm-mid: 207 49% 82%;              /* #B8D4E8 */
 
-    --secondary: 200 70% 75%;
-    --secondary-foreground: 220 60% 20%;
+    --card: 0 0% 100%;
+    --card-foreground: 215 33% 15%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 215 33% 15%;
+    --secondary: 207 49% 82%;
+    --secondary-foreground: 215 33% 15%;
+    --muted: 210 40% 92%;
+    --muted-foreground: 215 16% 47%;
+    --destructive: 0 60% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 210 40% 88%;
+    --input: 210 40% 88%;
+    --ring: 209 64% 73%;
 
-    --muted: 210 40% 85%;
-    --muted-foreground: 220 20% 45%;
+    --radius: 1.25rem;
 
-    --accent: 210 80% 65%;
-    --accent-foreground: 0 0% 100%;
+    /* Gradients */
+    --gradient-sky: radial-gradient(ellipse at center, hsl(209 64% 73%) 0%, hsl(207 47% 56%) 100%);
+    --gradient-soft: linear-gradient(180deg, hsl(209 64% 73%) 0%, hsl(207 49% 82%) 100%);
+    --gradient-bg: linear-gradient(180deg, hsl(210 100% 97%) 0%, hsl(210 100% 95%) 100%);
+    --gradient-deep: linear-gradient(180deg, hsl(207 47% 56%) 0%, hsl(209 64% 73%) 100%);
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --gradient-lion: linear-gradient(180deg, #F5E6C8 0%, #E8D4A0 100%);
+    --gradient-bear: linear-gradient(180deg, #C8E6D4 0%, #A8D5BA 100%);
+    --gradient-wolf: linear-gradient(180deg, hsl(209 64% 73%) 0%, hsl(207 47% 56%) 100%);
+    --gradient-dolphin: linear-gradient(180deg, #C8D4E8 0%, #A8B8D4 100%);
 
-    --border: 210 40% 80%;
-    --input: 210 40% 85%;
-    --ring: 50 95% 65%;
+    --glass: rgba(255, 255, 255, 0.55);
+    --glass-strong: rgba(255, 255, 255, 0.7);
+    --glow-soft: 0 8px 32px hsl(209 64% 73% / 0.18);
 
-    --radius: 1rem;
-
-    --gradient-bg: linear-gradient(180deg, hsl(220, 80%, 78%) 0%, hsl(195, 70%, 78%) 100%);
-
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 215 33% 15%;
+    --sidebar-primary: 209 64% 73%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 210 40% 96%;
+    --sidebar-accent-foreground: 215 33% 15%;
+    --sidebar-border: 210 40% 90%;
+    --sidebar-ring: 209 64% 73%;
   }
 }
 
 @layer base {
-  * {
-    @apply border-border;
+  * { @apply border-border; }
+  html, body, #root { min-height: 100%; }
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 400;
+  }
+  h1, h2, h3, h4, h5 { font-family: 'Playfair Display', serif; font-weight: 400; }
+}
+
+@layer components {
+  .font-serif { font-family: 'Playfair Display', serif; }
+  .font-sans { font-family: 'DM Sans', sans-serif; }
+
+  .glass {
+    background: rgba(255, 255, 255, 0.55);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 4px 30px hsl(209 64% 73% / 0.12);
+  }
+  .glass-strong {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+  }
+  .glass-dark {
+    background: rgba(255, 255, 255, 0.18);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.25);
   }
 
-  body {
-    @apply bg-background text-foreground font-sans;
-    font-family: 'Poppins', sans-serif;
+  .bg-sky-gradient { background: var(--gradient-sky); }
+  .bg-soft-gradient { background: var(--gradient-soft); }
+  .bg-app { background: var(--gradient-bg); }
+  .bg-deep-gradient { background: var(--gradient-deep); }
+
+  .btn-press { transition: transform 100ms ease; }
+  .btn-press:active { transform: scale(0.97); }
+
+  .float-anim { animation: float 3s ease-in-out infinite; }
+  .breathe { animation: breathe 4s ease-in-out infinite; }
+  .pulse-soft { animation: pulse-soft 2.4s ease-in-out infinite; }
+  .fade-up { animation: fade-up 400ms ease-out both; }
+  .bloom { animation: bloom 500ms cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+  .dot-loader span {
+    display: inline-block; width: 8px; height: 8px; margin: 0 3px;
+    border-radius: 50%; background: hsl(var(--accent));
+    animation: dot-pulse 1.2s ease-in-out infinite;
   }
+  .dot-loader span:nth-child(2) { animation-delay: 0.2s; }
+  .dot-loader span:nth-child(3) { animation-delay: 0.4s; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+@keyframes breathe {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.02); opacity: 0.95; }
+}
+@keyframes pulse-soft {
+  0%, 100% { box-shadow: 0 0 0 0 hsl(var(--accent) / 0.5); }
+  50% { box-shadow: 0 0 0 12px hsl(var(--accent) / 0); }
+}
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes bloom {
+  from { opacity: 0; transform: scale(0.4); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes dot-pulse {
+  0%, 100% { opacity: 0.3; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.1); }
 }
