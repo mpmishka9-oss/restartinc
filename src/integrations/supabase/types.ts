@@ -19,44 +19,85 @@ export type Database = {
           assigned_level: number | null
           created_at: string
           detected_state: Database["public"]["Enums"]["detected_state"] | null
+          didi_response: string | null
           dosha: string | null
           id: string
+          level_description: string | null
           message: string | null
+          practices_shown: Json | null
           severity_score: number | null
-          suggested_practice_types: Json | null
           user_id: string
-          warm_response: string | null
         }
         Insert: {
           assigned_level?: number | null
           created_at?: string
           detected_state?: Database["public"]["Enums"]["detected_state"] | null
+          didi_response?: string | null
           dosha?: string | null
           id?: string
+          level_description?: string | null
           message?: string | null
+          practices_shown?: Json | null
           severity_score?: number | null
-          suggested_practice_types?: Json | null
           user_id: string
-          warm_response?: string | null
         }
         Update: {
           assigned_level?: number | null
           created_at?: string
           detected_state?: Database["public"]["Enums"]["detected_state"] | null
+          didi_response?: string | null
           dosha?: string | null
           id?: string
+          level_description?: string | null
           message?: string | null
+          practices_shown?: Json | null
           severity_score?: number | null
-          suggested_practice_types?: Json | null
           user_id?: string
-          warm_response?: string | null
         }
         Relationships: []
+      }
+      plans: {
+        Row: {
+          check_in_id: string | null
+          created_at: string
+          day_1: Json
+          day_2: Json
+          day_3: Json
+          id: string
+          user_id: string
+        }
+        Insert: {
+          check_in_id?: string | null
+          created_at?: string
+          day_1?: Json
+          day_2?: Json
+          day_3?: Json
+          id?: string
+          user_id: string
+        }
+        Update: {
+          check_in_id?: string | null
+          created_at?: string
+          day_1?: Json
+          day_2?: Json
+          day_3?: Json
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "plans_check_in_id_fkey"
+            columns: ["check_in_id"]
+            isOneToOne: false
+            referencedRelation: "check_ins"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       practices: {
         Row: {
           created_at: string
-          estimated_minutes: number
+          duration_mins: number
           id: string
           level_1: string
           level_2: string
@@ -68,7 +109,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
-          estimated_minutes?: number
+          duration_mins?: number
           id?: string
           level_1: string
           level_2: string
@@ -80,7 +121,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
-          estimated_minutes?: number
+          duration_mins?: number
           id?: string
           level_1?: string
           level_2?: string
@@ -92,69 +133,51 @@ export type Database = {
         }
         Relationships: []
       }
-      user_responses: {
+      profiles: {
         Row: {
-          age: string | null
           chronotype: Database["public"]["Enums"]["chronotype"] | null
           chronotype_description: string | null
           chronotype_headline: string | null
-          chronotype_scores: Json | null
+          completed_practices: number
           created_at: string
-          email: string
-          gender: string | null
+          email: string | null
           id: string
           name: string | null
-          path: string | null
-          person_type: string | null
-          reflective_answers: Json
-          regular_practice: string | null
-          role: string | null
-          sleep_general: string | null
+          onboarding_answers: Json
+          onboarding_completed: boolean
+          path: Database["public"]["Enums"]["user_path"] | null
           streak_days: number
           updated_at: string
-          wellness_attitude: string | null
         }
         Insert: {
-          age?: string | null
           chronotype?: Database["public"]["Enums"]["chronotype"] | null
           chronotype_description?: string | null
           chronotype_headline?: string | null
-          chronotype_scores?: Json | null
+          completed_practices?: number
           created_at?: string
-          email: string
-          gender?: string | null
-          id?: string
+          email?: string | null
+          id: string
           name?: string | null
-          path?: string | null
-          person_type?: string | null
-          reflective_answers?: Json
-          regular_practice?: string | null
-          role?: string | null
-          sleep_general?: string | null
+          onboarding_answers?: Json
+          onboarding_completed?: boolean
+          path?: Database["public"]["Enums"]["user_path"] | null
           streak_days?: number
           updated_at?: string
-          wellness_attitude?: string | null
         }
         Update: {
-          age?: string | null
           chronotype?: Database["public"]["Enums"]["chronotype"] | null
           chronotype_description?: string | null
           chronotype_headline?: string | null
-          chronotype_scores?: Json | null
+          completed_practices?: number
           created_at?: string
-          email?: string
-          gender?: string | null
+          email?: string | null
           id?: string
           name?: string | null
-          path?: string | null
-          person_type?: string | null
-          reflective_answers?: Json
-          regular_practice?: string | null
-          role?: string | null
-          sleep_general?: string | null
+          onboarding_answers?: Json
+          onboarding_completed?: boolean
+          path?: Database["public"]["Enums"]["user_path"] | null
           streak_days?: number
           updated_at?: string
-          wellness_attitude?: string | null
         }
         Relationships: []
       }
@@ -166,9 +189,10 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      chronotype: "Lion" | "Bear" | "Owl" | "Dolphin"
-      detected_state: "anxiety" | "stress" | "burnout" | "overwhelm"
-      practice_system: "neuro" | "ayurveda"
+      chronotype: "lion" | "bear" | "wolf" | "dolphin"
+      detected_state: "anxiety" | "stress" | "burnout" | "overwhelm" | "peak"
+      practice_system: "neuro" | "ayurveda" | "peak"
+      user_path: "ambitious" | "emotional"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -296,9 +320,10 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      chronotype: ["Lion", "Bear", "Owl", "Dolphin"],
-      detected_state: ["anxiety", "stress", "burnout", "overwhelm"],
-      practice_system: ["neuro", "ayurveda"],
+      chronotype: ["lion", "bear", "wolf", "dolphin"],
+      detected_state: ["anxiety", "stress", "burnout", "overwhelm", "peak"],
+      practice_system: ["neuro", "ayurveda", "peak"],
+      user_path: ["ambitious", "emotional"],
     },
   },
 } as const
