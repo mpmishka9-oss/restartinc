@@ -1,162 +1,119 @@
-import { useState } from "react";
-import WelcomeScreen from "@/components/WelcomeScreen";
-import OnboardingFlow, { type OnboardingData } from "@/components/OnboardingFlow";
-import ReflectiveQuestions, { type ReflectiveData } from "@/components/ReflectiveQuestions";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { useProfile } from "@/hooks/useProfile";
+import SplashScreen from "@/components/SplashScreen";
+import AuthScreen from "@/components/AuthScreen";
+import PathSelection from "@/components/PathSelection";
+import Onboarding from "@/components/Onboarding";
+import AssigningChronotype from "@/components/AssigningChronotype";
 import ChronotypeReveal from "@/components/ChronotypeReveal";
+import HomeScreen from "@/components/HomeScreen";
 import CheckInScreen from "@/components/CheckInScreen";
 import ThreeDayPlan from "@/components/ThreeDayPlan";
-import PracticesTab from "@/components/PracticesTab";
+import PracticesLibrary from "@/components/PracticesLibrary";
+import ProfileScreen from "@/components/ProfileScreen";
 import BottomNav, { type AppTab } from "@/components/BottomNav";
-import { assignChronotype, type Chronotype } from "@/lib/chronotype";
-import { supabase } from "@/integrations/supabase/client";
+import type { Path, Chronotype } from "@/lib/restartData";
 import { toast } from "sonner";
 
+type Stage = "splash" | "path" | "onboarding" | "assigning" | "reveal" | "app" | "checkin";
+
 const Index = () => {
-  const [screen, setScreen] = useState<"welcome" | "onboarding" | "reflective" | "reveal" | "app">("welcome");
-  const [userData, setUserData] = useState<OnboardingData | null>(null);
-  const [chronotype, setChronotype] = useState<Chronotype | null>(null);
-  const [headline, setHeadline] = useState("");
-  const [description, setDescription] = useState("");
-  const [userId, setUserId] = useState<string | null>(null);
-  const [createdAt, setCreatedAt] = useState<string | null>(null);
-  const [streakDays, setStreakDays] = useState(0);
-  const [tab, setTab] = useState<AppTab>("checkin");
-  const [latestState, setLatestState] = useState<string | null>(null);
-  const [latestLevel, setLatestLevel] = useState<1 | 2 | 3>(1);
-  const [hasPlan, setHasPlan] = useState(false);
+  const { user, loading: authLoading } = useAuth();
+  const { profile, loading: profileLoading, refresh } = useProfile();
+  const [stage, setStage] = useState<Stage>("splash");
+  const [splashShown, setSplashShown] = useState(false);
+  const [tab, setTab] = useState<AppTab>("home");
+  const [revealData, setRevealData] = useState<{ chronotype: Chronotype; headline: string; description: string } | null>(null);
 
-  const handleReflectiveComplete = async (reflective: ReflectiveData) => {
-    if (!userData) return;
+  // Decide stage when auth/profile resolves
+  useEffect(() => {
+    if (authLoading || profileLoading) return;
+    if (!user) return; // AuthScreen renders below
+    // Returning users skip splash
+    if (profile?.onboarding_completed) {
+      setStage("app");
+      return;
+    }
+    // New user — show splash once, then onboarding
+    if (!splashShown) {
+      setStage("splash");
+    } else if (!profile?.path) {
+      setStage("path");
+    } else if (!profile?.chronotype) {
+      setStage("onboarding");
+    } else {
+      setStage("app");
+    }
+  }, [authLoading, profileLoading, user, profile, splashShown]);
 
-    const { chronotype: localAssigned, scores } = assignChronotype(userData, reflective);
-    const PRODUCTIVITY = "I'm highly ambitious and want to boost my productivity to achieve more";
-    const path = reflective.condition === PRODUCTIVITY ? "ambitious" : "stressed";
+  if (authLoading) return <div className="min-h-screen bg-app flex items-center justify-center"><div className="dot-loader"><span/><span/><span/></div></div>;
+  if (!user) return <AuthScreen />;
+  if (profileLoading) return <div className="min-h-screen bg-app flex items-center justify-center"><div className="dot-loader"><span/><span/><span/></div></div>;
 
-    let assigned: Chronotype = localAssigned;
-    let aiHeadline = "";
-    let aiDescription = "";
-    try {
-      const { data, error } = await supabase.functions.invoke("assign-chronotype", {
-        body: { onboarding_answers: { ...userData, ...reflective } },
-      });
-      if (!error && data?.chronotype) {
-        assigned = data.chronotype as Chronotype;
-        aiHeadline = data.headline ?? "";
-        aiDescription = data.description ?? "";
+  if (stage === "splash") {
+    return <SplashScreen onDone={() => { setSplashShown(true); setStage(profile?.path ? (profile?.chronotype ? "app" : "onboarding") : "path"); }} />;
+  }
+
+  if (stage === "path") {
+    return <PathSelection onSelect={async (p: Path) => {
+      await supabase.from("profiles").update({ path: p }).eq("id", user.id);
+      await refresh();
+      setStage("onboarding");
+    }} />;
+  }
+
+  if (stage === "onboarding") {
+    return <Onboarding path={(profile?.path as Path) ?? "emotional"} onComplete={async (answers, name, email) => {
+      await supabase.from("profiles").update({
+        onboarding_answers: answers,
+        name: name || null,
+        email: email || profile?.email || null,
+      }).eq("id", user.id);
+      setStage("assigning");
+      try {
+        const { data, error } = await supabase.functions.invoke("assign-chronotype", {
+          body: { onboarding_answers: answers, path: profile?.path },
+        });
+        if (error) throw error;
+        if (data?.error) throw new Error(data.error);
+        await supabase.from("profiles").update({
+          chronotype: data.chronotype,
+          chronotype_headline: data.headline,
+          chronotype_description: data.description,
+          onboarding_completed: true,
+        }).eq("id", user.id);
+        await refresh();
+        setRevealData({ chronotype: data.chronotype, headline: data.headline, description: data.description });
+        setStage("reveal");
+      } catch (e: any) {
+        toast.error(e.message ?? "Couldn't read your rhythm — try again?");
+        setStage("onboarding");
       }
-    } catch (e) {
-      console.error("chronotype AI failed, using local", e);
-    }
-
-    setChronotype(assigned);
-    setHeadline(aiHeadline);
-    setDescription(aiDescription);
-    setScreen("reveal");
-
-    const { data: upserted, error } = await supabase
-      .from("user_responses")
-      .upsert(
-        [{
-          email: userData.email,
-          name: userData.name,
-          role: userData.role,
-          age: userData.age,
-          gender: userData.gender,
-          sleep_general: userData.sleepGeneral,
-          person_type: userData.personType,
-          regular_practice: userData.regularPractice,
-          wellness_attitude: userData.wellnessAttitude,
-          path,
-          reflective_answers: reflective as never,
-          chronotype: assigned,
-          chronotype_scores: scores,
-          chronotype_headline: aiHeadline,
-          chronotype_description: aiDescription,
-        }],
-        { onConflict: "email" }
-      )
-      .select("id, created_at, streak_days")
-      .single();
-
-    if (error) {
-      console.error("Failed to save responses:", error);
-      toast.error("We couldn't save your responses, but your result is ready.");
-    } else if (upserted) {
-      setUserId(upserted.id);
-      setCreatedAt(upserted.created_at);
-      setStreakDays(upserted.streak_days ?? 0);
-    }
-  };
-
-  if (screen === "welcome") return <WelcomeScreen onNext={() => setScreen("onboarding")} />;
-
-  if (screen === "onboarding") {
-    return <OnboardingFlow onComplete={(data) => { setUserData(data); setScreen("reflective"); }} />;
+    }} />;
   }
 
-  if (screen === "reflective") {
-    return <ReflectiveQuestions onComplete={handleReflectiveComplete} />;
+  if (stage === "assigning") return <AssigningChronotype />;
+
+  if (stage === "reveal" && revealData) {
+    return <ChronotypeReveal {...revealData} onContinue={() => setStage("app")} />;
   }
 
-  if (screen === "reveal" && chronotype) {
-    return (
-      <ChronotypeReveal
-        chronotype={chronotype}
-        headline={headline}
-        description={description}
-        onContinue={() => setScreen("app")}
-      />
-    );
+  if (stage === "checkin") {
+    return <CheckInScreen onDone={() => setStage("app")} onSeePractices={() => { setStage("app"); setTab("plan"); }} />;
   }
 
-  if (screen === "app" && chronotype) {
-    const daysSinceSignup = createdAt
-      ? Math.max(0, Math.floor((Date.now() - new Date(createdAt).getTime()) / 86_400_000))
-      : 0;
-    return (
-      <div className="relative">
-        {tab === "checkin" && userId && (
-          <CheckInScreen
-            userId={userId}
-            daysSinceSignup={daysSinceSignup}
-            streakDays={streakDays}
-            onComplete={({ detected_state, assigned_level }) => {
-              setLatestState(detected_state);
-              setLatestLevel(Math.min(3, Math.max(1, assigned_level)) as 1 | 2 | 3);
-              setHasPlan(true);
-              setTab("plan");
-            }}
-          />
-        )}
-        {tab === "checkin" && !userId && (
-          <div className="min-h-screen flex items-center justify-center px-6 pb-28"
-            style={{ background: "linear-gradient(180deg, hsl(220, 80%, 78%) 0%, hsl(195, 70%, 78%) 100%)" }}>
-            <p className="text-sm text-foreground text-center">Saving your profile...</p>
-          </div>
-        )}
-        {tab === "plan" && (
-          hasPlan && latestState ? (
-            <ThreeDayPlan
-              chronotype={chronotype}
-              detectedState={latestState}
-              onSave={() => { toast.success("Plan saved"); setTab("practices"); }}
-            />
-          ) : (
-            <div className="min-h-screen flex items-center justify-center px-6 pb-28"
-              style={{ background: "linear-gradient(180deg, hsl(220, 80%, 78%) 0%, hsl(195, 70%, 78%) 100%)" }}>
-              <p className="text-sm text-foreground text-center">Do a check-in first to generate your 3-day plan.</p>
-            </div>
-          )
-        )}
-        {tab === "practices" && (
-          <PracticesTab detectedState={latestState} assignedLevel={latestLevel} />
-        )}
-        <BottomNav active={tab} onChange={setTab} />
-      </div>
-    );
-  }
-
-  return null;
+  // App with bottom nav
+  return (
+    <>
+      {tab === "home" && <HomeScreen onOpenCheckIn={() => setStage("checkin")} onSeePlan={() => setTab("plan")} />}
+      {tab === "practices" && <PracticesLibrary />}
+      {tab === "plan" && <ThreeDayPlan />}
+      {tab === "profile" && <ProfileScreen />}
+      <BottomNav active={tab} onChange={setTab} />
+    </>
+  );
 };
 
 export default Index;
