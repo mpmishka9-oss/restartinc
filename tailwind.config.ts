@@ -8,8 +8,8 @@ export default {
     container: { center: true, padding: "1.25rem", screens: { "2xl": "1400px" } },
     extend: {
       fontFamily: {
-        serif: ['"Playfair Display"', 'serif'],
         sans: ['"DM Sans"', 'sans-serif'],
+        serif: ['"Playfair Display"', 'serif'],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -17,6 +17,14 @@ export default {
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
+        rs: {
+          bg: "hsl(var(--rs-bg))",
+          "bg-dark": "hsl(var(--rs-bg-dark))",
+          cream: "hsl(var(--rs-cream))",
+          "cream-dark": "hsl(var(--rs-cream-dark))",
+          navy: "hsl(var(--rs-navy))",
+          green: "hsl(var(--rs-green))",
+        },
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",

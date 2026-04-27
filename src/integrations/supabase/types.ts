@@ -135,49 +135,64 @@ export type Database = {
       }
       profiles: {
         Row: {
+          age: string | null
           chronotype: Database["public"]["Enums"]["chronotype"] | null
           chronotype_description: string | null
           chronotype_headline: string | null
           completed_practices: number
           created_at: string
+          current_day: number
           email: string | null
+          goal: string | null
           id: string
+          journey_started_at: string | null
           name: string | null
           onboarding_answers: Json
           onboarding_completed: boolean
           path: Database["public"]["Enums"]["user_path"] | null
           streak_days: number
           updated_at: string
+          whatsapp_phone: string | null
         }
         Insert: {
+          age?: string | null
           chronotype?: Database["public"]["Enums"]["chronotype"] | null
           chronotype_description?: string | null
           chronotype_headline?: string | null
           completed_practices?: number
           created_at?: string
+          current_day?: number
           email?: string | null
+          goal?: string | null
           id: string
+          journey_started_at?: string | null
           name?: string | null
           onboarding_answers?: Json
           onboarding_completed?: boolean
           path?: Database["public"]["Enums"]["user_path"] | null
           streak_days?: number
           updated_at?: string
+          whatsapp_phone?: string | null
         }
         Update: {
+          age?: string | null
           chronotype?: Database["public"]["Enums"]["chronotype"] | null
           chronotype_description?: string | null
           chronotype_headline?: string | null
           completed_practices?: number
           created_at?: string
+          current_day?: number
           email?: string | null
+          goal?: string | null
           id?: string
+          journey_started_at?: string | null
           name?: string | null
           onboarding_answers?: Json
           onboarding_completed?: boolean
           path?: Database["public"]["Enums"]["user_path"] | null
           streak_days?: number
           updated_at?: string
+          whatsapp_phone?: string | null
         }
         Relationships: []
       }

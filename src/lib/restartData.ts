@@ -1,181 +1,164 @@
-// Static reStart content: questions, prompts, chronotype data, etc.
+// reStart static content: questions, chronotype data, daily phrases.
+// "stressed" path uses DB enum value "emotional"; UI label is "stressed".
+// "Owl" UI label maps to DB enum value "wolf".
 
 export type Path = "ambitious" | "emotional";
 export type Chronotype = "lion" | "bear" | "wolf" | "dolphin";
 
 export const CHRONOTYPE_EMOJI: Record<Chronotype, string> = {
-  lion: "🦁", bear: "🐻", wolf: "🐺", dolphin: "🐬",
+  lion: "🦁", bear: "🐻", wolf: "🦉", dolphin: "🐬",
 };
 
 export const CHRONOTYPE_LABEL: Record<Chronotype, string> = {
-  lion: "Lion", bear: "Bear", wolf: "Wolf", dolphin: "Dolphin",
+  lion: "Lion", bear: "Bear", wolf: "Owl", dolphin: "Dolphin",
 };
 
-export const CHRONOTYPE_GRADIENT: Record<Chronotype, string> = {
-  lion: "linear-gradient(180deg, #F5E6C8 0%, #E8D4A0 100%)",
-  bear: "linear-gradient(180deg, #C8E6D4 0%, #A8D5BA 100%)",
-  wolf: "linear-gradient(180deg, hsl(209 64% 73%) 0%, hsl(207 47% 56%) 100%)",
-  dolphin: "linear-gradient(180deg, #C8D4E8 0%, #A8B8D4 100%)",
+export const CHRONOTYPE_TAGLINE: Record<Chronotype, string> = {
+  lion: "Early riser. Driven, structured, goal-oriented.",
+  bear: "Follows the sun. Balanced, social, steady.",
+  wolf: "Night owl. Creative, introspective. Your best thinking happens late.",
+  dolphin: "Light sleeper. Wired but tired. Highly intelligent and deeply perceptive.",
 };
 
-export const CHRONOTYPE_TIMING: Record<Chronotype, { label: string; alt?: string }> = {
-  lion: { label: "Best 6–9am for your Lion rhythm" },
-  bear: { label: "Best 8–11am for your Bear rhythm" },
-  wolf: { label: "Best 6–9pm for your Wolf rhythm" },
-  dolphin: { label: "Best 9–11am", alt: "Or wind-down 8–10pm" },
+export const CHRONOTYPE_STRENGTH: Record<Chronotype, string> = {
+  lion: "Peak focus in the morning — you get more done before noon than most do all day.",
+  bear: "Consistent output across long stretches — you work well with the natural rhythm of the day.",
+  wolf: "Deep creative and analytical work — you access ideas others can't reach at 9am.",
+  dolphin: "You notice things others miss. Your sensitivity is a superpower when channelled right.",
 };
 
-export const DAILY_PHRASES = [
-  "Begin again. Always, begin again.",                    // Sun (0)
-  "What you tend to daily, tends to you.",                 // Mon (1)
-  "Stillness is not emptiness — it is arrival.",            // Tue (2)
-  "The body knows before the mind admits.",                 // Wed (3)
-  "Rest is not the absence of work. It is its foundation.", // Thu (4)
-  "Small acts of care compound into transformation.",       // Fri (5)
-  "You do not need to earn your rest.",                     // Sat (6)
+export const CHRONOTYPE_CHALLENGE: Record<Chronotype, string> = {
+  lion: "You can burn out from overworking. Rest is not laziness — it's strategy.",
+  bear: "Stress builds up quietly under the surface. You absorb more than you release.",
+  wolf: "Daytime structure fights your natural rhythm. Starting tasks early can feel impossible.",
+  dolphin: "Overthinking and perfectionism are your biggest blockers. Done is better than perfect.",
+};
+
+export const CHRONOTYPE_HERO_BG: Record<Chronotype, string> = {
+  lion: "#FEF3C7", bear: "#DCFCE7", wolf: "#EDE9FE", dolphin: "#E0F2FE",
+};
+export const CHRONOTYPE_HERO_TEXT: Record<Chronotype, string> = {
+  lion: "#78350F", bear: "#14532D", wolf: "#3B0764", dolphin: "#0C4A6E",
+};
+
+// 7 daily phrases, indexed by day number 1..7+ (mod 7)
+export const JOURNEY_DAILY_PHRASES = [
+  "Your reset starts today. One breath at a time.",
+  "Yesterday you showed up. That's already something.",
+  "Small actions compound. You're building something real.",
+  "Halfway there. What you're doing is working.",
+  "This is where most people stop. You're still here.",
+  "One more day of showing up rewires your brain. Literally.",
+  "Seven days. A new pattern has begun.",
 ];
-
-export const DAILY_PROMPTS = [
-  "What would feel like enough today?",                    // Sun
-  "How are you arriving today?",                            // Mon
-  "What's sitting heaviest on you right now?",              // Tue
-  "Where in your body do you feel today?",                  // Wed
-  "What does your mind keep returning to?",                 // Thu
-  "What do you need most in this moment?",                  // Fri
-  "What are you carrying that isn't yours?",                // Sat
-];
-
-export const todayPhrase = () => DAILY_PHRASES[new Date().getDay()];
-export const todayPrompt = () => DAILY_PROMPTS[new Date().getDay()];
 
 export const greetingFor = (name: string | null | undefined) => {
   const h = new Date().getHours();
   const n = name?.trim() || "friend";
-  if (h < 12) return `Good morning, ${n}`;
-  if (h < 17) return `Good afternoon, ${n}`;
-  return `Good evening, ${n}`;
+  if (h < 12) return `Good morning, ${n}.`;
+  if (h < 17) return `Good afternoon, ${n}.`;
+  if (h < 21) return `Good evening, ${n}.`;
+  return `Hello, ${n}.`;
 };
 
-export const levelPoetic: Record<number, string> = {
-  1: "Gentle practices await you",
-  2: "Deeper tools for where you are",
-  3: "Potent practices, you're ready",
-};
+export const getDayPhrase = (day: number) =>
+  JOURNEY_DAILY_PHRASES[Math.max(0, Math.min(6, (day - 1) % 7))];
 
-// ---- Questions ----
+// ---------- ONBOARDING QUESTIONS ----------
 export type Question =
   | { id: string; type: "single"; q: string; sub?: string; options: string[] }
-  | { id: string; type: "multi"; q: string; sub?: string; options: string[] }
-  | { id: string; type: "text"; q: string; sub?: string; placeholder?: string; inputType?: "text" | "email" };
+  | { id: string; type: "text"; q: string; sub?: string; placeholder?: string; inputType?: "text" | "email" }
+  | { id: string; type: "textarea"; q: string; sub?: string; placeholder?: string; minLength?: number };
 
+// Q1–Q9 universal (everyone sees these)
 export const UNIVERSAL_QUESTIONS: Question[] = [
-  { id: "role", type: "single", q: "What best describes you right now?", options: [
-    "Student", "Working professional", "Freelancer or self-employed",
-    "Between jobs or taking a break", "Homemaker or caregiver"
+  { id: "name", type: "text", q: "What do you want to call yourself?", placeholder: "E.g. Mishka, or just 'Hey you'" },
+  { id: "age", type: "single", q: "How old are you?", options: ["Under 18", "18–24", "25–35", "36–45", "45+"] },
+  { id: "email", type: "text", q: "What's your email?", sub: "Only used to save your progress. Never shared.", placeholder: "you@email.com", inputType: "email" },
+  { id: "sleep", type: "single", q: "How has your sleep been lately?", options: [
+    "Sleep well most nights (7–8 hrs)",
+    "Varies a lot, unpredictable",
+    "Consistently less sleep than I need",
+    "Struggle to fall or stay asleep",
+    "Crash hard, wake up exhausted",
   ]},
-  { id: "age", type: "single", q: "Your age group?", options: ["Under 18", "19–25", "26–35", "36–45", "Above 45"] },
-  { id: "email", type: "text", q: "What's your email?", placeholder: "you@email.com", inputType: "email" },
-  { id: "gender", type: "single", q: "Your gender?", options: ["Male", "Female", "Other", "Prefer not to say"] },
-  { id: "name", type: "text", q: "What would you like to be called?", sub: "Didi will use this name", placeholder: "Your name" },
-  { id: "sleep", type: "single", q: "How would you describe your sleep?", options: [
-    "I sleep well most nights (7-8 hrs)",
-    "It varies — some nights good, some bad",
-    "I consistently sleep less than I should",
-    "I struggle to fall or stay asleep",
-    "I crash hard but never feel rested",
+  { id: "role", type: "single", q: "What describes you best right now?", options: [
+    "Student", "Working professional", "Freelancer or self-employed", "Between jobs", "Homemaker or caregiver",
   ]},
-  { id: "person_type", type: "single", q: "What kind of person are you?", options: [
-    "A morning person", "A night owl", "Somewhere in between"
+  { id: "deep_work_time", type: "single", q: "What time of day feels most natural to you for deep work?", options: [
+    "Early morning (5–9am)", "Morning (9am–12pm)", "Afternoon (12–5pm)", "Evening (5–10pm)", "Late night (10pm+)",
   ]},
-  { id: "habits", type: "multi", q: "What's already part of your life?", options: [
-    "Exercise or movement", "Meditation or breathwork",
-    "A consistent morning or evening routine", "None of these yet",
+  { id: "lifestyle", type: "single", q: "How would you describe your lifestyle right now?", options: [
+    "Very structured and routine", "Somewhat structured", "Flexible and varied", "Chaotic", "I'm figuring it out",
   ]},
-  { id: "wellness_attitude", type: "single", q: "How do you feel about practices like breathwork, journaling or herbal routines?", options: [
-    "Open to trying anything", "Prefer science-backed approaches",
-    "Drawn to holistic or ancient wisdom", "Sceptical but curious",
+  { id: "goal", type: "textarea", q: "Write down one goal you want to achieve in the next 7 days.", sub: "Be honest. No one else sees this.", placeholder: "I want to...", minLength: 5 },
+  { id: "openness", type: "single", q: "How open are you to trying new practices — like breathwork or herbal rituals?", options: [
+    "Very open — bring it on", "Somewhat open", "Curious but sceptical", "Not really my thing",
   ]},
 ];
 
+// Q10–Q18 ambitious
 export const AMBITIOUS_QUESTIONS: Question[] = [
-  { id: "goals", type: "single", q: "How do you feel about your goals right now?", options: [
-    "Driven", "Pressured", "Stuck", "Overwhelmed", "Unfocused", "Indifferent", "Unsure"
+  { id: "amb_challenge", type: "single", q: "What's your biggest challenge with productivity right now?", options: [
+    "Distracted / struggling to focus", "Overworking — can't switch off",
+    "Procrastinating more than I'd like", "Starting strong then losing steam",
   ]},
-  { id: "energy_today", type: "single", q: "How has your energy been today?", options: [
-    "High — ready to go", "Decent — can work but not at my peak",
-    "Low — struggling to get started", "Drained — no motivation",
+  { id: "energy_today", type: "single", q: "How's your energy today?", options: [
+    "High — ready to go", "Decent — not at my peak", "Low — struggling to start", "Drained — no motivation",
+  ]},
+  { id: "feel_about_work", type: "single", q: "How do you feel about your work right now?", options: [
+    "Driven and on it", "Pressured but pushing through", "Stuck and frustrated", "Overwhelmed", "Scattered and unfocused",
+  ]},
+  { id: "clarity", type: "single", q: "How clear are you on what needs to get done?", options: [
+    "Very clear — I know exactly what to do", "Somewhat clear", "Vague — ideas but no plan", "No clarity at all",
   ]},
   { id: "blockers", type: "single", q: "What's slowing you down the most?", options: [
-    "Distractions (phone, people, environment)", "Overthinking or perfectionism",
-    "Low energy or fatigue", "Too many things at once",
-    "Lack of direction", "Procrastination",
+    "Distractions", "Overthinking or perfectionism", "Low energy or fatigue", "Too many things at once", "Lack of clear direction",
   ]},
-  { id: "clarity", type: "single", q: "How clear are you on what to do today?", options: [
-    "Very clear — I know exactly", "Somewhat clear — not fully structured",
-    "Vague — ideas but no clear plan", "No clarity — I feel lost",
+  { id: "work_style", type: "single", q: "How are you working right now?", options: [
+    "Deep focus — locked in", "Starting and stopping", "Avoiding or delaying", "Busy but not really progressing",
   ]},
-  { id: "workload", type: "single", q: "What does your workload feel like?", options: [
-    "Under control", "Slightly heavy but manageable",
-    "Overloaded", "Chaotic — don't know where to start",
+  { id: "workload", type: "single", q: "How does your workload feel today?", options: [
+    "Under control", "Slightly heavy but manageable", "Overloaded but still going", "Chaotic — no idea where to start",
   ]},
-  { id: "work_style", type: "single", q: "How are you currently working?", options: [
-    "Deep focus — locked in", "Starting and stopping frequently",
-    "Avoiding or delaying tasks", "Busy but not making real progress",
+  { id: "today_goal", type: "single", q: "What's your goal for today?", options: [
+    "Complete one specific task", "Make meaningful progress", "Get organised", "Just get started",
   ]},
-  { id: "success", type: "single", q: "What does success look like today?", options: [
-    "Crushing a key deliverable", "Meaningful progress on a big goal",
-    "Clearing the noise so I can focus", "Honestly, just getting unstuck",
-  ]},
-  { id: "focus_window", type: "single", q: "How much time can you realistically focus?", options: [
+  { id: "focus_window", type: "single", q: "How much focused time do you have right now?", options: [
     "60+ minutes", "30–60 minutes", "10–30 minutes", "Less than 10 minutes",
-  ]},
-  { id: "support", type: "single", q: "What kind of support do you need?", options: [
-    "Help getting started", "Focus support — stay on track",
-    "Energy boost or reset", "Quick win — something fast",
   ]},
 ];
 
-export const EMOTIONAL_QUESTIONS: Question[] = [
-  { id: "emotional_state", type: "single", q: "Which best describes your emotional state lately?", options: [
-    "Anxious or worried", "Angry or frustrated", "Sad or low",
-    "Overwhelmed or scattered", "Numb or empty", "Stressed or under pressure",
-    "Lost or confused", "I don't know",
+// Q10–Q18 stressed (DB path = "emotional")
+export const STRESSED_QUESTIONS: Question[] = [
+  { id: "feeling_word", type: "single", q: "In one word — how are you feeling right now?", options: [
+    "Anxious / worried", "Angry / frustrated", "Sad / low", "Overwhelmed / scattered", "Stressed / under pressure", "Lost / confused",
   ]},
   { id: "frequency", type: "single", q: "How often do you feel this way?", options: [
-    "Almost every day", "A few times a week", "Occasionally", "This is recent — it's new",
+    "Almost every day", "A few times a week", "Occasionally", "It's a recent shift — new for me",
   ]},
   { id: "body_location", type: "single", q: "Where in your body do you feel it most?", options: [
-    "Stomach or gut", "Head or temples", "Throat or neck",
-    "Whole body", "I don't feel it physically",
+    "Stomach / gut", "Head / temples", "Throat / neck", "Whole body / everywhere", "I don't feel it physically",
   ]},
-  { id: "onset", type: "single", q: "When did this feeling start?", options: [
-    "Just now — something specific triggered it", "A few hours ago",
-    "Since I woke up", "Been there for a few days", "I genuinely don't know",
+  { id: "origin", type: "single", q: "Where did this feeling come from?", options: [
+    "A specific event triggered it", "Slow build-up over time", "It comes in cycles", "No idea where it started",
   ]},
-  { id: "root", type: "single", q: "Do you have a sense of what's been at the root of this?", options: [
-    "A specific life event or situation", "A slow build-up over time",
-    "It comes in cycles — I don't always know why", "I genuinely have no idea",
+  { id: "driver", type: "single", q: "What seems to be driving it?", options: [
+    "Work / studies", "A relationship or person", "My own thoughts about myself", "Nothing specific — it just is", "Multiple things at once",
   ]},
-  { id: "impact", type: "single", q: "How is this affecting you right now?", options: [
-    "Can't focus or concentrate", "Feels like withdrawing or isolating",
-    "Going through motions but not present", "I physically feel unwell",
-    "Spiralling in my thoughts",
+  { id: "impact", type: "single", q: "How is this feeling affecting you right now?", options: [
+    "Can't focus or concentrate", "Withdrawing / isolating", "Physical symptoms (headache, tension)", "Spiralling thoughts", "Going through the motions",
   ]},
   { id: "history", type: "single", q: "Have you felt this way before?", options: [
-    "Yes — this is very familiar, comes back often",
-    "Yes — but usually milder", "Rarely — this feels unusual for me",
-    "No — this is new for me",
+    "Yes — very familiar, comes back often", "Yes but usually milder", "Rarely — this feels unusual for me", "No — this is completely new",
   ]},
-  { id: "tried", type: "multi", q: "What have you already tried?", options: [
-    "Nothing yet", "Distraction (scrolling, music, TV)",
-    "Talking to someone", "Exercise or movement",
-    "Food or drink", "Breathing, meditation or sleep",
+  { id: "tried", type: "single", q: "What have you already tried today?", options: [
+    "Nothing yet", "Talking to someone", "Exercise or movement", "Breathing / meditation", "Distraction (scrolling, music)",
   ]},
-  { id: "support", type: "single", q: "What kind of support feels right?", options: [
-    "Something physical I can do with my body",
-    "Something I can think through mentally",
-    "A calming practice or ritual",
-    "Something quick — under 5 minutes",
-    "Something for tonight before sleeping",
+  { id: "support_needed", type: "single", q: "What kind of support feels right to you right now?", options: [
+    "Something physical I can do", "Something to think through mentally", "A calming practice or ritual", "Something quick — under 5 minutes", "Something tonight before sleep",
   ]},
 ];
+
+export const totalOnboardingSteps = (path: Path) =>
+  UNIVERSAL_QUESTIONS.length + (path === "ambitious" ? AMBITIOUS_QUESTIONS.length : STRESSED_QUESTIONS.length);
