@@ -25,29 +25,29 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
   try {
     const { onboarding_answers, path } = await req.json();
-    const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
-    if (!ANTHROPIC_API_KEY) throw new Error("ANTHROPIC_API_KEY not configured");
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
 
     const userMsg = `Path: ${path}\nAnswers: ${JSON.stringify(onboarding_answers)}`;
 
-    const resp = await fetch("https://api.anthropic.com/v1/messages", {
+    const resp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
-        "x-api-key": ANTHROPIC_API_KEY,
-        "anthropic-version": "2023-06-01",
-        "content-type": "application/json",
+        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
-        max_tokens: 400,
-        system: SYSTEM_PROMPT,
-        messages: [{ role: "user", content: userMsg }],
+        model: "google/gemini-2.5-flash",
+        messages: [
+          { role: "system", content: SYSTEM_PROMPT },
+          { role: "user", content: userMsg },
+        ],
       }),
     });
 
     if (!resp.ok) {
       const t = await resp.text();
-      console.error("Anthropic error", resp.status, t);
+      console.error("AI gateway error", resp.status, t);
       const status = resp.status === 429 ? 429 : resp.status === 402 ? 402 : 500;
       return new Response(JSON.stringify({ error: "AI error", detail: t }), {
         status, headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -55,7 +55,7 @@ serve(async (req) => {
     }
 
     const data = await resp.json();
-    const text = data.content?.[0]?.text ?? "";
+    const text = data.choices?.[0]?.message?.content ?? "";
     const match = text.match(/\{[\s\S]*\}/);
     if (!match) throw new Error("No JSON in AI response");
     const parsed = JSON.parse(match[0]);
