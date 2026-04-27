@@ -9,8 +9,8 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
   try {
     const { message, path, onboarding_answers } = await req.json();
-    const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
-    if (!ANTHROPIC_API_KEY) throw new Error("ANTHROPIC_API_KEY not configured");
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
 
     const systemPrompt = `You are Didi, a warm and grounding wellness guide in the reStart app.
 You speak like a caring older sister — warm, wise, never clinical.
@@ -38,24 +38,24 @@ Context: path=${path}. onboarding_answers=${JSON.stringify(onboarding_answers)}.
 
 Return only the warm message text followed by the <json>...</json> block. No markdown.`;
 
-    const resp = await fetch("https://api.anthropic.com/v1/messages", {
+    const resp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
-        "x-api-key": ANTHROPIC_API_KEY,
-        "anthropic-version": "2023-06-01",
-        "content-type": "application/json",
+        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
-        max_tokens: 800,
-        system: systemPrompt,
-        messages: [{ role: "user", content: message }],
+        model: "google/gemini-2.5-flash",
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: message },
+        ],
       }),
     });
 
     if (!resp.ok) {
       const t = await resp.text();
-      console.error("Anthropic error", resp.status, t);
+      console.error("AI gateway error", resp.status, t);
       const status = resp.status === 429 ? 429 : resp.status === 402 ? 402 : 500;
       return new Response(JSON.stringify({ error: "AI error", detail: t }), {
         status, headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -63,7 +63,7 @@ Return only the warm message text followed by the <json>...</json> block. No mar
     }
 
     const data = await resp.json();
-    const fullText: string = data.content?.[0]?.text ?? "";
+    const fullText: string = data.choices?.[0]?.message?.content ?? "";
 
     const jsonMatch = fullText.match(/<json>([\s\S]*?)<\/json>/i);
     let parsed: any = {};
