@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import BottomNav from "@/components/layout/BottomNav";
+import TopBar from "@/components/layout/TopBar";
 import { CHRONOTYPE_LABEL, CHRONOTYPE_EMOJI, type Chronotype } from "@/lib/restartData";
 
 const CHANNELS: Chronotype[] = ["lion", "bear", "wolf", "dolphin"];
@@ -11,7 +12,8 @@ const CommunityScreen = () => {
 
   return (
     <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
-      className="phone-frame min-h-screen px-5 pt-10 pb-28">
+      className="phone-frame min-h-screen px-5 pt-10 pb-28" style={{ paddingTop: 54 }}>
+      <TopBar />
       <h1 className="text-[24px] font-bold text-white">ReStart Community</h1>
       <p className="text-rs-muted text-[13px] mt-1">Find your people. Show up together.</p>
 

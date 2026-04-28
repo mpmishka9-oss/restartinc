@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import type { Tables } from "@/integrations/supabase/types";
 import BottomNav from "@/components/layout/BottomNav";
+import TopBar from "@/components/layout/TopBar";
 
 type Practice = Tables<"practices">;
 type CheckIn = Tables<"check_ins">;
@@ -52,7 +53,8 @@ const PracticesScreen = () => {
 
   return (
     <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
-      className="phone-frame min-h-screen px-5 pt-10 pb-28">
+      className="phone-frame min-h-screen px-5 pt-10 pb-28" style={{ paddingTop: 54 }}>
+      <TopBar />
       <h1 className="text-[24px] font-bold text-white">Practices</h1>
 
       <div className="mt-4 flex gap-2 p-1 rounded-xl bg-white/10 border border-white/20">

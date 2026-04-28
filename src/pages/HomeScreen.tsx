@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
 import { greetingFor, getDayPhrase, CHRONOTYPE_EMOJI, CHRONOTYPE_LABEL, type Chronotype } from "@/lib/restartData";
 import BottomNav from "@/components/layout/BottomNav";
+import TopBar from "@/components/layout/TopBar";
 import Mandala from "@/components/home/Mandala";
 
 const HomeScreen = () => {
@@ -42,7 +43,8 @@ const HomeScreen = () => {
 
   return (
     <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}
-      className="phone-frame min-h-screen pb-28">
+      className="phone-frame min-h-screen pb-28" style={{ paddingTop: 44 }}>
+      <TopBar />
       <div className="px-5 pt-10">
         {/* Greeting */}
         <h1 className="text-[24px] font-bold text-white">{greetingFor(profile?.name)}</h1>

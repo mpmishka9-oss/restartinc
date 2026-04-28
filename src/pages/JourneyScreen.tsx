@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { ChevronDown, ChevronUp, Check, Lock } from "lucide-react";
 import { useProfile } from "@/hooks/useProfile";
 import BottomNav from "@/components/layout/BottomNav";
+import TopBar from "@/components/layout/TopBar";
 
 interface DayPlan {
   day: number;
@@ -138,7 +139,8 @@ const JourneyScreen = () => {
 
   return (
     <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}
-      className="phone-frame min-h-screen pb-28 px-5 pt-10">
+      className="phone-frame min-h-screen pb-28 px-5 pt-10" style={{ paddingTop: 54 }}>
+      <TopBar />
       <h1 className="text-[24px] font-bold text-white">Your 21-day journey</h1>
       <p className="text-rs-muted text-[13px] mt-1">Day {day} of 21 — keep showing up.</p>
 
