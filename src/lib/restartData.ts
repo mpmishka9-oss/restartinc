@@ -70,11 +70,10 @@ export type Question =
   | { id: string; type: "text"; q: string; sub?: string; placeholder?: string; inputType?: "text" | "email" }
   | { id: string; type: "textarea"; q: string; sub?: string; placeholder?: string; minLength?: number };
 
-// Q1–Q9 universal (everyone sees these)
+// Q1–Q8 universal (everyone sees these)
 export const UNIVERSAL_QUESTIONS: Question[] = [
-  { id: "name", type: "text", q: "What do you want to call yourself?", placeholder: "E.g. Mishka, or just 'Hey you'" },
+  { id: "name", type: "text", q: "What do you want to call yourself?", placeholder: "Your name" },
   { id: "age", type: "single", q: "How old are you?", options: ["Under 18", "18–24", "25–35", "36–45", "45+"] },
-  { id: "email", type: "text", q: "What's your email?", sub: "Only used to save your progress. Never shared.", placeholder: "you@email.com", inputType: "email" },
   { id: "sleep", type: "single", q: "How has your sleep been lately?", options: [
     "Sleep well most nights (7–8 hrs)",
     "Varies a lot, unpredictable",
