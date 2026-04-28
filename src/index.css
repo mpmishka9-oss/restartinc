@@ -6,41 +6,49 @@
 
 @layer base {
   :root {
-    /* reStart brand — periwinkle / cream / navy */
-    --rs-bg: 219 50% 66%;            /* #7B9BD6 periwinkle */
-    --rs-bg-dark: 218 41% 55%;        /* #5A7DBF */
+    /* reStart brand — light radial gradient backdrop */
+    --rs-bg-gradient: radial-gradient(ellipse at center, #B8D4E0 0%, #D6E8EF 35%, #F0EDE6 100%);
+    --rs-bg: 200 35% 80%;            /* fallback solid for hsl() consumers */
+    --rs-bg-dark: 200 35% 70%;
     --rs-cream: 56 80% 79%;           /* #F5F0A0 */
     --rs-cream-dark: 56 70% 67%;      /* #E8E070 */
     --rs-navy: 220 49% 19%;           /* #1A2A4A */
     --rs-green: 158 68% 37%;          /* #1D9E75 */
 
+    /* Text helpers on light backdrop */
+    --rs-on-light: #1A2A4A;
+    --rs-muted-rgba: rgba(26,42,74,0.55);
+    --rs-dim-rgba: rgba(26,42,74,0.38);
+    --rs-card-rgba: rgba(255,255,255,0.6);
+    --rs-card-border-rgba: rgba(184,212,224,0.6);
+
     /* Semantic tokens */
-    --background: 219 50% 66%;
-    --foreground: 0 0% 100%;
+    --background: 200 35% 80%;
+    --foreground: 220 49% 19%;
     --primary: 56 80% 79%;
     --primary-foreground: 220 49% 19%;
-    --primary-deep: 218 41% 55%;
+    --primary-deep: 220 49% 19%;
     --accent: 56 80% 79%;
     --accent-foreground: 220 49% 19%;
-    --secondary: 218 41% 55%;
-    --secondary-foreground: 0 0% 100%;
-    --muted: 219 30% 45%;
-    --muted-foreground: 0 0% 100% / 0.65;
+    --secondary: 200 35% 70%;
+    --secondary-foreground: 220 49% 19%;
+    --muted: 200 25% 60%;
+    --muted-foreground: 220 49% 19% / 0.55;
     --destructive: 0 60% 60%;
     --destructive-foreground: 0 0% 100%;
     --card: 0 0% 100%;
     --card-foreground: 220 49% 19%;
     --popover: 0 0% 100%;
     --popover-foreground: 220 49% 19%;
-    --border: 0 0% 100% / 0.28;
-    --input: 0 0% 100% / 0.25;
+    --border: 184 38% 80% / 0.6;
+    --input: 0 0% 100% / 0.55;
     --ring: 56 80% 79%;
     --sage: 158 68% 37%;
 
     --radius: 1rem;
 
     /* Gradients */
-    --gradient-bg: linear-gradient(180deg, hsl(219 50% 66%) 0%, hsl(218 41% 55%) 100%);
+    --gradient-bg: radial-gradient(ellipse at center, #B8D4E0 0%, #D6E8EF 35%, #F0EDE6 100%);
     --gradient-cream: linear-gradient(180deg, hsl(56 80% 79%) 0%, hsl(56 70% 67%) 100%);
     --gradient-lion: linear-gradient(180deg, #FEF3C7 0%, #FCE9A0 100%);
     --gradient-bear: linear-gradient(180deg, #DCFCE7 0%, #BBF7D0 100%);
@@ -62,8 +70,10 @@
   * { @apply border-border; }
   html, body, #root { min-height: 100%; }
   body {
-    background: hsl(var(--rs-bg));
-    color: hsl(var(--foreground));
+    background: var(--rs-bg-gradient);
+    background-attachment: fixed;
+    min-height: 100dvh;
+    color: var(--rs-on-light);
     font-family: 'DM Sans', sans-serif;
     font-weight: 400;
     -webkit-font-smoothing: antialiased;
@@ -75,27 +85,33 @@
   .font-serif { font-family: 'Playfair Display', serif; }
   .font-sans { font-family: 'DM Sans', sans-serif; }
 
-  .bg-app { background: var(--gradient-bg); }
-  .bg-rs-bg { background: hsl(var(--rs-bg)); }
-  .bg-rs-bg-dark { background: hsl(var(--rs-bg-dark)); }
+  .bg-app { background: var(--rs-bg-gradient); }
+  .bg-rs-bg { background: var(--rs-bg-gradient); }
+  .bg-rs-bg-dark { background: var(--rs-bg-gradient); }
   .bg-rs-navy { background: hsl(var(--rs-navy)); }
   .text-rs-navy { color: hsl(var(--rs-navy)); }
   .text-rs-cream { color: hsl(var(--rs-cream)); }
   .bg-rs-cream { background: hsl(var(--rs-cream)); }
-  .text-rs-muted { color: rgba(255,255,255,0.65); }
+  .text-rs-muted { color: rgba(26,42,74,0.55); }
   .border-rs-cream { border-color: hsl(var(--rs-cream)); }
 
+  /* Force readable text on the new light backdrop. White-on-bg becomes navy. */
+  .phone-frame .text-white { color: #1A2A4A; }
+  .phone-frame h1.text-white,
+  .phone-frame h2.text-white,
+  .phone-frame h3.text-white { color: #1A2A4A; }
+
   .glass {
-    background: rgba(255, 255, 255, 0.13);
+    background: rgba(255, 255, 255, 0.6);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.28);
+    border: 1px solid rgba(184, 212, 224, 0.6);
   }
   .glass-strong {
-    background: rgba(255, 255, 255, 0.22);
+    background: rgba(255, 255, 255, 0.75);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.35);
+    border: 1px solid rgba(184, 212, 224, 0.7);
   }
   .glass-navy {
     background: rgba(26, 42, 74, 0.6);
