@@ -47,7 +47,7 @@ const OnboardingFlow = () => {
         await supabase.from("profiles").update({
           name: allAnswers.name || null,
           age: allAnswers.age || null,
-          email: allAnswers.email || null,
+          email: user.email ?? null,
           goal: allAnswers.goal || null,
           path,
           onboarding_answers: allAnswers,
@@ -55,7 +55,7 @@ const OnboardingFlow = () => {
       }
       app.setOnboardingData({
         name: allAnswers.name, age: allAnswers.age,
-        email: allAnswers.email, goal: allAnswers.goal,
+        email: user?.email, goal: allAnswers.goal,
       });
 
       const { data, error } = await supabase.functions.invoke("assign-chronotype", {
