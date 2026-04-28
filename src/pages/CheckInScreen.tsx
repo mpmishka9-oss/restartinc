@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
+import TopBar from "@/components/layout/TopBar";
 
 const FEELINGS = ["Anxious", "Stressed", "Low", "Overwhelmed", "Focused", "Good", "Energised", "Numb"];
 const SOURCES = ["Work", "Relationships", "My own mind", "Body", "External events", "Not sure"];
@@ -125,7 +126,8 @@ const CheckInScreen = () => {
 
   if (step === "result" && didiResp) {
     return (
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="phone-frame min-h-screen px-5 pt-10 pb-10">
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="phone-frame min-h-screen px-5 pt-10 pb-10" style={{ paddingTop: 54 }}>
+        <TopBar />
         <p className="text-[10px] tracking-[0.2em] uppercase text-rs-cream font-semibold">Didi reads</p>
         <h2 className="text-[24px] font-bold text-white mt-1">{didiResp.state} — intensity {intensity}</h2>
 
