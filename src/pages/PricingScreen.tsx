@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Check, ArrowLeft } from "lucide-react";
 import { useProfile } from "@/hooks/useProfile";
+import TopBar from "@/components/layout/TopBar";
 
 const PricingScreen = () => {
   const nav = useNavigate();
@@ -16,7 +17,8 @@ const PricingScreen = () => {
 
   return (
     <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
-      className="phone-frame min-h-screen pb-12">
+      className="phone-frame min-h-screen pb-12" style={{ paddingTop: 44 }}>
+      <TopBar />
       <div className="bg-rs-navy px-5 pt-10 pb-8">
         <button onClick={() => nav(-1)} className="text-white/70 mb-4 inline-flex items-center gap-1 text-[13px]">
           <ArrowLeft className="w-4 h-4" /> Back

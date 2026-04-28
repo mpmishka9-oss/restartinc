@@ -2,6 +2,7 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
+import logo from "@/assets/logo.png";
 
 const AuthScreen = () => {
   const [mode, setMode] = useState<"signin" | "signup" | "reset">("signup");
@@ -34,7 +35,7 @@ const AuthScreen = () => {
 
   return (
     <div className="phone-frame min-h-screen flex flex-col items-center justify-center px-6">
-      <h1 className="font-serif italic text-[48px] font-bold text-rs-cream">reStart</h1>
+      <img src={logo} alt="reStart" style={{ width: 220, objectFit: "contain" }} />
       <p className="text-[11px] tracking-[0.2em] uppercase text-white/55 mb-8">Ancient Wisdom · Modern Science</p>
       <div className="w-full max-w-sm rounded-2xl glass p-6">
         <h2 className="text-white text-[20px] font-bold text-center">

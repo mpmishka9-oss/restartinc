@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import logo from "@/assets/logo.png";
 
 const SplashScreen = () => {
   const nav = useNavigate();
@@ -43,11 +44,7 @@ const SplashScreen = () => {
     <div className="phone-frame min-h-screen flex flex-col items-center justify-center">
       <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.7 }}
         className="flex flex-col items-center">
-        <svg viewBox="0 0 64 64" className="w-14 h-14 mb-4 opacity-90" fill="none" stroke="hsl(var(--rs-cream))" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M32 12c-8 0-14 6-14 14 0 4 2 7 4 9-2 2-3 5-3 8 0 6 6 11 13 11s13-5 13-11c0-3-1-6-3-8 2-2 4-5 4-9 0-8-6-14-14-14z" />
-          <path d="M32 18v28M22 28h20M22 38h20" opacity="0.5" />
-        </svg>
-        <h1 className="font-serif italic text-[56px] leading-none font-bold text-rs-cream">reStart</h1>
+        <img src={logo} alt="reStart" style={{ width: 220, objectFit: "contain" }} />
         <p className="mt-3 text-[11px] tracking-[0.2em] uppercase text-white/55">Ancient Wisdom · Modern Science</p>
       </motion.div>
     </div>

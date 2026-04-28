@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { ChevronDown, ChevronUp, Check, Lock } from "lucide-react";
 import { useProfile } from "@/hooks/useProfile";
 import BottomNav from "@/components/layout/BottomNav";
+import TopBar from "@/components/layout/TopBar";
 
 interface DayPlan {
   day: number;
@@ -66,9 +67,11 @@ const PHASE_3: DayPlan[] = Array.from({ length: 7 }, (_, i) => ({
   reflection: i === 6 ? "Day 21 — your full personalised Reset Report is ready." : undefined,
 }));
 
-const DayRow = ({ d, status, expanded, onToggle, accent }: {
+const DayRow = ({ d, status, expanded, onToggle, accent, checks, onCheck }: {
   d: DayPlan; status: "locked" | "active" | "done"; expanded: boolean;
   onToggle: () => void; accent: string;
+  checks: Record<string, boolean>;
+  onCheck: (label: string, value: boolean) => void;
 }) => {
   const locked = status === "locked";
   return (
@@ -89,13 +92,13 @@ const DayRow = ({ d, status, expanded, onToggle, accent }: {
       {expanded && !locked && (
         <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }}
           className="px-4 pb-4 space-y-2">
-          <Task label="Morning Anchor" body={d.morning} />
-          <Task label="Neuro" body={d.neuro} />
-          <Task label="Ayurveda" body={d.ayurveda} />
-          {d.midday && <Task label="Midday Reset" body={d.midday} />}
-          {d.focusWindow && <Task label="Focus Window" body={d.focusWindow} />}
-          {d.community && <Task label="Community" body={d.community} />}
-          <Task label="Evening Wind-Down" body={d.evening} />
+          <Task label="Morning Anchor" body={d.morning} checked={!!checks["Morning Anchor"]} onChange={(v) => onCheck("Morning Anchor", v)} />
+          <Task label="Neuro" body={d.neuro} checked={!!checks["Neuro"]} onChange={(v) => onCheck("Neuro", v)} />
+          <Task label="Ayurveda" body={d.ayurveda} checked={!!checks["Ayurveda"]} onChange={(v) => onCheck("Ayurveda", v)} />
+          {d.midday && <Task label="Midday Reset" body={d.midday} checked={!!checks["Midday Reset"]} onChange={(v) => onCheck("Midday Reset", v)} />}
+          {d.focusWindow && <Task label="Focus Window" body={d.focusWindow} checked={!!checks["Focus Window"]} onChange={(v) => onCheck("Focus Window", v)} />}
+          {d.community && <Task label="Community" body={d.community} checked={!!checks["Community"]} onChange={(v) => onCheck("Community", v)} />}
+          <Task label="Evening Wind-Down" body={d.evening} checked={!!checks["Evening Wind-Down"]} onChange={(v) => onCheck("Evening Wind-Down", v)} />
           <div className="mt-3 p-3 rounded-xl bg-rs-navy/40 border border-white/15">
             <p className="text-[10px] tracking-[0.16em] uppercase text-rs-cream font-semibold">Daily prompt</p>
             <p className="text-white text-[13px] mt-1 italic">{d.prompt}</p>
@@ -111,9 +114,9 @@ const DayRow = ({ d, status, expanded, onToggle, accent }: {
   );
 };
 
-const Task = ({ label, body }: { label: string; body: string }) => (
+const Task = ({ label, body, checked, onChange }: { label: string; body: string; checked: boolean; onChange: (v: boolean) => void }) => (
   <div className="flex items-start gap-3 py-2">
-    <input type="checkbox" className="mt-1 accent-[hsl(var(--rs-cream))]" />
+    <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} className="mt-1 accent-[hsl(var(--rs-cream))]" />
     <div className="flex-1">
       <p className="text-[10px] tracking-[0.16em] uppercase text-rs-cream font-semibold">{label}</p>
       <p className="text-white text-[13px]">{body}</p>
@@ -132,13 +135,53 @@ const JourneyScreen = () => {
   const { profile } = useProfile();
   const day = profile?.current_day ?? 1;
   const [open, setOpen] = useState<number | null>(day);
+  const [checks, setChecks] = useState<Record<number, Record<string, boolean>>>({});
+
+  // Sync current day to localStorage so Mandala can read phase
+  useEffect(() => {
+    try { localStorage.setItem("restart_day", String(day)); } catch {}
+  }, [day]);
+
+  const requiredLabelsFor = (d: DayPlan): string[] => {
+    const base = ["Morning Anchor", "Neuro", "Ayurveda", "Evening Wind-Down"];
+    if (d.midday) base.push("Midday Reset");
+    if (d.focusWindow) base.push("Focus Window");
+    if (d.community) base.push("Community");
+    return base;
+  };
+
+  const findDayPlan = (n: number): DayPlan | undefined =>
+    [...PHASE_1, ...PHASE_2, ...PHASE_3].find((p) => p.day === n);
+
+  const handleCheck = (dayNum: number, label: string, value: boolean) => {
+    setChecks((prev) => {
+      const next = { ...prev, [dayNum]: { ...(prev[dayNum] ?? {}), [label]: value } };
+      const plan = findDayPlan(dayNum);
+      if (plan) {
+        const required = requiredLabelsFor(plan);
+        const allDone = required.every((l) => next[dayNum][l]);
+        if (allDone) {
+          try {
+            const raw = localStorage.getItem("restart_completed_days");
+            const arr: number[] = raw ? JSON.parse(raw) : [];
+            if (Array.isArray(arr) && !arr.includes(dayNum)) {
+              arr.push(dayNum);
+              localStorage.setItem("restart_completed_days", JSON.stringify(arr));
+            }
+          } catch {}
+        }
+      }
+      return next;
+    });
+  };
 
   const dayStatus = (n: number): "done" | "active" | "locked" =>
     n < day ? "done" : n === day ? "active" : "locked";
 
   return (
     <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}
-      className="phone-frame min-h-screen pb-28 px-5 pt-10">
+      className="phone-frame min-h-screen pb-28 px-5 pt-10" style={{ paddingTop: 54 }}>
+      <TopBar />
       <h1 className="text-[24px] font-bold text-white">Your 21-day journey</h1>
       <p className="text-rs-muted text-[13px] mt-1">Day {day} of 21 — keep showing up.</p>
 
@@ -146,7 +189,8 @@ const JourneyScreen = () => {
       <div className="space-y-2.5">
         {PHASE_1.map((d) => (
           <DayRow key={d.day} d={d} status={dayStatus(d.day)} expanded={open === d.day}
-            onToggle={() => setOpen(open === d.day ? null : d.day)} accent="hsl(var(--rs-cream))" />
+            onToggle={() => setOpen(open === d.day ? null : d.day)} accent="hsl(var(--rs-cream))"
+            checks={checks[d.day] ?? {}} onCheck={(l, v) => handleCheck(d.day, l, v)} />
         ))}
       </div>
 
@@ -154,7 +198,8 @@ const JourneyScreen = () => {
       <div className="space-y-2.5">
         {PHASE_2.map((d) => (
           <DayRow key={d.day} d={d} status={dayStatus(d.day)} expanded={open === d.day}
-            onToggle={() => setOpen(open === d.day ? null : d.day)} accent="#B8CCE8" />
+            onToggle={() => setOpen(open === d.day ? null : d.day)} accent="#B8CCE8"
+            checks={checks[d.day] ?? {}} onCheck={(l, v) => handleCheck(d.day, l, v)} />
         ))}
       </div>
 
@@ -162,7 +207,8 @@ const JourneyScreen = () => {
       <div className="space-y-2.5">
         {PHASE_3.map((d) => (
           <DayRow key={d.day} d={d} status={dayStatus(d.day)} expanded={open === d.day}
-            onToggle={() => setOpen(open === d.day ? null : d.day)} accent="#7B9BD6" />
+            onToggle={() => setOpen(open === d.day ? null : d.day)} accent="#7B9BD6"
+            checks={checks[d.day] ?? {}} onCheck={(l, v) => handleCheck(d.day, l, v)} />
         ))}
       </div>
 

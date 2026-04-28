@@ -6,6 +6,7 @@ import {
   CHRONOTYPE_EMOJI, CHRONOTYPE_LABEL, CHRONOTYPE_TAGLINE, type Chronotype,
 } from "@/lib/restartData";
 import BottomNav from "@/components/layout/BottomNav";
+import TopBar from "@/components/layout/TopBar";
 import Mandala from "@/components/home/Mandala";
 
 const ProfileScreen = () => {
@@ -16,7 +17,8 @@ const ProfileScreen = () => {
 
   return (
     <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
-      className="phone-frame min-h-screen px-5 pt-10 pb-28">
+      className="phone-frame min-h-screen px-5 pt-10 pb-28" style={{ paddingTop: 54 }}>
+      <TopBar />
       <h1 className="text-[24px] font-bold text-white">Profile</h1>
 
       <div className="mt-6 rounded-2xl p-6 bg-white/13 border border-white/25 text-center">
