@@ -3,12 +3,15 @@ import { motion } from "framer-motion";
 import BottomNav from "@/components/layout/BottomNav";
 import TopBar from "@/components/layout/TopBar";
 import { CHRONOTYPE_LABEL, CHRONOTYPE_EMOJI, type Chronotype } from "@/lib/restartData";
+import { useSubscription } from "@/hooks/useSubscription";
+import { PremiumLockBanner } from "@/components/PremiumGate";
 
 const CHANNELS: Chronotype[] = ["lion", "bear", "wolf", "dolphin"];
 
 const CommunityScreen = () => {
   const [emails, setEmails] = useState<Record<string, string>>({});
   const [done, setDone] = useState<Record<string, boolean>>({});
+  const { isActive } = useSubscription();
 
   return (
     <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
@@ -16,6 +19,8 @@ const CommunityScreen = () => {
       <TopBar />
       <h1 className="text-[24px] font-bold text-white">ReStart Community</h1>
       <p className="text-rs-muted text-[13px] mt-1">Find your people. Show up together.</p>
+
+      {!isActive && <PremiumLockBanner feature="The full community library" />}
 
       <div className="mt-6 space-y-3">
         {CHANNELS.map((c) => (
