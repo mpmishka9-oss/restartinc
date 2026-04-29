@@ -19,6 +19,7 @@ import ProfileScreen from "./pages/ProfileScreen";
 import CommunityScreen from "./pages/CommunityScreen";
 import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
+import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 
 const queryClient = new QueryClient();
 
@@ -69,6 +70,7 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
+            <PaymentTestModeBanner />
             <RoutedApp />
           </BrowserRouter>
         </TooltipProvider>

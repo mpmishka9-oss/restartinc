@@ -9,11 +9,13 @@ import { greetingFor, getDayPhrase, CHRONOTYPE_EMOJI, CHRONOTYPE_LABEL, type Chr
 import BottomNav from "@/components/layout/BottomNav";
 import TopBar from "@/components/layout/TopBar";
 import Mandala from "@/components/home/Mandala";
+import { useSubscription } from "@/hooks/useSubscription";
 
 const HomeScreen = () => {
   const nav = useNavigate();
   const { user } = useAuth();
   const { profile, loading } = useProfile();
+  const { isPastDue } = useSubscription();
   const [todayChecked, setTodayChecked] = useState<boolean | null>(null);
   const [detectedState, setDetectedState] = useState<string | null>(null);
 
@@ -46,6 +48,12 @@ const HomeScreen = () => {
       className="phone-frame min-h-screen pb-28" style={{ paddingTop: 44 }}>
       <TopBar />
       <div className="px-5 pt-10">
+        {isPastDue && (
+          <div className="mb-4 rounded-xl p-3 bg-amber-500/15 border border-amber-400/40 text-amber-100 text-[13px]">
+            Your last payment didn't go through. We're retrying — please update your payment method to keep your access.
+            <button onClick={() => nav("/pricing")} className="block mt-1 underline text-amber-50">Manage billing →</button>
+          </div>
+        )}
         {/* Greeting */}
         <h1 className="text-[24px] font-bold text-white">{greetingFor(profile?.name)}</h1>
         <p className="text-[14px] text-rs-muted mt-1">{getDayPhrase(day)}</p>
