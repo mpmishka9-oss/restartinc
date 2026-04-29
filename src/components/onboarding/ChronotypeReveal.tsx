@@ -56,7 +56,7 @@ const ChronotypeReveal = ({ chronotype, headline, description, onContinue }: Pro
         </p>
 
         <button onClick={onContinue}
-          className="w-full mt-4 py-3.5 btn-cream flex items-center justify-center gap-2">
+          className="w-full mt-4 py-3.5 btn-cream flex items-center justify-center gap-2 bg-[rs-bg-dark] bg-rs-bg">
           Start my reset <ArrowRight className="w-4 h-4" />
         </button>
       </div>
