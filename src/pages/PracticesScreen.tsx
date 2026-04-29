@@ -61,7 +61,7 @@ const PracticesScreen = () => {
         {(["today", "library"] as const).map((t) => (
           <button key={t} onClick={() => setTab(t)}
             className={`flex-1 py-2 rounded-lg text-[13px] font-semibold ${
-              tab === t ? "bg-rs-cream text-rs-navy" : "text-white/70"
+              tab === t ? "bg-rs-cream text-rs-navy" : "text-rs-cream"
             }`}>{t === "today" ? "Today's Practices" : "Full Library"}</button>
         ))}
       </div>
@@ -123,8 +123,8 @@ const PracticeCard = ({ p, expanded, onToggle, level }: { p: Practice; expanded:
     <div className="rounded-2xl bg-white/13 border border-white/25 overflow-hidden">
       <button onClick={onToggle} className="w-full text-left p-4 btn-press">
         <div className="flex items-center gap-2">
-          <span className="text-[10px] px-2 py-0.5 rounded-full font-bold" style={{ background: badge.bg, color: badge.fg }}>{badge.label}</span>
-          <span className="ml-auto inline-flex items-center gap-1 text-[11px] text-white/70">
+          <span className="px-2 py-0.5 rounded-full text-rs-navy font-bold text-xs bg-rs-cream">{badge.label}</span>
+          <span className="ml-auto inline-flex items-center gap-1 text-[11px] text-rs-navy">
             <Clock className="w-3 h-3" /> {p.duration_mins} min
           </span>
         </div>
