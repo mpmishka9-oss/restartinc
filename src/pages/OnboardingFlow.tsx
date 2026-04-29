@@ -147,7 +147,7 @@ const OnboardingFlow = () => {
               onChange={(e) => setText(e.target.value)}
               placeholder={q.placeholder}
               onKeyDown={(e) => e.key === "Enter" && next()}
-              className="w-full mt-8 bg-white/10 border border-white/25 rounded-xl px-4 py-3.5 text-white placeholder:text-white/40 outline-none focus:border-rs-cream"
+              className="w-full mt-8 border border-white/25 rounded-xl px-4 py-3.5 text-white placeholder:text-white/40 outline-none focus:border-rs-cream bg-[rs-bg-dark] bg-muted"
             />
           )}
 
