@@ -23,7 +23,7 @@ const ChronotypeReveal = ({ chronotype, headline, description, onContinue }: Pro
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }}
       className="phone-frame min-h-screen flex flex-col">
       {/* Hero */}
-      <div className="px-6 pt-12 pb-8 text-center" style={{ background: heroBg, color: heroText }}>
+      <div className="px-6 pt-12 pb-8 text-center bg-[rs-bg-dark]" style={{ background: heroBg, color: heroText }}>
         <p className="text-[10px] tracking-[0.2em] uppercase opacity-70 font-semibold">Your chronotype</p>
         <motion.div initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
           transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
