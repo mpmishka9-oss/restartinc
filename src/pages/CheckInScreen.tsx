@@ -8,6 +8,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
  import { useSubscription } from "@/hooks/useSubscription";
 import TopBar from "@/components/layout/TopBar";
+import { getPracticesForState } from "@/lib/getPracticesForState";
+import { CATEGORY_COLORS } from "@/data/practices";
 
 const FEELINGS = ["Anxious", "Stressed", "Low", "Overwhelmed", "Focused", "Good", "Energised", "Numb"];
 const SOURCES = ["Work", "Relationships", "My own mind", "Body", "External events", "Not sure"];
@@ -89,6 +91,8 @@ const CheckInScreen = () => {
       }
 
       setDidiResp({ state: STATE_INSIGHT[feeling]?.label ?? feeling, insight, reply });
+      // Persist the user-facing state for the practices screen triad
+      try { localStorage.setItem("restart_checkin_state", (feeling || "").toLowerCase()); } catch {}
       setStep("result");
     } catch (e: any) {
       toast.error(e.message ?? "Couldn't reach Didi — try again?");
@@ -159,6 +163,29 @@ const CheckInScreen = () => {
            )}
          </div>
  
+         {/* Recommended practices triad */}
+         <div className="mt-5 space-y-3">
+           <p className="text-[10px] tracking-[0.2em] uppercase text-rs-cream font-semibold">Your 3 practices</p>
+           {(() => {
+             const triad = getPracticesForState((feeling || "").toLowerCase());
+             return [triad.neuro, triad.ayurveda, triad.breathwork].map((p) => (
+               <div key={p.id} className="rounded-2xl bg-white/13 border border-white/25 p-4">
+                 <div className="flex items-center gap-2">
+                   <span
+                     className="px-2 py-0.5 rounded-full text-white font-bold text-[11px]"
+                     style={{ background: CATEGORY_COLORS[p.category] }}
+                   >
+                     {p.category}
+                   </span>
+                   <span className="ml-auto text-[11px] text-rs-cream font-medium">{p.duration}</span>
+                 </div>
+                 <p className="text-white text-[15px] font-semibold mt-2">{p.name}</p>
+                 <p className="text-white/70 text-[12px] mt-1 leading-relaxed">{p.description}</p>
+               </div>
+             ));
+           })()}
+         </div>
+
          <button onClick={() => nav("/practices")} className="w-full mt-6 py-3.5 btn-cream flex items-center justify-center gap-2">
            See my practices <ArrowRight className="w-4 h-4" />
          </button>

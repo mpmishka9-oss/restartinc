@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ChevronDown, ChevronUp, Check, Lock } from "lucide-react";
 import { useProfile } from "@/hooks/useProfile";
 import BottomNav from "@/components/layout/BottomNav";
 import TopBar from "@/components/layout/TopBar";
+import { useSubscription } from "@/hooks/useSubscription";
+import { getPracticesForState } from "@/lib/getPracticesForState";
 
 interface DayPlan {
   day: number;
@@ -85,7 +88,7 @@ const DayRow = ({ d, status, expanded, onToggle, accent, checks, onCheck }: {
         </div>
         <div className="flex-1">
           <p className="text-white text-[14px] font-semibold">Day {d.day}</p>
-          <p className="text-rs-muted text-[12px]">{locked ? "Unlocks soon" : d.morning}</p>
+          <p className="text-rs-muted text-[12px]">{locked ? (d.day > 3 ? "Unlock with Pro" : "Unlocks soon") : d.morning}</p>
         </div>
         {!locked && (expanded ? <ChevronUp className="w-4 h-4 text-white/60" /> : <ChevronDown className="w-4 h-4 text-white/60" />)}
       </button>
@@ -93,8 +96,16 @@ const DayRow = ({ d, status, expanded, onToggle, accent, checks, onCheck }: {
         <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }}
           className="px-4 pb-4 space-y-2">
           <Task label="Morning Anchor" body={d.morning} checked={!!checks["Morning Anchor"]} onChange={(v) => onCheck("Morning Anchor", v)} />
-          <Task label="Neuro" body={d.neuro} checked={!!checks["Neuro"]} onChange={(v) => onCheck("Neuro", v)} />
-          <Task label="Ayurveda" body={d.ayurveda} checked={!!checks["Ayurveda"]} onChange={(v) => onCheck("Ayurveda", v)} />
+          {(() => {
+            const triad = getPracticesForState("default");
+            return (
+              <div className="mt-2 space-y-1.5">
+                <TriadRow icon="🧠" label="NEUROSCIENCE" name={triad.neuro.name} duration={triad.neuro.duration} />
+                <TriadRow icon="🌿" label="AYURVEDA" name={triad.ayurveda.name} duration={triad.ayurveda.duration} />
+                <TriadRow icon="💨" label="BREATHWORK" name={triad.breathwork.name} duration={triad.breathwork.duration} />
+              </div>
+            );
+          })()}
           {d.midday && <Task label="Midday Reset" body={d.midday} checked={!!checks["Midday Reset"]} onChange={(v) => onCheck("Midday Reset", v)} />}
           {d.focusWindow && <Task label="Focus Window" body={d.focusWindow} checked={!!checks["Focus Window"]} onChange={(v) => onCheck("Focus Window", v)} />}
           {d.community && <Task label="Community" body={d.community} checked={!!checks["Community"]} onChange={(v) => onCheck("Community", v)} />}
@@ -124,6 +135,115 @@ const Task = ({ label, body, checked, onChange }: { label: string; body: string;
   </div>
 );
 
+const TriadRow = ({ icon, label, name, duration }: { icon: string; label: string; name: string; duration: string }) => (
+  <div className="flex items-center gap-3 py-1.5 px-2 rounded-lg bg-white/5">
+    <span className="text-base">{icon}</span>
+    <p className="text-[10px] tracking-[0.16em] uppercase text-rs-cream font-semibold w-24 flex-shrink-0">{label}</p>
+    <p className="text-white text-[13px] flex-1">{name} — <span className="text-white/60">{duration}</span></p>
+  </div>
+);
+
+const PaywallGate = () => {
+  const nav = useNavigate();
+  return (
+    <div
+      className="my-4 rounded-2xl p-6"
+      style={{
+        border: "1.5px solid #F5F0A0",
+        background: "rgba(245,240,160,0.08)",
+        borderRadius: 16,
+      }}
+    >
+      <div className="flex justify-center"><Lock className="w-7 h-7 text-rs-cream" /></div>
+      <p className="text-center font-bold text-[18px] mt-3" style={{ color: "#1A2A4A" }}>
+        Days 4–21 are waiting for you.
+      </p>
+      <p className="text-center text-[13px] mt-1" style={{ color: "rgba(26,42,74,0.6)" }}>
+        Your brain is already changing. Keep the momentum going.
+      </p>
+      <div className="mt-5 grid grid-cols-2 gap-3">
+        {/* Monthly */}
+        <div className="bg-white p-4" style={{ border: "1px solid #c5d3e8", borderRadius: 12 }}>
+          <p className="text-[11px] uppercase tracking-wider" style={{ color: "#7B9BD6" }}>Monthly</p>
+          <p className="mt-1">
+            <span className="text-[26px] font-bold" style={{ color: "#1A2A4A" }}>₹21</span>
+            <span className="text-[12px] text-black/50 ml-1">/first month</span>
+          </p>
+          <p className="text-[11px] text-black/50">then ₹1,389/mo</p>
+          <button
+            onClick={() => nav("/pricing")}
+            className="w-full mt-3 py-2 text-white font-semibold"
+            style={{ background: "#7B9BD6", borderRadius: 8 }}
+          >
+            Start →
+          </button>
+        </div>
+        {/* Annual */}
+        <div className="p-4 relative" style={{ background: "#1A2A4A", borderRadius: 12 }}>
+          <p className="text-[10px] uppercase tracking-wider font-semibold" style={{ color: "#F5F0A0" }}>
+            Best value
+          </p>
+          <p className="text-[11px] uppercase tracking-wider mt-1" style={{ color: "#F5F0A0", opacity: 0.7 }}>
+            Annual
+          </p>
+          <p className="mt-1">
+            <span className="text-[26px] font-bold text-white">₹999</span>
+            <span className="text-[12px] ml-1" style={{ color: "rgba(255,255,255,0.6)" }}>/year</span>
+          </p>
+          <p className="text-[11px]" style={{ color: "rgba(255,255,255,0.5)" }}>₹2.7 a day</p>
+          <p className="text-[11px] mt-0.5" style={{ color: "#F5F0A0", fontWeight: 600 }}>First 500: ₹799</p>
+          <button
+            onClick={() => nav("/pricing")}
+            className="w-full mt-3 py-2 font-bold"
+            style={{ background: "#F5F0A0", color: "#1A2A4A", borderRadius: 8 }}
+          >
+            Get this →
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const RoadmapStrip = ({ currentDay }: { currentDay: number }) => {
+  const phases = [
+    {
+      label: "Phase 1 · Days 1–7",
+      title: "Prove it works",
+      status: currentDay <= 7 ? "✓ In progress" : "✓ Complete",
+      active: true,
+    },
+    { label: "Phase 2 · Days 8–14", title: "Deepen the experience", status: "🔒 Locked", active: false },
+    { label: "Phase 3 · Days 15–21", title: "Feel the stakes", status: "🔒 Locked", active: false },
+  ];
+  return (
+    <div className="mt-4 mb-4">
+      <div className="flex gap-2 overflow-x-auto pb-1">
+        {phases.map((p) => (
+          <div
+            key={p.label}
+            className="flex-shrink-0 px-3 py-2 min-w-[140px]"
+            style={{
+              background: p.active ? "rgba(245,240,160,0.15)" : "rgba(255,255,255,0.4)",
+              border: p.active ? "1px solid #F5F0A0" : "1px solid #c5d3e8",
+              borderRadius: 12,
+            }}
+          >
+            <p className="text-[12px] font-bold" style={{ color: "#1A2A4A" }}>{p.label}</p>
+            <p className="text-[11px] text-black/50">{p.title}</p>
+            <p className={`text-[11px] mt-1 ${p.active ? "text-[hsl(var(--rs-green))] font-semibold" : "text-black/50"}`}>
+              {p.status}
+            </p>
+          </div>
+        ))}
+      </div>
+      <p className="text-center text-[12px] italic mt-2" style={{ color: "rgba(26,42,74,0.5)" }}>
+        Unlock all 21 days + your full Reset Report on Day 21
+      </p>
+    </div>
+  );
+};
+
 const PhaseHeader = ({ n, title, accent }: { n: number; title: string; accent: string }) => (
   <div className="mt-6 mb-3">
     <p className="text-[10px] tracking-[0.2em] uppercase font-semibold" style={{ color: accent }}>Phase {n}</p>
@@ -133,6 +253,7 @@ const PhaseHeader = ({ n, title, accent }: { n: number; title: string; accent: s
 
 const JourneyScreen = () => {
   const { profile } = useProfile();
+  const { isActive } = useSubscription();
   const day = profile?.current_day ?? 1;
   const [open, setOpen] = useState<number | null>(day);
   const [checks, setChecks] = useState<Record<number, Record<string, boolean>>>({});
@@ -175,8 +296,17 @@ const JourneyScreen = () => {
     });
   };
 
-  const dayStatus = (n: number): "done" | "active" | "locked" =>
-    n < day ? "done" : n === day ? "active" : "locked";
+  const dayStatus = (n: number): "done" | "active" | "locked" => {
+    // Days 4–21 are locked for non-Pro users
+    if (!isActive && n > 3) return "locked";
+    if (n < day) return "done";
+    if (n === day) return "active";
+    return "locked";
+  };
+
+  const showPaywall = !isActive;
+  const phase1FirstThree = PHASE_1.slice(0, 3);
+  const phase1Rest = PHASE_1.slice(3);
 
   return (
     <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}
@@ -187,7 +317,18 @@ const JourneyScreen = () => {
 
       <PhaseHeader n={1} title="Prove it works" accent="hsl(var(--rs-cream))" />
       <div className="space-y-2.5">
-        {PHASE_1.map((d) => (
+        {phase1FirstThree.map((d) => (
+          <DayRow key={d.day} d={d} status={dayStatus(d.day)} expanded={open === d.day}
+            onToggle={() => setOpen(open === d.day ? null : d.day)} accent="hsl(var(--rs-cream))"
+            checks={checks[d.day] ?? {}} onCheck={(l, v) => handleCheck(d.day, l, v)} />
+        ))}
+      </div>
+
+      {showPaywall && <PaywallGate />}
+      {showPaywall && <RoadmapStrip currentDay={day} />}
+
+      <div className="space-y-2.5">
+        {phase1Rest.map((d) => (
           <DayRow key={d.day} d={d} status={dayStatus(d.day)} expanded={open === d.day}
             onToggle={() => setOpen(open === d.day ? null : d.day)} accent="hsl(var(--rs-cream))"
             checks={checks[d.day] ?? {}} onCheck={(l, v) => handleCheck(d.day, l, v)} />
