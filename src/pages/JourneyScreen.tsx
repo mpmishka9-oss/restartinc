@@ -7,6 +7,9 @@ import BottomNav from "@/components/layout/BottomNav";
 import TopBar from "@/components/layout/TopBar";
 import { useSubscription } from "@/hooks/useSubscription";
 import { getPracticesForState } from "@/lib/getPracticesForState";
+import { useAuth } from "@/hooks/useAuth";
+import { initiateRazorpayCheckout } from "@/lib/razorpay";
+import { toast } from "sonner";
 
 interface DayPlan {
   day: number;
@@ -145,6 +148,31 @@ const TriadRow = ({ icon, label, name, duration }: { icon: string; label: string
 
 const PaywallGate = () => {
   const nav = useNavigate();
+  const { user } = useAuth();
+  const [loading, setLoading] = useState(false);
+
+  const handleStart = () => {
+    if (!user) { nav("/pricing"); return; }
+    setLoading(true);
+    initiateRazorpayCheckout({
+      amount: 2100,
+      planId: import.meta.env.VITE_RAZORPAY_PLAN_ID,
+      userName: (user as any)?.user_metadata?.name || user.email || "",
+      userEmail: user.email || "",
+      onSuccess: (paymentId) => {
+        localStorage.setItem("restart_pro", "true");
+        localStorage.setItem("restart_payment_id", paymentId);
+        setLoading(false);
+        nav("/home");
+      },
+      onFailure: (error) => {
+        console.error("Payment failed:", error);
+        setLoading(false);
+        toast.error("Payment was not completed");
+      },
+    });
+  };
+
   return (
     <div
       className="my-4 rounded-2xl p-6"
@@ -172,11 +200,12 @@ const PaywallGate = () => {
           <p className="text-[11px] text-black/50">then ₹199/mo</p>
           <p className="text-[11px] text-black/50">Less than ₹7 a day</p>
           <button
-            onClick={() => nav("/pricing")}
+            onClick={handleStart}
+            disabled={loading}
             className="w-full mt-3 py-2 text-white font-semibold"
             style={{ background: "#7B9BD6", borderRadius: 8 }}
           >
-            Start →
+            {loading ? "Opening…" : "Start →"}
           </button>
         </div>
       </div>
@@ -236,6 +265,19 @@ const JourneyScreen = () => {
   const day = profile?.current_day ?? 1;
   const [open, setOpen] = useState<number | null>(day);
   const [checks, setChecks] = useState<Record<number, Record<string, boolean>>>({});
+  const [localPro, setLocalPro] = useState<boolean>(() => {
+    try { return localStorage.getItem("restart_pro") === "true"; } catch { return false; }
+  });
+
+  useEffect(() => {
+    const onStorage = () => {
+      try { setLocalPro(localStorage.getItem("restart_pro") === "true"); } catch {}
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, []);
+
+  const isPro = isActive || localPro;
 
   // Sync current day to localStorage so Mandala can read phase
   useEffect(() => {
@@ -277,13 +319,13 @@ const JourneyScreen = () => {
 
   const dayStatus = (n: number): "done" | "active" | "locked" => {
     // Days 4–21 are locked for non-Pro users
-    if (!isActive && n > 3) return "locked";
+    if (!isPro && n > 3) return "locked";
     if (n < day) return "done";
     if (n === day) return "active";
     return "locked";
   };
 
-  const showPaywall = !isActive;
+  const showPaywall = !isPro;
   const phase1FirstThree = PHASE_1.slice(0, 3);
   const phase1Rest = PHASE_1.slice(3);
 
