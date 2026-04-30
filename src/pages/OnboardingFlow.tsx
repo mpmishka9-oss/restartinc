@@ -158,7 +158,7 @@ const OnboardingFlow = () => {
               onChange={(e) => setText(e.target.value)}
               placeholder={q.placeholder}
               rows={4}
-              className="w-full mt-8 border border-white/25 rounded-xl px-4 py-3.5 text-white placeholder:text-white/40 outline-none focus:border-rs-cream resize-none bg-rs-navy"
+               className="w-full mt-8 border border-white/25 rounded-xl px-4 py-3.5 text-white placeholder:text-white/40 outline-none focus:border-rs-cream resize-none text-[rs-bg-dark] bg-rs-navy"
             />
           )}
 

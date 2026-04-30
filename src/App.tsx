@@ -21,6 +21,10 @@ import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 
+ import Terms from "./pages/Terms";
+ import Privacy from "./pages/Privacy";
+ import Refund from "./pages/Refund";
+ 
 const queryClient = new QueryClient();
 
 const Gate = ({ children }: { children: JSX.Element }) => {
@@ -53,6 +57,9 @@ const RoutedApp = () => {
         <Route path="/checkin" element={<Gate><CheckInScreen /></Gate>} />
         <Route path="/practices" element={<Gate><PracticesScreen /></Gate>} />
         <Route path="/pricing" element={<PricingScreen />} />
+         <Route path="/terms" element={<Terms />} />
+         <Route path="/privacy" element={<Privacy />} />
+         <Route path="/refund" element={<Refund />} />
         <Route path="/profile" element={<Gate><ProfileScreen /></Gate>} />
         <Route path="/community" element={<Gate><CommunityScreen /></Gate>} />
         <Route path="/reset-password" element={<ResetPassword />} />

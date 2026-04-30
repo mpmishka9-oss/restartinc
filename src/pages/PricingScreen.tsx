@@ -94,14 +94,14 @@ const PricingScreen = () => {
           cta="Continue free" filled={false}
           onClick={() => nav("/home")} />
 
-        <Card label="PRO MONTHLY" badge="Most popular" price="₹199" sub="/month"
-          subline="7-day free trial · less than ₹7 a day"
-          features={["Full daily plan", "Streak continuity", "Community library", "Weekly reflections", "Monthly re-assessment"]}
-          cta={
-            currentPriceId === "pro_monthly" ? "Current plan" :
-            currentPriceId === "pro_annual" ? "Switch to monthly" :
-            "Start free trial"
-          }
+         <Card label="PRO MONTHLY" badge="Most popular" price="₹199" sub="/month"
+           subline="Less than ₹7 a day"
+           features={["Full daily plan", "Streak continuity", "Community library", "Weekly reflections", "Monthly re-assessment"]}
+           cta={
+             currentPriceId === "pro_monthly" ? "Current plan" :
+             currentPriceId === "pro_annual" ? "Switch to monthly" :
+             "Upgrade to Pro"
+           }
           disabled={currentPriceId === "pro_monthly" || checkoutLoading}
           loading={checkoutLoading}
           onClick={() => handleSubscribe("pro_monthly")}
@@ -120,8 +120,15 @@ const PricingScreen = () => {
           onClick={() => handleSubscribe("pro_annual")}
           filled />
 
-        <p className="text-center text-rs-muted text-[11px] mt-4">Secure checkout · UPI · Cards · Net Banking</p>
-        <p className="text-center text-rs-cream text-[12px] underline">Questions? WhatsApp us →</p>
+         <p className="text-center text-rs-muted text-[11px] mt-4">
+           Secure checkout · UPI · Cards · Net Banking
+         </p>
+         <div className="flex justify-center gap-4 mt-2">
+           <button onClick={() => nav("/terms")} className="text-rs-muted text-[10px] underline">Terms</button>
+           <button onClick={() => nav("/privacy")} className="text-rs-muted text-[10px] underline">Privacy</button>
+           <button onClick={() => nav("/refund")} className="text-rs-muted text-[10px] underline">Refunds</button>
+         </div>
+         <p className="text-center text-rs-cream text-[12px] underline mt-4">Questions? WhatsApp us →</p>
       </div>
     </motion.div>
   );

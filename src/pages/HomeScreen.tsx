@@ -11,11 +11,13 @@ import TopBar from "@/components/layout/TopBar";
 import Mandala from "@/components/home/Mandala";
 import { useSubscription } from "@/hooks/useSubscription";
 
+ import { PremiumLockBanner } from "@/components/PremiumGate";
+ 
 const HomeScreen = () => {
   const nav = useNavigate();
   const { user } = useAuth();
-  const { profile, loading } = useProfile();
-  const { isPastDue } = useSubscription();
+   const { profile, loading } = useProfile();
+   const { isPastDue, isActive } = useSubscription();
   const [todayChecked, setTodayChecked] = useState<boolean | null>(null);
   const [detectedState, setDetectedState] = useState<string | null>(null);
 
@@ -81,46 +83,60 @@ const HomeScreen = () => {
           <p className="text-[12px] text-rs-muted mt-2">Day {day} of your reset</p>
         </div>
 
-        {/* Daily Loop card */}
-        <div className="rounded-2xl p-5 bg-white/13 border border-white/25">
-          <p className="text-[10px] tracking-[0.18em] uppercase text-rs-cream font-semibold">Today's check-in</p>
-
-          {!todayChecked ? (
-            <>
-              <p className="text-white text-[16px] mt-2 leading-snug">
-                Didi is here. A few breaths, a few questions — then your practices unlock.
-              </p>
-              <button onClick={() => nav("/checkin")}
-                className="w-full mt-4 py-3.5 btn-cream flex items-center justify-center gap-2 bg-[rs-bg-dark] bg-rs-bg">
-                Check in with Didi <ArrowRight className="w-4 h-4" />
-              </button>
-            </>
-          ) : (
-            <>
-              <div className="flex items-center gap-2 mt-3">
-                <div className="w-7 h-7 rounded-full bg-rs-cream/20 flex items-center justify-center">
-                  <Check className="w-4 h-4 text-rs-cream" />
-                </div>
-                <p className="text-white text-[15px]">You've checked in today.</p>
-              </div>
-              {detectedState && (
-                <div className="mt-3">
-                  <p className="text-[10px] tracking-[0.18em] uppercase text-rs-muted">State detected</p>
-                  <span className="inline-block mt-1 px-3 py-1 rounded-full bg-rs-cream/20 text-white text-[12px] capitalize">{detectedState}</span>
-                </div>
-              )}
-              <button onClick={() => nav("/practices")}
-                className="w-full mt-4 py-3 btn-outline-white flex items-center justify-center gap-2">
-                See today's practices <ArrowRight className="w-4 h-4" />
-              </button>
-              <button onClick={() => nav("/journey")}
-                className="w-full mt-2 py-3 text-rs-cream text-[13px] font-medium underline-offset-4 hover:underline">
-                3-day plan ready →
-              </button>
-              <p className="text-rs-muted text-[12px] italic mt-4 text-center">Tomorrow: a deeper ritual to ground your evening.</p>
-            </>
-          )}
-        </div>
+         {/* Daily Loop card */}
+         {day > 7 && !isActive ? (
+           <div className="rounded-2xl p-6 bg-white/13 border border-white/25 relative overflow-hidden">
+             <div className="absolute inset-0 bg-rs-navy/40 backdrop-blur-[2px]" />
+             <div className="relative z-10">
+               <p className="text-[10px] tracking-[0.18em] uppercase text-rs-cream font-semibold opacity-50">Today's check-in</p>
+               <h3 className="text-white text-[18px] font-bold mt-2">Phase 2: Integration</h3>
+               <p className="text-white/60 text-[14px] mt-2 leading-snug">
+                 Phase 1 (Days 1-7) was about resetting. To continue your journey and unlock Phase 2, upgrade to Pro.
+               </p>
+               <PremiumLockBanner feature="Phase 2 and 3 of the Reset" />
+             </div>
+           </div>
+         ) : (
+           <div className="rounded-2xl p-5 bg-white/13 border border-white/25">
+             <p className="text-[10px] tracking-[0.18em] uppercase text-rs-cream font-semibold">Today's check-in</p>
+ 
+             {!todayChecked ? (
+               <>
+                 <p className="text-white text-[16px] mt-2 leading-snug">
+                   Didi is here. A few breaths, a few questions — then your practices unlock.
+                 </p>
+                 <button onClick={() => nav("/checkin")}
+                   className="w-full mt-4 py-3.5 btn-cream flex items-center justify-center gap-2 bg-[rs-bg-dark] bg-rs-bg">
+                   Check in with Didi <ArrowRight className="w-4 h-4" />
+                 </button>
+               </>
+             ) : (
+               <>
+                 <div className="flex items-center gap-2 mt-3">
+                   <div className="w-7 h-7 rounded-full bg-rs-cream/20 flex items-center justify-center">
+                     <Check className="w-4 h-4 text-rs-cream" />
+                   </div>
+                   <p className="text-white text-[15px]">You've checked in today.</p>
+                 </div>
+                 {detectedState && (
+                   <div className="mt-3">
+                     <p className="text-[10px] tracking-[0.18em] uppercase text-rs-muted">State detected</p>
+                     <span className="inline-block mt-1 px-3 py-1 rounded-full bg-rs-cream/20 text-white text-[12px] capitalize">{detectedState}</span>
+                   </div>
+                 )}
+                 <button onClick={() => nav("/practices")}
+                   className="w-full mt-4 py-3 btn-outline-white flex items-center justify-center gap-2">
+                   See today's practices <ArrowRight className="w-4 h-4" />
+                 </button>
+                 <button onClick={() => nav("/journey")}
+                   className="w-full mt-2 py-3 text-rs-cream text-[13px] font-medium underline-offset-4 hover:underline">
+                   3-day plan ready →
+                 </button>
+                 <p className="text-rs-muted text-[12px] italic mt-4 text-center">Tomorrow: a deeper ritual to ground your evening.</p>
+               </>
+             )}
+           </div>
+         )}
 
         {/* Day-18 nudge */}
         {day >= 18 && day <= 21 && (
