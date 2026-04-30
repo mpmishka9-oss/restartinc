@@ -94,8 +94,9 @@ const PricingScreen = () => {
           cta="Continue free" filled={false}
           onClick={() => nav("/home")} />
 
-         <Card label="PRO MONTHLY" badge="Most popular" price="₹199" sub="/month"
-           subline="Less than ₹7 a day"
+         <Card label="PRO MONTHLY" badge="Most popular" price="₹21" sub="first mo"
+           subline="then ₹199/mo"
+           extraSubline="Less than ₹7 a day"
            features={["Full daily plan", "Streak continuity", "Community library", "Weekly reflections", "Monthly re-assessment"]}
            cta={
              currentPriceId === "pro_monthly" ? "Current plan" :
@@ -107,9 +108,9 @@ const PricingScreen = () => {
           onClick={() => handleSubscribe("pro_monthly")}
           filled highlight />
 
-        <Card label="PRO ANNUAL" price="₹999" sub="/year"
+        <Card label="PRO ANNUAL" price="₹999/yr" sub=""
           subline="₹2.7 a day · less than a chai"
-          features={["Everything in Pro", "Save ₹1,389/year vs monthly", "Best value"]}
+          features={["Everything in Pro", "Save ₹1,389/yr", "Founding member: ₹799 for first 500 users"]}
           cta={
             currentPriceId === "pro_annual" ? "Current plan" :
             currentPriceId === "pro_monthly" ? "Upgrade to annual" :
@@ -134,8 +135,8 @@ const PricingScreen = () => {
   );
 };
 
-const Card = ({ label, badge, price, sub, subline, tag, features, cta, filled, highlight, onClick, disabled, loading }: {
-  label: string; badge?: string; price: string; sub: string; subline?: string; tag?: string;
+const Card = ({ label, badge, price, sub, subline, extraSubline, tag, features, cta, filled, highlight, onClick, disabled, loading }: {
+  label: string; badge?: string; price: string; sub: string; subline?: string; extraSubline?: string; tag?: string;
   features: string[]; cta: string; filled: boolean; highlight?: boolean;
   onClick?: () => void; disabled?: boolean; loading?: boolean;
 }) => (
@@ -149,6 +150,7 @@ const Card = ({ label, badge, price, sub, subline, tag, features, cta, filled, h
       <span className="text-rs-muted text-[13px]">{sub}</span>
     </div>
     {subline && <p className="text-rs-muted text-[12px] mt-1">{subline}</p>}
+    {extraSubline && <p className="text-rs-muted text-[12px] mt-0.5">{extraSubline}</p>}
     {tag && <p className="text-rs-cream text-[11px] mt-2 italic">{tag}</p>}
     <ul className="mt-4 space-y-2">
       {features.map((f) => (
