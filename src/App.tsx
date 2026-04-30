@@ -19,7 +19,6 @@ import ProfileScreen from "./pages/ProfileScreen";
 import CommunityScreen from "./pages/CommunityScreen";
 import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
-import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 
  import Terms from "./pages/Terms";
  import Privacy from "./pages/Privacy";
@@ -77,7 +76,6 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
-            <PaymentTestModeBanner />
             <RoutedApp />
           </BrowserRouter>
         </TooltipProvider>
