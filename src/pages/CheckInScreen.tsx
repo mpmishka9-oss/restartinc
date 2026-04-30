@@ -153,7 +153,7 @@ const CheckInScreen = () => {
            <p className="text-[10px] tracking-[0.16em] uppercase text-rs-cream font-semibold">Didi says</p>
            <p className="text-white text-[14px] mt-2 leading-relaxed">{didiResp.reply}</p>
            {!isActive && (
-             <p className="text-[11px] text-white/50 mt-3 italic">
+             <p className="text-[11px] mt-3 italic text-primary-foreground">
                Note: Showing standard practices. Pro unlocks full personalisation.
              </p>
            )}
