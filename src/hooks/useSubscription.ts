@@ -1,7 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { getPaddleEnvironment } from "@/lib/paddle";
 
 export interface SubscriptionRow {
   id: string;
@@ -31,21 +30,18 @@ export function useSubscription() {
   const [subscription, setSubscription] = useState<SubscriptionRow | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const env = getPaddleEnvironment();
-
   const fetchSub = useCallback(async () => {
     if (!user) { setSubscription(null); setLoading(false); return; }
     const { data } = await supabase
       .from("subscriptions")
       .select("*")
       .eq("user_id", user.id)
-      .eq("environment", env)
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle();
     setSubscription((data as SubscriptionRow | null) ?? null);
     setLoading(false);
-  }, [user, env]);
+  }, [user]);
 
   useEffect(() => { fetchSub(); }, [fetchSub]);
 
