@@ -124,40 +124,45 @@ const CheckInScreen = () => {
     );
   }
 
-  if (step === "result" && didiResp) {
-    return (
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="phone-frame min-h-screen px-5 pt-10 pb-10" style={{ paddingTop: 54 }}>
-        <TopBar />
-        <p className="text-[10px] tracking-[0.2em] uppercase text-rs-cream font-semibold">Didi reads</p>
-        <h2 className="text-[24px] font-bold text-white mt-1">{didiResp.state} — intensity {intensity}</h2>
-
-        {/* Brain SVG */}
-        <div className="my-7 flex justify-center">
-          <svg viewBox="0 0 200 160" className="w-56 h-44" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="1.5">
-            <ellipse cx="100" cy="80" rx="70" ry="55" />
-            <path d="M30 80 Q60 40 100 50 T170 80" />
-            <path d="M30 80 Q60 120 100 110 T170 80" />
-            <circle cx="100" cy="80" r="14" fill="hsl(var(--rs-cream))" opacity="0.85" />
-            <circle cx="100" cy="80" r="20" fill="none" stroke="hsl(var(--rs-cream))" opacity="0.4" />
-          </svg>
-        </div>
-
-        <div className="rounded-2xl p-5 bg-white/13 border border-white/25">
-          <p className="text-[10px] tracking-[0.16em] uppercase text-rs-cream font-semibold">The science</p>
-          <p className="text-white text-[14px] leading-relaxed mt-2">{didiResp.insight}</p>
-        </div>
-
-        <div className="rounded-2xl p-5 bg-rs-cream/15 border border-rs-cream mt-3">
-          <p className="text-[10px] tracking-[0.16em] uppercase text-rs-cream font-semibold">Didi says</p>
-          <p className="text-white text-[14px] mt-2 leading-relaxed">{didiResp.reply}</p>
-        </div>
-
-        <button onClick={() => nav("/practices")} className="w-full mt-6 py-3.5 btn-cream flex items-center justify-center gap-2">
-          See my practices <ArrowRight className="w-4 h-4" />
-        </button>
-      </motion.div>
-    );
-  }
+   if (step === "result" && didiResp) {
+     return (
+       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="phone-frame min-h-screen px-5 pt-10 pb-10" style={{ paddingTop: 54 }}>
+         <TopBar />
+         <p className="text-[10px] tracking-[0.2em] uppercase text-rs-cream font-semibold">Didi reads</p>
+         <h2 className="text-[24px] font-bold text-white mt-1">{didiResp.state} — intensity {intensity}</h2>
+ 
+         {/* Brain SVG */}
+         <div className="my-7 flex justify-center">
+           <svg viewBox="0 0 200 160" className="w-56 h-44" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="1.5">
+             <ellipse cx="100" cy="80" rx="70" ry="55" />
+             <path d="M30 80 Q60 40 100 50 T170 80" />
+             <path d="M30 80 Q60 120 100 110 T170 80" />
+             <circle cx="100" cy="80" r="14" fill="hsl(var(--rs-cream))" opacity="0.85" />
+             <circle cx="100" cy="80" r="20" fill="none" stroke="hsl(var(--rs-cream))" opacity="0.4" />
+           </svg>
+         </div>
+ 
+         <div className="rounded-2xl p-5 bg-white/13 border border-white/25">
+           <p className="text-[10px] tracking-[0.16em] uppercase text-rs-cream font-semibold">The science</p>
+           <p className="text-white text-[14px] leading-relaxed mt-2">{didiResp.insight}</p>
+         </div>
+ 
+         <div className="rounded-2xl p-5 bg-rs-cream/15 border border-rs-cream mt-3">
+           <p className="text-[10px] tracking-[0.16em] uppercase text-rs-cream font-semibold">Didi says</p>
+           <p className="text-white text-[14px] mt-2 leading-relaxed">{didiResp.reply}</p>
+           {!profile?.is_pro && (
+             <p className="text-[11px] text-white/50 mt-3 italic">
+               Note: Showing standard practices. Pro unlocks full personalisation.
+             </p>
+           )}
+         </div>
+ 
+         <button onClick={() => nav("/practices")} className="w-full mt-6 py-3.5 btn-cream flex items-center justify-center gap-2">
+           See my practices <ArrowRight className="w-4 h-4" />
+         </button>
+       </motion.div>
+     );
+   }
 
   // Q1–4 questionnaire
   const QShell = ({ title, children }: { title: string; children: React.ReactNode }) => (
