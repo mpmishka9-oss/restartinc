@@ -96,8 +96,16 @@ const DayRow = ({ d, status, expanded, onToggle, accent, checks, onCheck }: {
         <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }}
           className="px-4 pb-4 space-y-2">
           <Task label="Morning Anchor" body={d.morning} checked={!!checks["Morning Anchor"]} onChange={(v) => onCheck("Morning Anchor", v)} />
-          <Task label="Neuro" body={d.neuro} checked={!!checks["Neuro"]} onChange={(v) => onCheck("Neuro", v)} />
-          <Task label="Ayurveda" body={d.ayurveda} checked={!!checks["Ayurveda"]} onChange={(v) => onCheck("Ayurveda", v)} />
+          {(() => {
+            const triad = getPracticesForState("default");
+            return (
+              <div className="mt-2 space-y-1.5">
+                <TriadRow icon="🧠" label="NEUROSCIENCE" name={triad.neuro.name} duration={triad.neuro.duration} />
+                <TriadRow icon="🌿" label="AYURVEDA" name={triad.ayurveda.name} duration={triad.ayurveda.duration} />
+                <TriadRow icon="💨" label="BREATHWORK" name={triad.breathwork.name} duration={triad.breathwork.duration} />
+              </div>
+            );
+          })()}
           {d.midday && <Task label="Midday Reset" body={d.midday} checked={!!checks["Midday Reset"]} onChange={(v) => onCheck("Midday Reset", v)} />}
           {d.focusWindow && <Task label="Focus Window" body={d.focusWindow} checked={!!checks["Focus Window"]} onChange={(v) => onCheck("Focus Window", v)} />}
           {d.community && <Task label="Community" body={d.community} checked={!!checks["Community"]} onChange={(v) => onCheck("Community", v)} />}
