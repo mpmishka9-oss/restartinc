@@ -163,8 +163,8 @@ const PaywallGate = () => {
       </p>
       <div className="mt-5 grid grid-cols-2 gap-3">
         {/* Monthly */}
-        <div className="bg-white p-4" style={{ border: "1px solid #c5d3e8", borderRadius: 12 }}>
-          <p className="text-[11px] uppercase tracking-wider" style={{ color: "#7B9BD6" }}>Monthly</p>
+         <div className="p-4 bg-transparent" style={{ border: "1px solid #c5d3e8", borderRadius: 12 }}>
+           <p className="text-[11px] uppercase tracking-wider text-rs-navy" style={{ color: "#7B9BD6" }}>Monthly</p>
           <p className="mt-1">
             <span className="text-[26px] font-bold" style={{ color: "#1A2A4A" }}>₹21</span>
             <span className="text-[12px] text-black/50 ml-1">/first month</span>
@@ -180,7 +180,7 @@ const PaywallGate = () => {
           </button>
         </div>
         {/* Annual */}
-        <div className="p-4 relative" style={{ background: "#1A2A4A", borderRadius: 12 }}>
+         <div className="p-4 relative text-[rs-cream-dark] text-rs-navy bg-rs-navy" style={{ background: "#1A2A4A", borderRadius: 12 }}>
           <p className="text-[10px] uppercase tracking-wider font-semibold" style={{ color: "#F5F0A0" }}>
             Best value
           </p>
