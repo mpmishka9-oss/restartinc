@@ -18,7 +18,7 @@
          <h2 className="text-white font-semibold mt-4">2. Data Security</h2>
          <p>We use industry-standard encryption and Supabase for secure data storage.</p>
          <h2 className="text-white font-semibold mt-4">3. Third Parties</h2>
-         <p>We share data with Paddle for payment processing and Supabase for authentication.</p>
+         <p>We share data with Razorpay for payment processing and Supabase for authentication.</p>
          <p className="pt-6 text-[12px] opacity-60 italic">Last updated: April 30, 2026. Contact: [Your Email]</p>
        </div>
      </div>
