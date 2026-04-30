@@ -7,6 +7,8 @@ import { useAuth } from "@/hooks/useAuth";
 import type { Tables } from "@/integrations/supabase/types";
 import BottomNav from "@/components/layout/BottomNav";
 import TopBar from "@/components/layout/TopBar";
+import { getPracticesForState } from "@/lib/getPracticesForState";
+import { CATEGORY_COLORS, type Practice as TriadPractice } from "@/data/practices";
 
 type Practice = Tables<"practices">;
 type CheckIn = Tables<"check_ins">;
@@ -81,19 +83,15 @@ const SYSTEM_BADGE: Record<string, { label: string; bg: string; fg: string }> = 
                 Check in <ArrowRight className="w-4 h-4" />
               </button>
             </div>
-          ) : today.length === 0 ? (
-            <p className="text-rs-muted text-center mt-6 text-[14px]">No practices yet for this state — check back soon.</p>
           ) : (
             <div className="space-y-3">
-               {today.map((p) => (
-                 <PracticeCard
-                   key={p.id}
-                   p={p}
-                   isPro={isPro}
-                   expanded={expanded === p.id}
-                   onToggle={() => setExpanded(expanded === p.id ? null : p.id)}
-                 />
-               ))}
+              {(() => {
+                const state = (typeof window !== "undefined" && localStorage.getItem("restart_checkin_state")) || "default";
+                const triad = getPracticesForState(state);
+                return [triad.neuro, triad.ayurveda, triad.breathwork].map((p) => (
+                  <TriadCard key={p.id} p={p} />
+                ));
+              })()}
             </div>
           )}
         </div>
