@@ -108,19 +108,6 @@ const PricingScreen = () => {
           onClick={() => handleSubscribe("pro_monthly")}
           filled highlight />
 
-        <Card label="PRO ANNUAL" price="₹999/yr" sub=""
-          subline="₹2.7 a day · less than a chai"
-          features={["Everything in Pro", "Save ₹1,389/yr", "Founding member: ₹799 for first 500 users"]}
-          cta={
-            currentPriceId === "pro_annual" ? "Current plan" :
-            currentPriceId === "pro_monthly" ? "Upgrade to annual" :
-            "Go annual"
-          }
-          disabled={currentPriceId === "pro_annual" || checkoutLoading}
-          loading={checkoutLoading}
-          onClick={() => handleSubscribe("pro_annual")}
-          filled />
-
          <p className="text-center text-rs-muted text-[11px] mt-4">
            Secure checkout · UPI · Cards · Net Banking
          </p>
