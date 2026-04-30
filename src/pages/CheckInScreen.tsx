@@ -8,6 +8,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
  import { useSubscription } from "@/hooks/useSubscription";
 import TopBar from "@/components/layout/TopBar";
+import { getPracticesForState } from "@/lib/getPracticesForState";
+import { CATEGORY_COLORS } from "@/data/practices";
 
 const FEELINGS = ["Anxious", "Stressed", "Low", "Overwhelmed", "Focused", "Good", "Energised", "Numb"];
 const SOURCES = ["Work", "Relationships", "My own mind", "Body", "External events", "Not sure"];
@@ -89,6 +91,8 @@ const CheckInScreen = () => {
       }
 
       setDidiResp({ state: STATE_INSIGHT[feeling]?.label ?? feeling, insight, reply });
+      // Persist the user-facing state for the practices screen triad
+      try { localStorage.setItem("restart_checkin_state", (feeling || "").toLowerCase()); } catch {}
       setStep("result");
     } catch (e: any) {
       toast.error(e.message ?? "Couldn't reach Didi — try again?");
