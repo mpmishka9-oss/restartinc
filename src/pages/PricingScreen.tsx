@@ -6,9 +6,7 @@ import { useProfile } from "@/hooks/useProfile";
 import TopBar from "@/components/layout/TopBar";
 import { useAuth } from "@/hooks/useAuth";
 import { useSubscription } from "@/hooks/useSubscription";
-import { usePaddleCheckout } from "@/hooks/usePaddleCheckout";
-import { supabase } from "@/integrations/supabase/client";
-import { getPaddleEnvironment } from "@/lib/paddle";
+import { initiateRazorpayCheckout } from "@/lib/razorpay";
 import { toast } from "sonner";
 
 const PricingScreen = () => {
@@ -16,8 +14,7 @@ const PricingScreen = () => {
   const { profile } = useProfile();
   const { user } = useAuth();
   const { subscription, isActive } = useSubscription();
-  const { openCheckout, loading: checkoutLoading } = usePaddleCheckout();
-  const [portalLoading, setPortalLoading] = useState(false);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [view, setView] = useState<"ambitious" | "emotional">((profile?.path as any) ?? "ambitious");
   const streak = profile?.streak_days ?? 0;
 
@@ -25,33 +22,26 @@ const PricingScreen = () => {
     ? "Your brain is 21 days more wired for focus than when you started."
     : "You've built 21 days of emotional regulation. Don't let it slip.";
 
-  const handleSubscribe = async (priceId: "pro_monthly" | "pro_annual") => {
+  const handleSubscribe = () => {
     if (!user) { nav("/"); return; }
-    try {
-      await openCheckout({
-        priceId,
-        customerEmail: user.email,
-        customData: { userId: user.id },
-        successUrl: `${window.location.origin}/home?checkout=success`,
-      });
-    } catch (e: any) {
-      toast.error(e?.message ?? "Could not open checkout");
-    }
-  };
-
-  const handleManage = async () => {
-    setPortalLoading(true);
-    try {
-      const { data, error } = await supabase.functions.invoke("customer-portal", {
-        body: { environment: getPaddleEnvironment() },
-      });
-      if (error || !data?.url) throw new Error(error?.message ?? "Could not open portal");
-      window.open(data.url as string, "_blank");
-    } catch (e: any) {
-      toast.error(e?.message ?? "Could not open billing portal");
-    } finally {
-      setPortalLoading(false);
-    }
+    setCheckoutLoading(true);
+    initiateRazorpayCheckout({
+      amount: 2100, // ₹21 first month in paise
+      planId: import.meta.env.VITE_RAZORPAY_PLAN_ID,
+      userName: (user as any)?.user_metadata?.name || user.email || "",
+      userEmail: user.email || "",
+      onSuccess: (paymentId) => {
+        localStorage.setItem("restart_pro", "true");
+        localStorage.setItem("restart_payment_id", paymentId);
+        setCheckoutLoading(false);
+        nav("/home");
+      },
+      onFailure: (error) => {
+        console.error("Payment failed:", error);
+        setCheckoutLoading(false);
+        toast.error("Payment was not completed");
+      },
+    });
   };
 
   const currentPriceId = subscription?.price_id ?? null;
@@ -81,11 +71,7 @@ const PricingScreen = () => {
       <div className="px-5 mt-5 space-y-4">
         {isActive && (
           <div className="rounded-xl p-4 bg-rs-cream/15 border border-rs-cream text-white text-[13px]">
-            You're on Restart Pro ({currentPriceId === "pro_annual" ? "Annual" : "Monthly"}).
-            <button onClick={handleManage} disabled={portalLoading}
-              className="block mt-2 text-rs-cream underline disabled:opacity-50">
-              {portalLoading ? "Opening…" : "Manage subscription"} →
-            </button>
+            You're on Restart Pro (Monthly).
           </div>
         )}
 
@@ -105,7 +91,7 @@ const PricingScreen = () => {
            }
           disabled={currentPriceId === "pro_monthly" || checkoutLoading}
           loading={checkoutLoading}
-          onClick={() => handleSubscribe("pro_monthly")}
+          onClick={handleSubscribe}
           filled highlight />
 
          <p className="text-center text-rs-muted text-[11px] mt-4">
