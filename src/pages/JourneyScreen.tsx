@@ -88,7 +88,7 @@ const DayRow = ({ d, status, expanded, onToggle, accent, checks, onCheck }: {
         </div>
         <div className="flex-1">
           <p className="text-white text-[14px] font-semibold">Day {d.day}</p>
-          <p className="text-rs-muted text-[12px]">{locked ? "Unlocks soon" : d.morning}</p>
+          <p className="text-rs-muted text-[12px]">{locked ? (d.day > 3 ? "Unlock with Pro" : "Unlocks soon") : d.morning}</p>
         </div>
         {!locked && (expanded ? <ChevronUp className="w-4 h-4 text-white/60" /> : <ChevronDown className="w-4 h-4 text-white/60" />)}
       </button>
