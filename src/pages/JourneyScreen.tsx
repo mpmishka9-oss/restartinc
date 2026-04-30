@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ChevronDown, ChevronUp, Check, Lock } from "lucide-react";
 import { useProfile } from "@/hooks/useProfile";
 import BottomNav from "@/components/layout/BottomNav";
 import TopBar from "@/components/layout/TopBar";
+import { useSubscription } from "@/hooks/useSubscription";
+import { getPracticesForState } from "@/lib/getPracticesForState";
 
 interface DayPlan {
   day: number;
