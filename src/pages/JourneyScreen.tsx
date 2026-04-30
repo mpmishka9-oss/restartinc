@@ -253,6 +253,7 @@ const PhaseHeader = ({ n, title, accent }: { n: number; title: string; accent: s
 
 const JourneyScreen = () => {
   const { profile } = useProfile();
+  const { isActive } = useSubscription();
   const day = profile?.current_day ?? 1;
   const [open, setOpen] = useState<number | null>(day);
   const [checks, setChecks] = useState<Record<number, Record<string, boolean>>>({});
@@ -295,8 +296,17 @@ const JourneyScreen = () => {
     });
   };
 
-  const dayStatus = (n: number): "done" | "active" | "locked" =>
-    n < day ? "done" : n === day ? "active" : "locked";
+  const dayStatus = (n: number): "done" | "active" | "locked" => {
+    // Days 4–21 are locked for non-Pro users
+    if (!isActive && n > 3) return "locked";
+    if (n < day) return "done";
+    if (n === day) return "active";
+    return "locked";
+  };
+
+  const showPaywall = !isActive;
+  const phase1FirstThree = PHASE_1.slice(0, 3);
+  const phase1Rest = PHASE_1.slice(3);
 
   return (
     <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}
@@ -307,7 +317,18 @@ const JourneyScreen = () => {
 
       <PhaseHeader n={1} title="Prove it works" accent="hsl(var(--rs-cream))" />
       <div className="space-y-2.5">
-        {PHASE_1.map((d) => (
+        {phase1FirstThree.map((d) => (
+          <DayRow key={d.day} d={d} status={dayStatus(d.day)} expanded={open === d.day}
+            onToggle={() => setOpen(open === d.day ? null : d.day)} accent="hsl(var(--rs-cream))"
+            checks={checks[d.day] ?? {}} onCheck={(l, v) => handleCheck(d.day, l, v)} />
+        ))}
+      </div>
+
+      {showPaywall && <PaywallGate />}
+      {showPaywall && <RoadmapStrip currentDay={day} />}
+
+      <div className="space-y-2.5">
+        {phase1Rest.map((d) => (
           <DayRow key={d.day} d={d} status={dayStatus(d.day)} expanded={open === d.day}
             onToggle={() => setOpen(open === d.day ? null : d.day)} accent="hsl(var(--rs-cream))"
             checks={checks[d.day] ?? {}} onCheck={(l, v) => handleCheck(d.day, l, v)} />
