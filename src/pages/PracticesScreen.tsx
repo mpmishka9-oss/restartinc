@@ -17,8 +17,13 @@ const SYSTEM_BADGE: Record<string, { label: string; bg: string; fg: string }> = 
   peak: { label: "Breathwork", bg: "rgba(245,240,160,0.2)", fg: "hsl(var(--rs-cream))" },
 };
 
-const PracticesScreen = () => {
-  const { user } = useAuth();
+ import { useSubscription } from "@/hooks/useSubscription";
+ import { PremiumLockBanner } from "@/components/PremiumGate";
+ 
+ const PracticesScreen = () => {
+   const { user } = useAuth();
+   const { isActive } = useSubscription();
+   const isPro = isActive;
   const nav = useNavigate();
   const [tab, setTab] = useState<"today" | "library">("today");
   const [subTab, setSubTab] = useState<"neuro" | "ayurveda">("neuro");
@@ -80,7 +85,15 @@ const PracticesScreen = () => {
             <p className="text-rs-muted text-center mt-6 text-[14px]">No practices yet for this state — check back soon.</p>
           ) : (
             <div className="space-y-3">
-              {today.map((p) => <PracticeCard key={p.id} p={p} expanded={expanded === p.id} onToggle={() => setExpanded(expanded === p.id ? null : p.id)} />)}
+               {today.map((p) => (
+                 <PracticeCard
+                   key={p.id}
+                   p={p}
+                   isPro={isPro}
+                   expanded={expanded === p.id}
+                   onToggle={() => setExpanded(expanded === p.id ? null : p.id)}
+                 />
+               ))}
             </div>
           )}
         </div>
@@ -100,10 +113,15 @@ const PracticesScreen = () => {
             <div key={lvl} className="mb-5">
               <p className="text-[10px] tracking-[0.2em] uppercase text-rs-cream font-semibold mb-2">Level {lvl}</p>
               <div className="space-y-2.5">
-                {allPractices.filter((p) => p.system === subTab).map((p) => (
-                  <PracticeCard key={`${lvl}-${p.id}`} p={p} level={lvl as 1|2|3}
-                    expanded={expanded === `${lvl}-${p.id}`}
-                    onToggle={() => setExpanded(expanded === `${lvl}-${p.id}` ? null : `${lvl}-${p.id}`)} />
+                 {allPractices.filter((p) => p.system === subTab).map((p) => (
+                   <PracticeCard
+                     key={`${lvl}-${p.id}`}
+                     p={p}
+                     level={lvl as 1|2|3}
+                     isPro={isPro}
+                     expanded={expanded === `${lvl}-${p.id}`}
+                     onToggle={() => setExpanded(expanded === `${lvl}-${p.id}` ? null : `${lvl}-${p.id}`)}
+                   />
                 ))}
               </div>
             </div>
@@ -116,38 +134,51 @@ const PracticesScreen = () => {
   );
 };
 
-const PracticeCard = ({ p, expanded, onToggle, level }: { p: Practice; expanded: boolean; onToggle: () => void; level?: 1|2|3 }) => {
-  const badge = SYSTEM_BADGE[p.system] ?? SYSTEM_BADGE.neuro;
-  const protocol = level === 1 ? p.level_1 : level === 3 ? p.level_3 : p.level_2;
-  return (
-    <div className="rounded-2xl bg-white/13 border border-white/25 overflow-hidden">
-      <button onClick={onToggle} className="w-full text-left p-4 btn-press">
-        <div className="flex items-center gap-2">
-          <span className="px-2 py-0.5 rounded-full text-rs-navy font-bold text-xs bg-rs-cream">{badge.label}</span>
-          <span className="ml-auto inline-flex items-center gap-1 text-[11px] text-rs-navy">
-            <Clock className="w-3 h-3" /> {p.duration_mins} min
-          </span>
-        </div>
-        <p className="text-white text-[15px] font-semibold mt-2">{p.title}</p>
-        <p className="text-rs-muted text-[12px] mt-1 line-clamp-1">{p.why_it_works}</p>
-      </button>
-      {expanded && (
-        <div className="px-4 pb-4 -mt-1 space-y-3">
-          <div>
-            <p className="text-[10px] tracking-[0.16em] uppercase text-rs-cream font-semibold">Protocol</p>
-            <p className="text-white text-[13px] mt-1 leading-relaxed">{protocol}</p>
-          </div>
-          <div>
-            <p className="text-[10px] tracking-[0.16em] uppercase text-rs-cream font-semibold">Why it works</p>
-            <p className="text-white text-[13px] mt-1 leading-relaxed">{p.why_it_works}</p>
-          </div>
-          <button className="w-full mt-2 py-3 btn-cream flex items-center justify-center gap-2">
-            Start <ArrowRight className="w-4 h-4" />
-          </button>
-        </div>
-      )}
-    </div>
-  );
-};
+ const PracticeCard = ({ p, expanded, onToggle, level, isPro }: { p: Practice; expanded: boolean; onToggle: () => void; level?: 1|2|3; isPro: boolean }) => {
+   const badge = SYSTEM_BADGE[p.system] ?? SYSTEM_BADGE.neuro;
+   const effectiveLevel = level || 1;
+   const protocol = effectiveLevel === 1 ? p.level_1 : effectiveLevel === 3 ? p.level_3 : p.level_2;
+   const isLocked = effectiveLevel > 1 && !isPro;
+ 
+   return (
+     <div className="rounded-2xl bg-white/13 border border-white/25 overflow-hidden">
+       <button onClick={onToggle} className="w-full text-left p-4 btn-press">
+         <div className="flex items-center gap-2">
+           <span className="px-2 py-0.5 rounded-full text-rs-navy font-bold text-xs bg-rs-cream">{badge.label}</span>
+           {isLocked && <span className="text-[10px] text-rs-cream font-bold">PRO</span>}
+           <span className="ml-auto inline-flex items-center gap-1 text-[11px] text-rs-navy font-medium">
+             <Clock className="w-3 h-3" /> {p.duration_mins} min
+           </span>
+         </div>
+         <p className="text-white text-[15px] font-semibold mt-2">{p.title}</p>
+         <p className="text-rs-muted text-[12px] mt-1 line-clamp-1">{p.why_it_works}</p>
+       </button>
+       {expanded && (
+         <div className="px-4 pb-4 -mt-1 space-y-3 relative">
+           {isLocked ? (
+             <div className="py-2">
+               <p className="text-white/60 text-[13px] mb-3">Levels 2 and 3 protocols are tailored for deeper regulation and require Restart Pro.</p>
+               <PremiumLockBanner feature={`Level ${effectiveLevel} protocols`} />
+             </div>
+           ) : (
+             <>
+               <div>
+                 <p className="text-[10px] tracking-[0.16em] uppercase text-rs-cream font-semibold">Protocol</p>
+                 <p className="text-white text-[13px] mt-1 leading-relaxed">{protocol}</p>
+               </div>
+               <div>
+                 <p className="text-[10px] tracking-[0.16em] uppercase text-rs-cream font-semibold">Why it works</p>
+                 <p className="text-white text-[13px] mt-1 leading-relaxed">{p.why_it_works}</p>
+               </div>
+               <button className="w-full mt-2 py-3 btn-cream flex items-center justify-center gap-2">
+                 Start <ArrowRight className="w-4 h-4" />
+               </button>
+             </>
+           )}
+         </div>
+       )}
+     </div>
+   );
+ };
 
 export default PracticesScreen;
