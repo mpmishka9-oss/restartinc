@@ -161,7 +161,7 @@ const PaywallGate = () => {
       <p className="text-center text-[13px] mt-1" style={{ color: "rgba(26,42,74,0.6)" }}>
         Your brain is already changing. Keep the momentum going.
       </p>
-      <div className="mt-5 grid grid-cols-2 gap-3">
+      <div className="mt-5" style={{ width: "100%", maxWidth: 400, margin: "0 auto" }}>
         {/* Monthly */}
          <div className="p-4 bg-transparent" style={{ border: "1px solid #c5d3e8", borderRadius: 12 }}>
            <p className="text-[11px] uppercase tracking-wider text-rs-navy" style={{ color: "#7B9BD6" }}>Monthly</p>
@@ -177,27 +177,6 @@ const PaywallGate = () => {
             style={{ background: "#7B9BD6", borderRadius: 8 }}
           >
             Start →
-          </button>
-        </div>
-        {/* Annual */}
-         <div className="p-4 relative text-[rs-cream-dark] text-rs-navy bg-rs-navy" style={{ background: "#1A2A4A", borderRadius: 12 }}>
-          <p className="text-[10px] uppercase tracking-wider font-semibold" style={{ color: "#F5F0A0" }}>
-            Best value
-          </p>
-          <p className="text-[11px] uppercase tracking-wider mt-1" style={{ color: "#F5F0A0", opacity: 0.7 }}>
-            Annual
-          </p>
-          <p className="mt-1">
-            <span className="text-[26px] font-bold text-white">₹999/yr</span>
-          </p>
-          <p className="text-[11px]" style={{ color: "rgba(255,255,255,0.5)" }}>₹2.7 a day</p>
-          <p className="text-[11px] mt-0.5" style={{ color: "#F5F0A0", fontWeight: 600 }}>First 500: ₹799</p>
-          <button
-            onClick={() => nav("/pricing")}
-            className="w-full mt-3 py-2 font-bold"
-            style={{ background: "#F5F0A0", color: "#1A2A4A", borderRadius: 8 }}
-          >
-            Get this →
           </button>
         </div>
       </div>
