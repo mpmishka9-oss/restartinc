@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
+ import { useSubscription } from "@/hooks/useSubscription";
 import TopBar from "@/components/layout/TopBar";
 
 const FEELINGS = ["Anxious", "Stressed", "Low", "Overwhelmed", "Focused", "Good", "Energised", "Numb"];
@@ -42,6 +43,7 @@ const CheckInScreen = () => {
   const nav = useNavigate();
   const { user } = useAuth();
   const { profile } = useProfile();
+   const { isActive } = useSubscription();
   const [step, setStep] = useState<Step>("greet");
   const [feeling, setFeeling] = useState("");
   const [intensity, setIntensity] = useState(5);
@@ -150,7 +152,7 @@ const CheckInScreen = () => {
          <div className="rounded-2xl p-5 bg-rs-cream/15 border border-rs-cream mt-3">
            <p className="text-[10px] tracking-[0.16em] uppercase text-rs-cream font-semibold">Didi says</p>
            <p className="text-white text-[14px] mt-2 leading-relaxed">{didiResp.reply}</p>
-           {!profile?.is_pro && (
+           {!isActive && (
              <p className="text-[11px] text-white/50 mt-3 italic">
                Note: Showing standard practices. Pro unlocks full personalisation.
              </p>
