@@ -169,7 +169,8 @@ const PaywallGate = () => {
             <span className="text-[26px] font-bold" style={{ color: "#1A2A4A" }}>₹21</span>
             <span className="text-[12px] text-black/50 ml-1">/first month</span>
           </p>
-          <p className="text-[11px] text-black/50">then ₹1,389/mo</p>
+          <p className="text-[11px] text-black/50">then ₹199/mo</p>
+          <p className="text-[11px] text-black/50">Less than ₹7 a day</p>
           <button
             onClick={() => nav("/pricing")}
             className="w-full mt-3 py-2 text-white font-semibold"
@@ -187,8 +188,7 @@ const PaywallGate = () => {
             Annual
           </p>
           <p className="mt-1">
-            <span className="text-[26px] font-bold text-white">₹999</span>
-            <span className="text-[12px] ml-1" style={{ color: "rgba(255,255,255,0.6)" }}>/year</span>
+            <span className="text-[26px] font-bold text-white">₹999/yr</span>
           </p>
           <p className="text-[11px]" style={{ color: "rgba(255,255,255,0.5)" }}>₹2.7 a day</p>
           <p className="text-[11px] mt-0.5" style={{ color: "#F5F0A0", fontWeight: 600 }}>First 500: ₹799</p>
