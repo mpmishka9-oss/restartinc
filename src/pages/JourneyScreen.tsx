@@ -265,6 +265,19 @@ const JourneyScreen = () => {
   const day = profile?.current_day ?? 1;
   const [open, setOpen] = useState<number | null>(day);
   const [checks, setChecks] = useState<Record<number, Record<string, boolean>>>({});
+  const [localPro, setLocalPro] = useState<boolean>(() => {
+    try { return localStorage.getItem("restart_pro") === "true"; } catch { return false; }
+  });
+
+  useEffect(() => {
+    const onStorage = () => {
+      try { setLocalPro(localStorage.getItem("restart_pro") === "true"); } catch {}
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, []);
+
+  const isPro = isActive || localPro;
 
   // Sync current day to localStorage so Mandala can read phase
   useEffect(() => {
@@ -306,13 +319,13 @@ const JourneyScreen = () => {
 
   const dayStatus = (n: number): "done" | "active" | "locked" => {
     // Days 4–21 are locked for non-Pro users
-    if (!isActive && n > 3) return "locked";
+    if (!isPro && n > 3) return "locked";
     if (n < day) return "done";
     if (n === day) return "active";
     return "locked";
   };
 
-  const showPaywall = !isActive;
+  const showPaywall = !isPro;
   const phase1FirstThree = PHASE_1.slice(0, 3);
   const phase1Rest = PHASE_1.slice(3);
 
