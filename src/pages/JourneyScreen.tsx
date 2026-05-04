@@ -227,6 +227,31 @@ const PaywallGate = () => {
           >
             {loading ? "Opening…" : "Continue my reset →"}
           </button>
+          {typeof import.meta.env.VITE_RAZORPAY_KEY_ID === "string" &&
+            import.meta.env.VITE_RAZORPAY_KEY_ID.includes("test") && (
+              <button
+                onClick={() => {
+                  try {
+                    localStorage.setItem("restart_pro", "true");
+                    localStorage.setItem("restart_payment_id", "test_simulation");
+                  } catch {}
+                  window.location.href = "/journey";
+                }}
+                style={{
+                  fontSize: 11,
+                  color: "var(--color-text-tertiary)",
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  display: "block",
+                  textAlign: "center",
+                  marginTop: 8,
+                  width: "100%",
+                }}
+              >
+                [Dev] Simulate payment success
+              </button>
+            )}
         </div>
       </div>
     </div>
