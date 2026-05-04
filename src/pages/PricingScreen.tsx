@@ -80,10 +80,17 @@ const PricingScreen = () => {
           cta="Continue free" filled={false}
           onClick={() => nav("/home")} />
 
-         <Card label="PRO MONTHLY" badge="Most popular" price="₹21" sub="first mo"
-           subline="then ₹199/mo"
-           extraSubline="Less than ₹7 a day"
-           features={["Full daily plan", "Streak continuity", "Community library", "Weekly reflections", "Monthly re-assessment"]}
+        <Card label="21-DAY RESET PASS" badge="Most popular" price="₹21" sub=""
+           subline="Covers days 4–21 of your reset"
+           extraSubline="₹199/mo from month 2 onwards"
+           features={[
+             "Full 21-day daily plan",
+             "Didi check-ins every day",
+             "All neuroscience + Ayurveda practices",
+             "Streak continuity + shield",
+             "Week 1, 2 and 3 insight reports",
+             "Full Reset Report on Day 21",
+           ]}
            cta={
              currentPriceId === "pro_monthly" ? "Current plan" :
              currentPriceId === "pro_annual" ? "Switch to monthly" :
