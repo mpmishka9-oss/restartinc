@@ -24,15 +24,16 @@ export function initiateRazorpayCheckout({
     amount: amount,
     currency: "INR",
     name: "ReStart",
-    description: "Pro Monthly — first month ₹21, then ₹199/mo",
+    description: "ReStart — 21-Day Reset Pass (Days 4–21)",
     image: "/src/assets/logo.png",
     prefill: {
       name: userName,
       email: userEmail,
     },
     notes: {
+      plan: "reset_21_day",
+      then: "₹199/mo from month 2",
       plan_id: planId,
-      first_month: amount === 2100 ? "true" : "false",
     },
     theme: {
       color: "#7B9BD6",
