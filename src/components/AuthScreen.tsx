@@ -62,7 +62,7 @@ const AuthScreen = () => {
       className="flex flex-col items-center justify-center px-6"
       style={{
         background:
-          "radial-gradient(ellipse at 60% 40%, #7B9BD6 0%, #9BB5E0 30%, #C5D8EE 60%, #E8EFF7 100%)",
+          "radial-gradient(circle at 50% 50%, #6a8aff 0%, #b2fbff 100%)",
         minHeight: "100dvh",
       }}
     >
