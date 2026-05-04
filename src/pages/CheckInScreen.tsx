@@ -11,9 +11,84 @@ import TopBar from "@/components/layout/TopBar";
 import { getPracticesForState } from "@/lib/getPracticesForState";
 import { CATEGORY_COLORS } from "@/data/practices";
 
-const FEELINGS = ["Anxious", "Stressed", "Low", "Overwhelmed", "Focused", "Good", "Energised", "Numb"];
-const SOURCES = ["Work", "Relationships", "My own mind", "Body", "External events", "Not sure"];
-const NEEDS = ["Something to calm me", "Something to energise me", "Help focusing", "To understand what I'm feeling", "Just to be seen"];
+const FEELINGS = [
+  "Anxious / worried",
+  "Stressed / under pressure",
+  "Low / sad",
+  "Overwhelmed / scattered",
+  "Angry / frustrated",
+  "Focused and clear",
+  "Good / motivated",
+  "Numb / flat",
+];
+
+const AMBITIOUS_BLOCKERS = [
+  "My focus keeps breaking",
+  "I'm avoiding something important",
+  "I have no energy to start",
+  "I'm overthinking everything",
+  "Nothing — I'm ready to go",
+];
+
+// Map a long feeling label to the short emotion key used by STATE_INSIGHT / practices
+const feelingKey = (f: string): string => {
+  const s = f.toLowerCase();
+  if (s.startsWith("anxious")) return "Anxious";
+  if (s.startsWith("stressed")) return "Stressed";
+  if (s.startsWith("low")) return "Low";
+  if (s.startsWith("overwhelmed")) return "Overwhelmed";
+  if (s.startsWith("angry")) return "Stressed";
+  if (s.startsWith("focused")) return "Focused";
+  if (s.startsWith("good")) return "Good";
+  if (s.startsWith("numb")) return "Numb";
+  return "Stressed";
+};
+
+const intensityLabel = (n: number) =>
+  n <= 3 ? "Barely there — more like background noise"
+  : n <= 6 ? "Noticeable — it's affecting me"
+  : n <= 8 ? "Strong — hard to ignore"
+  : "Overwhelming — I really need support";
+
+const ROLE_CHIPS: Record<string, string> = {
+  "Student": "Balancing study pressure and your wellbeing",
+  "Working professional": "Navigating work and staying whole",
+  "Freelancer or self-employed": "Building something while managing yourself",
+  "Freelancer / self-employed": "Building something while managing yourself",
+  "Between jobs": "In a transition — that takes courage",
+  "Between jobs / taking a break": "In a transition — that takes courage",
+  "Homemaker or caregiver": "Giving a lot to others",
+  "Homemaker / caregiver": "Giving a lot to others",
+};
+
+const CHRONO_CHIPS: Record<string, string> = {
+  lion: "As a Lion, your peak is in the morning",
+  bear: "As a Bear, you flow with the day",
+  owl: "As an Owl, you come alive later",
+  dolphin: "As a Dolphin, your mind runs fast and light",
+};
+
+const PATH_CHIPS: Record<string, string> = {
+  ambitious: "You're here to perform and achieve more",
+  stressed: "You're navigating some heavy stuff right now",
+};
+
+const didiInsight = (chronotype: string, feelingShort: string): string => {
+  const c = (chronotype || "").toLowerCase();
+  const f = feelingShort.toLowerCase();
+  const key = `${c}_${f}`;
+  const map: Record<string, string> = {
+    lion_anxious: "Your Lion drive is working against you right now — your brain is in alert mode, not execution mode. Let's reset the nervous system first.",
+    lion_focused: "You're in your zone. This is what Lion energy feels like — protect this window.",
+    bear_overwhelmed: "You've absorbed too much today. Bears carry stress quietly until it spills — let's release some pressure before it builds further.",
+    bear_low: "Your rhythm is off today. That's okay — Bears have slower days. Small movement forward is enough.",
+    owl_anxious: "Late-night thinking patterns are activating early. Your creative mind needs a pattern interrupt before the spiral deepens.",
+    owl_focused: "You're hitting your natural rhythm. Owls find their flow — ride this window as long as you can.",
+    dolphin_overwhelmed: "Your Dolphin mind is running too many tabs. The goal right now is not to solve everything — it's to close a few tabs.",
+    dolphin_anxious: "Your nervous system is highly sensitive — that's also why you're so perceptive. Right now it needs calming, not more input.",
+  };
+  return map[key] ?? "Didi sees where you are. Let's work with what you have right now, not against it.";
+};
 
 const STATE_INSIGHT: Record<string, { label: string; insight: string; region: string }> = {
   Anxious: { label: "Anxious", insight: "Your amygdala is firing. A long exhale signals safety to your nervous system within 90 seconds.", region: "amygdala" },
@@ -26,7 +101,7 @@ const STATE_INSIGHT: Record<string, { label: string; insight: string; region: st
   Numb: { label: "Numb", insight: "Your nervous system is in shutdown. Cold water on your wrists or neck restores arousal in seconds.", region: "vagus" },
 };
 
-type Step = "greet" | "q1" | "q2" | "q3" | "q4" | "submitting" | "result";
+type Step = "greet" | "context" | "q1" | "q2" | "submitting" | "result";
 
 const Typewriter = ({ text, onDone }: { text: string; onDone?: () => void }) => {
   const [i, setI] = useState(0);
@@ -49,20 +124,39 @@ const CheckInScreen = () => {
   const [step, setStep] = useState<Step>("greet");
   const [feeling, setFeeling] = useState("");
   const [intensity, setIntensity] = useState(5);
-  const [source, setSource] = useState("");
-  const [need, setNeed] = useState("");
+  const [blocker, setBlocker] = useState("");
   const [didiResp, setDidiResp] = useState<{ state: string; insight: string; reply: string } | null>(null);
+
+  // Read onboarding context from AppContext / localStorage
+  const onboardingPath = (profile?.path as string) || (() => { try { return localStorage.getItem("restart_path") || ""; } catch { return ""; } })();
+  const onboardingChronotype = (profile?.chronotype as string) || (() => { try { return localStorage.getItem("restart_chronotype") || ""; } catch { return ""; } })();
+  const onboardingRole = (() => {
+    try {
+      const r = localStorage.getItem("restart_role");
+      if (r) return r;
+      const oa = (profile as any)?.onboarding_answers;
+      return oa?.role || "";
+    } catch { return ""; }
+  })();
+
+  const pathChip = PATH_CHIPS[(onboardingPath || "").toLowerCase()] || "";
+  const chronoChip = CHRONO_CHIPS[(onboardingChronotype || "").toLowerCase()] || "";
+  const roleChip = ROLE_CHIPS[onboardingRole] || "";
 
   const submit = async () => {
     setStep("submitting");
     try {
+      const fShort = feelingKey(feeling); // e.g. "Anxious"
       // Map UI feeling → DB enum detected_state
       const map: Record<string, string> = {
         Anxious: "anxiety", Stressed: "stress", Low: "burnout",
         Overwhelmed: "overwhelm", Focused: "peak", Good: "peak", Energised: "peak", Numb: "burnout",
       };
-      const detected = map[feeling] ?? "stress";
-      const message = `Feeling ${feeling.toLowerCase()} (intensity ${intensity}/10). Source: ${source}. Need: ${need}.`;
+      const detected = map[fShort] ?? "stress";
+      const q2Answer = onboardingPath === "ambitious"
+        ? `Blocker: ${blocker}`
+        : `Intensity: ${intensity}/10 (${intensityLabel(intensity)})`;
+      const message = `Feeling ${feeling.toLowerCase()}. ${q2Answer}.`;
 
       const { data, error } = await supabase.functions.invoke("check-in", {
         body: {
@@ -73,8 +167,9 @@ const CheckInScreen = () => {
       });
       if (error) throw error;
 
-      const insight = STATE_INSIGHT[feeling]?.insight ?? "";
-      const reply = data?.didi_response ?? "I hear you. Let's move gently from here.";
+      const insight = STATE_INSIGHT[fShort]?.insight ?? "";
+      const personalised = didiInsight(onboardingChronotype, fShort);
+      const reply = personalised;
       const dState = data?.detected_state ?? detected;
 
       // Save check-in
@@ -82,21 +177,24 @@ const CheckInScreen = () => {
         await supabase.from("check_ins").insert({
           user_id: user.id,
           detected_state: dState as any,
-          severity_score: intensity,
+          severity_score: onboardingPath === "ambitious" ? 5 : intensity,
           assigned_level: data?.assigned_level ?? 1,
-          message, didi_response: reply,
+          message, didi_response: data?.didi_response ?? reply,
           level_description: data?.level_description ?? null,
           dosha: data?.dosha ?? null,
         });
       }
 
-      setDidiResp({ state: STATE_INSIGHT[feeling]?.label ?? feeling, insight, reply });
+      setDidiResp({ state: STATE_INSIGHT[fShort]?.label ?? fShort, insight, reply });
       // Persist the user-facing state for the practices screen triad
-      try { localStorage.setItem("restart_checkin_state", (feeling || "").toLowerCase()); } catch {}
+      try {
+        localStorage.setItem("restart_checkin_state", fShort.toLowerCase());
+        localStorage.setItem("restart_checkin_emotion", fShort.toLowerCase());
+      } catch {}
       setStep("result");
     } catch (e: any) {
       toast.error(e.message ?? "Couldn't reach Didi — try again?");
-      setStep("q4");
+      setStep("q2");
     }
   };
 
@@ -111,11 +209,44 @@ const CheckInScreen = () => {
         <p className="text-white text-[20px] mt-10 font-medium leading-snug min-h-[60px]">
           <Typewriter text={`Hey ${profile?.name?.trim() || "you"}. How are we doing today?`} />
         </p>
-        <button onClick={() => setStep("q1")} className="mt-10 px-7 py-3 btn-cream flex items-center gap-2">
+        <button onClick={() => setStep("context")} className="mt-10 px-7 py-3 btn-cream flex items-center gap-2">
           Let's go <ArrowRight className="w-4 h-4" />
         </button>
         <button onClick={() => nav(-1)} className="mt-3 text-white/60 text-[12px]">Maybe later</button>
       </div>
+    );
+  }
+
+  if (step === "context") {
+    const chips = [pathChip, chronoChip, roleChip].filter(Boolean);
+    return (
+      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+        className="phone-frame min-h-screen px-5 pt-10 pb-10 flex flex-col" style={{ paddingTop: 54 }}>
+        <TopBar />
+        <div
+          style={{
+            background: "var(--rs-card)",
+            border: "1px solid var(--rs-card-border)",
+            borderRadius: 16,
+            padding: 20,
+          }}
+          className="mt-4">
+          <p className="text-white text-[15px] font-semibold">Based on what you shared...</p>
+          <div className="mt-3 space-y-2">
+            {chips.map((c, i) => (
+              <div key={i} className="rounded-full px-3 py-2 bg-white/13 border border-white/25 text-white text-[13px]">
+                {c}
+              </div>
+            ))}
+          </div>
+          <p className="mt-4" style={{ fontSize: 13, fontStyle: "italic", color: "var(--rs-muted)" }}>
+            Tell me two things and I'll know exactly what you need.
+          </p>
+        </div>
+        <button onClick={() => setStep("q1")} className="mt-8 w-full py-3.5 btn-cream flex items-center justify-center gap-2">
+          Okay, ask me <ArrowRight className="w-4 h-4" />
+        </button>
+      </motion.div>
     );
   }
 
@@ -135,7 +266,9 @@ const CheckInScreen = () => {
        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="phone-frame min-h-screen px-5 pt-10 pb-10" style={{ paddingTop: 54 }}>
          <TopBar />
          <p className="text-[10px] tracking-[0.2em] uppercase text-rs-cream font-semibold">Didi reads</p>
-         <h2 className="text-[24px] font-bold text-white mt-1">{didiResp.state} — intensity {intensity}</h2>
+         <h2 className="text-[24px] font-bold text-white mt-1">
+           {didiResp.state}{onboardingPath !== "ambitious" ? ` — intensity ${intensity}` : ""}
+         </h2>
  
          {/* Brain SVG */}
          <div className="my-7 flex justify-center">
@@ -154,7 +287,7 @@ const CheckInScreen = () => {
          </div>
  
          <div className="rounded-2xl p-5 bg-rs-cream/15 border border-rs-cream mt-3">
-           <p className="text-[10px] tracking-[0.16em] uppercase text-rs-cream font-semibold">Didi says</p>
+           <p className="text-[10px] tracking-[0.16em] uppercase text-rs-cream font-semibold">Didi reads</p>
            <p className="text-white text-[14px] mt-2 leading-relaxed">{didiResp.reply}</p>
            {!isActive && (
              <p className="text-[11px] mt-3 italic text-primary-foreground">
@@ -167,7 +300,7 @@ const CheckInScreen = () => {
          <div className="mt-5 space-y-3">
            <p className="text-[10px] tracking-[0.2em] uppercase text-rs-cream font-semibold">Your 3 practices</p>
            {(() => {
-             const triad = getPracticesForState((feeling || "").toLowerCase());
+             const triad = getPracticesForState(feelingKey(feeling).toLowerCase());
              return [triad.neuro, triad.ayurveda, triad.breathwork].map((p) => (
                <div key={p.id} className="rounded-2xl bg-white/13 border border-white/25 p-4">
                  <div className="flex items-center gap-2">
@@ -190,7 +323,7 @@ const CheckInScreen = () => {
      );
    }
 
-  // Q1–4 questionnaire
+  // Q1–2 questionnaire
   const QShell = ({ title, children }: { title: string; children: React.ReactNode }) => (
     <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
       className="phone-frame min-h-screen px-5 pt-10 pb-10 flex flex-col">
@@ -217,30 +350,25 @@ const CheckInScreen = () => {
           <Pills items={FEELINGS} value={feeling} onPick={(v) => { setFeeling(v); setStep("q2"); }} />
         </QShell>
       )}
-      {step === "q2" && (
-        <QShell key="q2" title="The intensity is...">
+      {step === "q2" && onboardingPath === "ambitious" && (
+        <QShell key="q2a" title="What's getting in the way right now?">
+          <Pills items={AMBITIOUS_BLOCKERS} value={blocker} onPick={(v) => { setBlocker(v); submit(); }} />
+        </QShell>
+      )}
+      {step === "q2" && onboardingPath !== "ambitious" && (
+        <QShell key="q2s" title="How intense is this feeling?">
           <div className="mt-12 px-2">
             <input type="range" min={1} max={10} value={intensity}
               onChange={(e) => setIntensity(parseInt(e.target.value))}
               className="w-full accent-[hsl(var(--rs-cream))]" />
             <div className="flex justify-between text-[11px] text-rs-muted mt-2"><span>1</span><span>10</span></div>
             <p className="text-center text-white text-[16px] mt-6 font-semibold">
-              {intensity <= 3 ? "Barely there" : intensity <= 6 ? "Noticeable" : intensity <= 8 ? "Strong" : "Overwhelming"} — {intensity}/10
+              {intensityLabel(intensity)}
             </p>
           </div>
-          <button onClick={() => setStep("q3")} className="mt-8 w-full py-3.5 btn-cream flex items-center justify-center gap-2">
-            Next <ArrowRight className="w-4 h-4" />
+          <button onClick={submit} className="mt-8 w-full py-3.5 btn-cream flex items-center justify-center gap-2">
+            Continue <ArrowRight className="w-4 h-4" />
           </button>
-        </QShell>
-      )}
-      {step === "q3" && (
-        <QShell key="q3" title="This is mainly coming from...">
-          <Pills items={SOURCES} value={source} onPick={(v) => { setSource(v); setStep("q4"); }} />
-        </QShell>
-      )}
-      {step === "q4" && (
-        <QShell key="q4" title="What I need right now is...">
-          <Pills items={NEEDS} value={need} onPick={(v) => { setNeed(v); submit(); }} />
         </QShell>
       )}
     </AnimatePresence>
