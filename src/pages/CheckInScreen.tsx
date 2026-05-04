@@ -171,16 +171,13 @@ const CheckInScreen = () => {
              return [triad.neuro, triad.ayurveda, triad.breathwork].map((p) => (
                <div key={p.id} className="rounded-2xl bg-white/13 border border-white/25 p-4">
                  <div className="flex items-center gap-2">
-                   <span
-                     className="px-2 py-0.5 rounded-full text-white font-bold text-[11px]"
-                     style={{ background: CATEGORY_COLORS[p.category] }}
-                   >
+                    <span className="px-2 py-0.5 rounded-full font-bold text-[11px] bg-rs-cream text-rs-navy">
                      {p.category}
                    </span>
                    <span className="ml-auto text-[11px] text-rs-cream font-medium">{p.duration}</span>
                  </div>
                  <p className="text-white text-[15px] font-semibold mt-2">{p.name}</p>
-                 <p className="text-white/70 text-[12px] mt-1 leading-relaxed">{p.description}</p>
+                  <p className="text-[12px] mt-1 leading-relaxed text-rs-navy">{p.description}</p>
                </div>
              ));
            })()}
