@@ -145,6 +145,19 @@ const HomeScreen = () => {
             Your reset ends in {22 - day} days. See what continuing looks like →
           </button>
         )}
+
+        {/* Founding banner */}
+        <div className="mt-6 rounded-xl p-4 bg-rs-cream/15 border border-rs-cream/40 flex items-center justify-between gap-3">
+          <p className="text-white text-[13px]">
+            ✦ 21 days to rewire your brain — starts at ₹21
+          </p>
+          <button
+            onClick={() => nav("/pricing")}
+            className="text-rs-cream text-[13px] font-semibold whitespace-nowrap"
+          >
+            See plans →
+          </button>
+        </div>
       </div>
       <BottomNav />
     </motion.div>
