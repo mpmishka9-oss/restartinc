@@ -71,7 +71,7 @@ const AuthScreen = () => {
     >
       <style>{`.auth-input::placeholder{color:rgba(26,42,74,0.4);}`}</style>
       <div style={{ background: "transparent", border: "none", marginBottom: 24 }} className="flex flex-col items-center">
-        <img src={logo} alt="reStart" className="object-cover text-xl" style={{ width: 260, background: "transparent" }} />
+        <img src={logo} alt="reStart" className="object-cover text-xl" style={{ width: 160, background: "transparent" }} />
         <p className="font-serif font-medium text-base bg-transparent text-rs-cream" style={{ letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(255,255,255,0.6)", marginTop: 8, textAlign: "center" }}>
           Rewiring your mind to match your ambition - Neuroplasticity | Ayurveda
         </p>
