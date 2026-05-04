@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ChevronDown, ChevronUp, Check, Lock } from "lucide-react";
+import { ChevronDown, ChevronUp, Check, Lock, Brain } from "lucide-react";
 import { useProfile } from "@/hooks/useProfile";
 import BottomNav from "@/components/layout/BottomNav";
 import TopBar from "@/components/layout/TopBar";
@@ -174,6 +174,23 @@ const PaywallGate = () => {
   };
 
   return (
+    <>
+    <div
+      className="mb-3 flex items-start gap-2"
+      style={{
+        background: "rgba(245,240,160,0.1)",
+        borderRadius: 10,
+        padding: "10px 14px",
+      }}
+    >
+      <Brain className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: "var(--color-text-secondary, rgba(26,42,74,0.7))" }} />
+      <p
+        className="italic"
+        style={{ fontSize: 12, color: "var(--color-text-secondary, rgba(26,42,74,0.7))" }}
+      >
+        Neuroscience fact: it takes 18–66 days to form a new habit. Day 3 is when most people quit. You didn't.
+      </p>
+    </div>
     <div
       className="my-4 rounded-2xl p-6"
       style={{
@@ -184,32 +201,36 @@ const PaywallGate = () => {
     >
       <div className="flex justify-center"><Lock className="w-7 h-7 text-rs-cream" /></div>
       <p className="text-center font-bold text-[18px] mt-3" style={{ color: "#1A2A4A" }}>
-        Days 4–21 are waiting for you.
+        It takes 21 days to build a habit.
       </p>
       <p className="text-center text-[13px] mt-1" style={{ color: "rgba(26,42,74,0.6)" }}>
-        Your brain is already changing. Keep the momentum going.
+        You've done 3. The hardest part is over. Don't stop now.
+      </p>
+      <p className="text-center text-[12px] italic mt-2" style={{ color: "rgba(26,42,74,0.6)" }}>
+        ₹21 for the full 21-day reset — less than a chai a day.
       </p>
       <div className="mt-5" style={{ width: "100%", maxWidth: 400, margin: "0 auto" }}>
         {/* Monthly */}
          <div className="p-4 bg-transparent" style={{ border: "1px solid #c5d3e8", borderRadius: 12 }}>
-           <p className="text-[11px] uppercase tracking-wider text-rs-navy" style={{ color: "#7B9BD6" }}>Monthly</p>
+           <p className="text-[11px] uppercase tracking-wider text-rs-navy" style={{ color: "#7B9BD6" }}>21-Day Reset</p>
           <p className="mt-1">
             <span className="text-[26px] font-bold" style={{ color: "#1A2A4A" }}>₹21</span>
-            <span className="text-[12px] text-black/50 ml-1">/first month</span>
+            <span className="text-[12px] text-black/50 ml-1">for days 4–21</span>
           </p>
-          <p className="text-[11px] text-black/50">then ₹199/mo</p>
-          <p className="text-[11px] text-black/50">Less than ₹7 a day</p>
+          <p className="text-[11px] text-black/50">Then ₹199/mo to maintain your habit</p>
+          <p className="text-[11px] text-black/50">Then ₹199/mo from month 2.</p>
           <button
             onClick={handleStart}
             disabled={loading}
             className="w-full mt-3 py-2 text-white font-semibold"
             style={{ background: "#7B9BD6", borderRadius: 8 }}
           >
-            {loading ? "Opening…" : "Start →"}
+            {loading ? "Opening…" : "Continue my reset →"}
           </button>
         </div>
       </div>
     </div>
+    </>
   );
 };
 
