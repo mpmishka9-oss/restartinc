@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
  import { lovable } from "@/integrations/lovable";
 import logo from "@/assets/logo-new.png";
+import authBg from "@/assets/auth-bg.jpeg";
 
 const AuthScreen = () => {
   const [mode, setMode] = useState<"signin" | "signup" | "reset">("signup");
@@ -61,8 +62,10 @@ const AuthScreen = () => {
     <div
       className="flex flex-col items-center justify-center px-6"
       style={{
-        background:
-          "radial-gradient(circle at 50% 50%, #6a8aff 0%, #b2fbff 100%)",
+        backgroundImage: `url(${authBg})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
         minHeight: "100dvh",
       }}
     >
