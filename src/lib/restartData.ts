@@ -90,7 +90,6 @@ export const UNIVERSAL_QUESTIONS: Question[] = [
   { id: "lifestyle", type: "single", q: "How would you describe your lifestyle right now?", options: [
     "Very structured and routine", "Somewhat structured", "Flexible and varied", "Chaotic", "I'm figuring it out",
   ]},
-  { id: "goal", type: "textarea", q: "Write down one goal you want to achieve in the next 7 days.", sub: "Be honest. No one else sees this.", placeholder: "I want to...", minLength: 5 },
   { id: "openness", type: "single", q: "How open are you to trying new practices — like breathwork or herbal rituals?", options: [
     "Very open — bring it on", "Somewhat open", "Curious but sceptical", "Not really my thing",
   ]},
