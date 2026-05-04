@@ -46,28 +46,77 @@ const AuthScreen = () => {
     } finally { setLoading(false); }
   };
 
+  const inputStyle: React.CSSProperties = {
+    background: "rgba(255,255,255,0.5)",
+    border: "1px solid rgba(255,255,255,0.6)",
+    borderRadius: 12,
+    color: "#1A2A4A",
+    fontSize: 14,
+    padding: "12px 16px",
+    width: "100%",
+    outline: "none",
+  };
+
   return (
-    <div className="phone-frame min-h-screen flex flex-col items-center justify-center px-6">
-      <img src={logo} alt="reStart" style={{ width: 220, objectFit: "contain" }} />
-      <p className="text-[11px] tracking-[0.2em] uppercase text-white/55 mb-8">Ancient Wisdom · Modern Science</p>
-      <div className="w-full max-w-sm rounded-2xl glass p-6">
-        <h2 className="text-white text-[20px] font-bold text-center">
+    <div
+      className="flex flex-col items-center justify-center px-6"
+      style={{
+        background:
+          "radial-gradient(ellipse at 60% 40%, #7B9BD6 0%, #9BB5E0 30%, #C5D8EE 60%, #E8EFF7 100%)",
+        minHeight: "100dvh",
+      }}
+    >
+      <style>{`.auth-input::placeholder{color:rgba(26,42,74,0.4);}`}</style>
+      <div style={{ background: "transparent", border: "none", marginBottom: 24 }} className="flex flex-col items-center">
+        <img src={logo} alt="reStart" style={{ width: 260, objectFit: "contain", background: "transparent" }} />
+        <p style={{ fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(255,255,255,0.6)", marginTop: 8, textAlign: "center" }}>
+          Rewiring your mind to match your ambition - Neuroplasticity | ayurveda
+        </p>
+      </div>
+      <div
+        style={{
+          width: "100%",
+          maxWidth: 380,
+          background: "rgba(255,255,255,0.18)",
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
+          border: "1px solid rgba(255,255,255,0.35)",
+          borderRadius: 24,
+          padding: "32px 28px",
+          boxShadow: "none",
+        }}
+      >
+        <h2 style={{ color: "#1A2A4A", fontWeight: 700, fontSize: 22, textAlign: "center", margin: 0 }}>
           {mode === "signup" ? "Begin your reStart" : mode === "signin" ? "Welcome back" : "Reset your password"}
         </h2>
-        <p className="text-[13px] text-rs-muted text-center mt-1 mb-5">
+        <p style={{ color: "rgba(26,42,74,0.6)", fontSize: 14, textAlign: "center", marginTop: 6, marginBottom: 20 }}>
           {mode === "signup" ? "A space that holds you, gently." : mode === "signin" ? "Didi has been waiting." : "We'll send a gentle link."}
         </p>
         <form onSubmit={submit} className="space-y-3">
-          <input type="email" required value={email} onChange={e => setEmail(e.target.value)}
-            placeholder="you@email.com"
-            className="w-full bg-white/10 border border-white/25 rounded-xl px-4 py-3 text-white placeholder:text-white/40 outline-none focus:border-rs-cream" />
+          <input className="auth-input" type="email" required value={email} onChange={e => setEmail(e.target.value)}
+            placeholder="you@email.com" style={inputStyle} />
           {mode !== "reset" && (
-            <input type="password" required minLength={6} value={password} onChange={e => setPassword(e.target.value)}
-              placeholder="At least 6 characters"
-              className="w-full bg-white/10 border border-white/25 rounded-xl px-4 py-3 text-white placeholder:text-white/40 outline-none focus:border-rs-cream" />
+            <input className="auth-input" type="password" required minLength={6} value={password} onChange={e => setPassword(e.target.value)}
+              placeholder="At least 6 characters" style={inputStyle} />
           )}
           <button type="submit" disabled={loading}
-            className="w-full mt-2 py-3.5 btn-cream flex items-center justify-center gap-2 disabled:opacity-60">
+            style={{
+              background: "#F5F0A0",
+              color: "#1A2A4A",
+              fontWeight: 700,
+              fontSize: 15,
+              borderRadius: 14,
+              border: "none",
+              padding: 14,
+              width: "100%",
+              marginTop: 8,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 8,
+              opacity: loading ? 0.6 : 1,
+              cursor: loading ? "not-allowed" : "pointer",
+            }}>
             {loading && <Loader2 className="w-4 h-4 animate-spin" />}
             {mode === "signup" ? "Create account" : mode === "signin" ? "Sign in" : "Send reset link"}
           </button>
@@ -75,14 +124,28 @@ const AuthScreen = () => {
        {mode !== "reset" && (
          <>
            <div className="flex items-center gap-3 my-5">
-             <div className="flex-1 h-[1px] bg-white/10" />
-             <span className="text-[11px] text-white/40 uppercase tracking-widest">or</span>
-             <div className="flex-1 h-[1px] bg-white/10" />
+             <div className="flex-1 h-[1px]" style={{ background: "rgba(26,42,74,0.15)" }} />
+             <span style={{ fontSize: 11, color: "rgba(26,42,74,0.5)", textTransform: "uppercase", letterSpacing: "0.15em" }}>or</span>
+             <div className="flex-1 h-[1px]" style={{ background: "rgba(26,42,74,0.15)" }} />
            </div>
            <button
              onClick={googleSignIn}
              disabled={loading}
-             className="w-full py-3.5 rounded-xl border border-white/20 text-white text-[14px] flex items-center justify-center gap-3 hover:bg-white/5 disabled:opacity-50"
+             style={{
+               background: "rgba(255,255,255,0.5)",
+               border: "1px solid rgba(255,255,255,0.5)",
+               borderRadius: 14,
+               color: "#1A2A4A",
+               fontSize: 14,
+               padding: 12,
+               width: "100%",
+               display: "flex",
+               alignItems: "center",
+               justifyContent: "center",
+               gap: 12,
+               cursor: loading ? "not-allowed" : "pointer",
+               opacity: loading ? 0.5 : 1,
+             }}
            >
              <svg viewBox="0 0 24 24" className="w-5 h-5">
                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -95,10 +158,10 @@ const AuthScreen = () => {
          </>
        )}
         {mode === "signin" && (
-          <button onClick={() => setMode("reset")} className="w-full mt-3 text-[12px] text-rs-cream">Forgot your password?</button>
+          <button onClick={() => setMode("reset")} className="w-full mt-3" style={{ fontSize: 13, color: "#1A2A4A", opacity: 0.6 }}>Forgot your password?</button>
         )}
         <button onClick={() => setMode(mode === "signup" ? "signin" : "signup")}
-          className="w-full mt-2 text-[13px] text-rs-muted">
+          className="w-full mt-2" style={{ fontSize: 13, color: "#1A2A4A", opacity: 0.6 }}>
           {mode === "signup" ? "Already have an account? Sign in" : mode === "signin" ? "New here? Begin your reStart" : "Back to sign in"}
         </button>
       </div>
