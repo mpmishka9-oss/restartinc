@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
  import { lovable } from "@/integrations/lovable";
-import logo from "@/assets/logo.png";
+import logo from "@/assets/logo-new.png";
 
 const AuthScreen = () => {
   const [mode, setMode] = useState<"signin" | "signup" | "reset">("signup");
@@ -69,7 +69,7 @@ const AuthScreen = () => {
       <style>{`.auth-input::placeholder{color:rgba(26,42,74,0.4);}`}</style>
       <div style={{ background: "transparent", border: "none", marginBottom: 24 }} className="flex flex-col items-center">
         <img src={logo} alt="reStart" style={{ width: 260, objectFit: "contain", background: "transparent" }} />
-        <p style={{ fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(255,255,255,0.6)", marginTop: 8, textAlign: "center" }}>
+        <p className="font-serif text-rs-navy font-medium text-base" style={{ letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(255,255,255,0.6)", marginTop: 8, textAlign: "center" }}>
           Rewiring your mind to match your ambition - Neuroplasticity | ayurveda
         </p>
       </div>
