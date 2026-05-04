@@ -20,7 +20,7 @@ export function initiateRazorpayCheckout({
   onFailure: (error: unknown) => void;
 }) {
   const options = {
-    key: import.meta.env.VITE_RAZORPAY_KEY_ID || "rzp_test_SlFc3sFgytykfU",
+    key: import.meta.env.VITE_RAZORPAY_KEY_ID,
     amount: amount,
     currency: "INR",
     name: "ReStart",
