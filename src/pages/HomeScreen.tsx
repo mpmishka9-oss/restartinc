@@ -120,8 +120,8 @@ const HomeScreen = () => {
                  </div>
                  {detectedState && (
                    <div className="mt-3">
-                     <p className="text-[10px] tracking-[0.18em] uppercase text-rs-muted">State detected</p>
-                     <span className="inline-block mt-1 px-3 py-1 rounded-full bg-rs-cream/20 text-white text-[12px] capitalize">{detectedState}</span>
+                      <p className="text-[10px] tracking-[0.18em] uppercase text-rs-muted text-rs-navy">State detected</p>
+                      <span className="inline-block mt-1 px-3 py-1 rounded-full bg-rs-cream/20 text-white text-[12px] capitalize text-rs-navy border-rs-cream">{detectedState}</span>
                    </div>
                  )}
                   <button onClick={() => nav("/practices")}
