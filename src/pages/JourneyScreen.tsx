@@ -10,6 +10,8 @@ import { getPracticesForState } from "@/lib/getPracticesForState";
 import { useAuth } from "@/hooks/useAuth";
 import { initiateRazorpayCheckout } from "@/lib/razorpay";
 import { toast } from "sonner";
+import MandalaComplete from "@/components/MandalaComplete";
+import { supabase } from "@/integrations/supabase/client";
 
 interface DayPlan {
   day: number;
@@ -140,7 +142,7 @@ const Task = ({ label, body, checked, onChange }: { label: string; body: string;
 );
 
 const TriadRow = ({ icon, label, name, duration }: { icon: string; label: string; name: string; duration: string }) => (
-  <div className="flex items-center gap-3 py-1.5 px-2 rounded-lg bg-white/5">
+  <div className="flex items-center gap-3 py-1.5 px-2 rounded-lg bg-white/5 cursor-pointer btn-press" onClick={() => { window.location.href = "/practices"; }}>
     <span className="text-base">{icon}</span>
     <p className="text-[10px] tracking-[0.16em] uppercase text-rs-cream font-semibold w-24 flex-shrink-0">{label}</p>
     <p className="text-white text-[13px] flex-1">{name} — <span className="text-white/60">{duration}</span></p>
@@ -331,35 +333,13 @@ const PhaseHeader = ({ n, title, accent }: { n: number; title: string; accent: s
   </div>
 );
 
-const TodaysPractices = () => {
-  const state = (typeof window !== "undefined" && localStorage.getItem("restart_checkin_state")) || "default";
-  const triad = getPracticesForState(state);
-  const items = [triad.neuro, triad.ayurveda, triad.breathwork];
-  return (
-    <div className="mt-5 mb-2">
-      <p className="text-[10px] tracking-[0.2em] uppercase text-rs-cream font-semibold mb-2">Today's practices</p>
-      <div className="space-y-2.5">
-        {items.map((p) => (
-          <div key={p.id} className="rounded-2xl bg-white/13 border border-white/25 p-4">
-            <div className="flex items-center gap-2">
-              <span className="px-2 py-0.5 rounded-full font-bold text-[11px] bg-rs-cream text-rs-navy">{p.category}</span>
-              <span className="ml-auto text-[11px] text-rs-cream font-medium">{p.duration}</span>
-            </div>
-            <p className="text-white text-[15px] font-semibold mt-2">{p.name}</p>
-            <p className="text-[12px] mt-1 leading-relaxed text-rs-navy">{p.description}</p>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-};
-
 const JourneyScreen = () => {
   const { profile } = useProfile();
   const { isActive } = useSubscription();
   const day = profile?.current_day ?? 1;
   const [open, setOpen] = useState<number | null>(day);
   const [checks, setChecks] = useState<Record<number, Record<string, boolean>>>({});
+  const [completedDay, setCompletedDay] = useState<number | null>(null);
   const [localPro, setLocalPro] = useState<boolean>(() => {
     try { return localStorage.getItem("restart_pro") === "true"; } catch { return false; }
   });
@@ -404,12 +384,40 @@ const JourneyScreen = () => {
             if (Array.isArray(arr) && !arr.includes(dayNum)) {
               arr.push(dayNum);
               localStorage.setItem("restart_completed_days", JSON.stringify(arr));
+              setCompletedDay(dayNum);
             }
           } catch {}
         }
       }
       return next;
     });
+  };
+
+  const handleMandalaDismiss = async () => {
+    const dayNum = completedDay;
+    setCompletedDay(null);
+    if (!dayNum) return;
+    try {
+      const today = new Date().toISOString().slice(0, 10);
+      const last = localStorage.getItem("restart_didi_last_date");
+      const cur = Number(localStorage.getItem("restart_didi_streak") || 0);
+      let next = 1;
+      if (last) {
+        const diff = Math.round((new Date(today).getTime() - new Date(last).getTime()) / 86400000);
+        if (diff === 0) next = cur || 1;
+        else if (diff === 1) next = cur + 1;
+      }
+      localStorage.setItem("restart_didi_streak", String(next));
+      localStorage.setItem("restart_didi_last_date", today);
+    } catch {}
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await supabase.from("user_journey_progress").upsert({ user_id: user.id, day: dayNum }, { onConflict: "user_id,day" });
+      const { data: prof } = await supabase.from("profiles").select("didi_xp").eq("id", user.id).maybeSingle();
+      const newXP = (prof?.didi_xp ?? 0) + 25;
+      await supabase.from("profiles").update({ didi_xp: newXP }).eq("id", user.id);
+      try { localStorage.setItem("restart_didi_xp", String(newXP)); } catch {}
+    }
   };
 
   const dayStatus = (n: number): "done" | "active" | "locked" => {
@@ -430,8 +438,6 @@ const JourneyScreen = () => {
       <TopBar />
       <h1 className="text-[24px] font-bold text-white">Your 21-day journey</h1>
       <p className="text-rs-muted text-[13px] mt-1">Day {day} of 21 — keep showing up.</p>
-
-      <TodaysPractices />
 
       <PhaseHeader n={1} title="Prove it works" accent="hsl(var(--rs-cream))" />
       <div className="space-y-2.5">
@@ -472,6 +478,14 @@ const JourneyScreen = () => {
       </div>
 
       <BottomNav />
+      {completedDay && (
+        <MandalaComplete
+          day={completedDay}
+          firstName={(profile?.name || "").split(" ")[0] || "friend"}
+          xpReward={25}
+          onDismiss={handleMandalaDismiss}
+        />
+      )}
     </motion.div>
   );
 };
