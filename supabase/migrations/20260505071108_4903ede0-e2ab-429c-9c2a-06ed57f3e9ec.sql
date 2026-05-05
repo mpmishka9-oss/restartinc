@@ -1,0 +1,1 @@
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS didi_xp integer NOT NULL DEFAULT 0;

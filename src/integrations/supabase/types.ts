@@ -144,6 +144,7 @@ export type Database = {
           consent_signature: string | null
           created_at: string
           current_day: number
+          didi_xp: number
           email: string | null
           goal: string | null
           id: string
@@ -166,6 +167,7 @@ export type Database = {
           consent_signature?: string | null
           created_at?: string
           current_day?: number
+          didi_xp?: number
           email?: string | null
           goal?: string | null
           id: string
@@ -188,6 +190,7 @@ export type Database = {
           consent_signature?: string | null
           created_at?: string
           current_day?: number
+          didi_xp?: number
           email?: string | null
           goal?: string | null
           id?: string
