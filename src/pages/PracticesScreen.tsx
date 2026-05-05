@@ -96,7 +96,7 @@ const SYSTEM_BADGE: Record<string, { label: string; bg: string; fg: string }> = 
                 const firstName = (profile?.name || "").split(" ")[0] || "friend";
                 const chronotype = profile?.chronotype || "natural";
                 const hour = new Date().getHours();
-                const window =
+                const windowLabel =
                   hour >= 5 && hour <= 11 ? "Morning window" :
                   hour >= 12 && hour <= 16 ? "Afternoon window" :
                   hour >= 17 && hour <= 21 ? "Evening window" : "Night window";
@@ -105,7 +105,7 @@ const SYSTEM_BADGE: Record<string, { label: string; bg: string; fg: string }> = 
                     <DidiPickCard
                       firstName={firstName}
                       chronotype={chronotype}
-                      windowLabel={window}
+                      windowLabel={windowLabel}
                       practice={featured}
                     />
                     {items.map((p) => (
