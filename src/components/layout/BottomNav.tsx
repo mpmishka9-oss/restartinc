@@ -4,7 +4,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 const items = [
   { to: "/home", label: "Home", Icon: Home },
   { to: "/journey", label: "Journey", Icon: Calendar },
-  { to: "/practices", label: "Practices", Icon: Sparkles },
+  { to: "/practices", label: "Didi", Icon: Sparkles },
   { to: "/profile", label: "Profile", Icon: User },
 ];
 
