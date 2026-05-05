@@ -65,7 +65,7 @@ const SYSTEM_BADGE: Record<string, { label: string; bg: string; fg: string }> = 
     <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
       className="phone-frame min-h-screen px-5 pt-10 pb-28" style={{ paddingTop: 54 }}>
       <TopBar />
-      <h1 className="text-[24px] font-bold text-white">Practices</h1>
+      <h1 className="text-[24px] font-bold text-white">DIDI says...</h1>
 
       <div className="mt-4 flex gap-2 p-1 rounded-xl bg-white/10 border border-white/20">
         {(["today", "library"] as const).map((t) => (
