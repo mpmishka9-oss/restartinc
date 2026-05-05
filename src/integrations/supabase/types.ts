@@ -140,6 +140,7 @@ export type Database = {
           chronotype_description: string | null
           chronotype_headline: string | null
           completed_practices: number
+          consent_given_at: string | null
           created_at: string
           current_day: number
           email: string | null
@@ -160,6 +161,7 @@ export type Database = {
           chronotype_description?: string | null
           chronotype_headline?: string | null
           completed_practices?: number
+          consent_given_at?: string | null
           created_at?: string
           current_day?: number
           email?: string | null
@@ -180,6 +182,7 @@ export type Database = {
           chronotype_description?: string | null
           chronotype_headline?: string | null
           completed_practices?: number
+          consent_given_at?: string | null
           created_at?: string
           current_day?: number
           email?: string | null
