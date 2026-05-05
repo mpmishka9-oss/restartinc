@@ -11,6 +11,7 @@ import {
   totalOnboardingSteps, type Path, type Question, type Chronotype,
 } from "@/lib/restartData";
 import ChronotypeReveal from "@/components/onboarding/ChronotypeReveal";
+import ConsentForm from "@/components/ConsentForm";
 
 const OnboardingFlow = () => {
   const nav = useNavigate();
@@ -30,6 +31,8 @@ const OnboardingFlow = () => {
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [text, setText] = useState("");
   const [assigning, setAssigning] = useState(false);
+  const [consentStep, setConsentStep] = useState(false);
+  const [pendingAnswers, setPendingAnswers] = useState<Record<string, string> | null>(null);
   const [reveal, setReveal] = useState<{ chronotype: Chronotype; headline: string; description: string } | null>(null);
 
   const q = questions[idx];
@@ -95,7 +98,8 @@ const OnboardingFlow = () => {
     setAnswers(merged);
     setText("");
     if (idx + 1 >= questions.length) {
-      finish(merged);
+      setPendingAnswers(merged);
+      setConsentStep(true);
     } else {
       setIdx(idx + 1);
     }
@@ -107,6 +111,17 @@ const OnboardingFlow = () => {
   };
 
   if (reveal) return <ChronotypeReveal {...reveal} onContinue={() => nav("/home")} />;
+
+  if (consentStep && !assigning) {
+    return (
+      <ConsentForm
+        onAccept={() => {
+          setConsentStep(false);
+          if (pendingAnswers) finish(pendingAnswers);
+        }}
+      />
+    );
+  }
 
   if (assigning) {
     return (
