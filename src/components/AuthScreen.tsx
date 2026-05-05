@@ -73,7 +73,7 @@ const AuthScreen = () => {
       <div style={{ background: "transparent", border: "none", marginBottom: 24 }} className="flex flex-col items-center">
         <img src={logo} alt="reStart" className="object-cover text-xl" style={{ width: 160, background: "transparent" }} />
         <div style={{ background: "rgba(26, 42, 74, 0.06)", padding: "8px 0", width: "100%", marginTop: 8, textAlign: "center" }}>
-          <p className="font-serif" style={{ color: "#1A2A4A", opacity: 1, fontWeight: 600, fontSize: 13, letterSpacing: "0.12em", textShadow: "none", textTransform: "uppercase", margin: 0 }}>
+          <p className="font-serif text-rs-navy bg-primary" style={{ color: "#1A2A4A", opacity: 1, fontWeight: 600, fontSize: 13, letterSpacing: "0.12em", textShadow: "none", textTransform: "uppercase", margin: 0 }}>
             Rewiring your mind to match your ambition - Neuroplasticity | Ayurveda
           </p>
         </div>
