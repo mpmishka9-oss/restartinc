@@ -116,7 +116,7 @@ const HomeScreen = () => {
                    <div className="w-7 h-7 rounded-full bg-rs-cream/20 flex items-center justify-center">
                      <Check className="w-4 h-4 text-rs-cream" />
                    </div>
-                   <p className="text-white text-[15px]">You've checked in today.</p>
+                    <p className="text-white text-[15px] text-rs-navy">You've checked in today.</p>
                  </div>
                  {detectedState && (
                    <div className="mt-3">
@@ -124,15 +124,15 @@ const HomeScreen = () => {
                      <span className="inline-block mt-1 px-3 py-1 rounded-full bg-rs-cream/20 text-white text-[12px] capitalize">{detectedState}</span>
                    </div>
                  )}
-                 <button onClick={() => nav("/practices")}
-                   className="w-full mt-4 py-3 btn-outline-white flex items-center justify-center gap-2">
-                   See today's practices <ArrowRight className="w-4 h-4" />
-                 </button>
+                  <button onClick={() => nav("/practices")}
+                    className="w-full mt-4 py-3 btn-outline-white flex items-center justify-center gap-2 text-rs-navy bg-rs-cream">
+                    See today's practices <ArrowRight className="w-4 h-4" />
+                  </button>
                  <button onClick={() => nav("/journey")}
                    className="w-full mt-2 py-3 text-rs-cream text-[13px] font-medium underline-offset-4 hover:underline">
                    3-day plan ready →
                  </button>
-                 <p className="text-rs-muted text-[12px] italic mt-4 text-center">Tomorrow: a deeper ritual to ground your evening.</p>
+                  <p className="text-rs-muted text-[12px] italic mt-4 text-center text-rs-cream">Tomorrow: a deeper ritual to ground your evening.</p>
                </>
              )}
            </div>
