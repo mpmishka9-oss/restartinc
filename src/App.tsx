@@ -19,6 +19,7 @@ import ProfileScreen from "./pages/ProfileScreen";
 import CommunityScreen from "./pages/CommunityScreen";
 import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
+import ConsentForm from "@/components/ConsentForm";
 
  import Terms from "./pages/Terms";
  import Privacy from "./pages/Privacy";
@@ -62,6 +63,7 @@ const RoutedApp = () => {
         <Route path="/profile" element={<Gate><ProfileScreen /></Gate>} />
         <Route path="/community" element={<Gate><CommunityScreen /></Gate>} />
         <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/test-consent" element={<ConsentForm onAccept={() => console.log("Consent accepted (test)")} />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </AnimatePresence>
