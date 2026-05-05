@@ -96,8 +96,11 @@ const ConsentForm = ({ onAccept }: Props) => {
   ];
 
   const handleSubmit = async () => {
-    if (!agreed) { setError(true); return; }
-    if (!hasSigned) { setSigError(true); return; }
+    if (!agreed || !hasSigned) {
+      if (!agreed) setError(true);
+      if (!hasSigned) setSigError(true);
+      return;
+    }
     setSubmitting(true);
     const iso = new Date().toISOString();
     const signature = canvasRef.current?.toDataURL("image/png") ?? "";
@@ -176,7 +179,7 @@ const ConsentForm = ({ onAccept }: Props) => {
             I have read and agree to the above
           </span>
         </div>
-        {error && !agreed && (
+        {!agreed && hasSigned && (
           <div style={{ fontSize: 11, color: "#E05A5A", marginTop: 6 }}>
             Please agree to continue
           </div>
@@ -229,9 +232,9 @@ const ConsentForm = ({ onAccept }: Props) => {
               Clear
             </button>
           </div>
-          {sigError && !hasSigned && (
+          {agreed && !hasSigned && (
             <div style={{ fontSize: 11, color: "#E05A5A", marginTop: 6 }}>
-              Please add your signature to continue
+              Please sign above to continue
             </div>
           )}
         </div>
