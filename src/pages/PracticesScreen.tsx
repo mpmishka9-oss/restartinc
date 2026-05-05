@@ -9,6 +9,8 @@ import BottomNav from "@/components/layout/BottomNav";
 import TopBar from "@/components/layout/TopBar";
 import { getPracticesForState } from "@/lib/getPracticesForState";
 import { CATEGORY_COLORS, type Practice as TriadPractice } from "@/data/practices";
+import { useProfile } from "@/hooks/useProfile";
+import logoImg from "@/assets/logo.png";
 
 type Practice = Tables<"practices">;
 type CheckIn = Tables<"check_ins">;
@@ -25,6 +27,7 @@ const SYSTEM_BADGE: Record<string, { label: string; bg: string; fg: string }> = 
  const PracticesScreen = () => {
    const { user } = useAuth();
    const { isActive } = useSubscription();
+   const { profile } = useProfile();
    const isPro = isActive;
   const nav = useNavigate();
   const [tab, setTab] = useState<"today" | "library">("today");
@@ -88,9 +91,28 @@ const SYSTEM_BADGE: Record<string, { label: string; bg: string; fg: string }> = 
               {(() => {
                 const state = (typeof window !== "undefined" && localStorage.getItem("restart_checkin_state")) || "default";
                 const triad = getPracticesForState(state);
-                return [triad.neuro, triad.ayurveda, triad.breathwork].map((p) => (
-                  <TriadCard key={p.id} p={p} />
-                ));
+                const items = [triad.neuro, triad.ayurveda, triad.breathwork];
+                const featured = items[0];
+                const firstName = (profile?.name || "").split(" ")[0] || "friend";
+                const chronotype = profile?.chronotype || "natural";
+                const hour = new Date().getHours();
+                const windowLabel =
+                  hour >= 5 && hour <= 11 ? "Morning window" :
+                  hour >= 12 && hour <= 16 ? "Afternoon window" :
+                  hour >= 17 && hour <= 21 ? "Evening window" : "Night window";
+                return (
+                  <>
+                    <DidiPickCard
+                      firstName={firstName}
+                      chronotype={chronotype}
+                      windowLabel={windowLabel}
+                      practice={featured}
+                    />
+                    {items.map((p) => (
+                      <TriadCard key={p.id} p={p} />
+                    ))}
+                  </>
+                );
               })()}
             </div>
           )}
@@ -193,5 +215,57 @@ const TriadCard = ({ p }: { p: TriadPractice }) => (
     </div>
     <p className="text-white text-[15px] font-semibold mt-2">{p.name}</p>
     <p className="text-[12px] mt-1 leading-relaxed text-rs-navy">{p.description}</p>
+  </div>
+);
+
+const DidiPickCard = ({
+  firstName, chronotype, windowLabel, practice,
+}: { firstName: string; chronotype: string; windowLabel: string; practice: TriadPractice }) => (
+  <div
+    style={{
+      background: "linear-gradient(135deg, #B8D4E0 0%, #D4C5E8 100%)",
+      borderRadius: 20,
+      padding: "18px 20px",
+      marginBottom: 16,
+      border: "1px solid rgba(255,255,255,0.6)",
+    }}
+  >
+    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+      <div
+        style={{
+          width: 32, height: 32, borderRadius: "50%", background: "#1A2A4A",
+          display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden",
+        }}
+      >
+        <img src={logoImg} alt="Didi" style={{ width: 22, height: 22, objectFit: "contain" }} />
+      </div>
+      <span style={{ fontSize: 11, fontWeight: 700, color: "#1A2A4A", letterSpacing: 1, textTransform: "uppercase" }}>
+        Didi's Pick for you
+      </span>
+      <span style={{ marginLeft: "auto", fontSize: 10, color: "rgba(26,42,74,0.5)" }}>{windowLabel}</span>
+    </div>
+    <p style={{ fontSize: 13, color: "#1A2A4A", fontWeight: 500, lineHeight: 1.5, margin: "10px 0 6px" }}>
+      {firstName}, your {chronotype} rhythm makes right now ideal for this.
+    </p>
+    <p style={{ fontSize: 17, fontWeight: 700, color: "#1A2A4A", margin: 0 }}>{practice.name}</p>
+    <div style={{ display: "flex", alignItems: "center", marginTop: 12 }}>
+      <span
+        style={{
+          background: "#F2EE9A", color: "#5A4A1A", borderRadius: 20,
+          padding: "4px 10px", fontSize: 11, fontWeight: 600,
+        }}
+      >
+        {practice.category}
+      </span>
+      <button
+        type="button"
+        style={{
+          marginLeft: "auto", fontSize: 12, fontWeight: 700, color: "#1A2A4A",
+          background: "transparent",
+        }}
+      >
+        Start now →
+      </button>
+    </div>
   </div>
 );
