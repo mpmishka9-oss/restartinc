@@ -10,8 +10,8 @@ serve(async (req) => {
 
   try {
     const { messages, context } = await req.json();
-    const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
-    if (!ANTHROPIC_API_KEY) throw new Error("ANTHROPIC_API_KEY is not configured");
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
     const firstName = context?.first_name || "friend";
     const chronotype = context?.chronotype || "natural";
@@ -29,31 +29,29 @@ Your job is to:
 6. Never use clinical language. Sound warm, real, slightly playful.
 7. Occasionally reward them with XP for engaging ("That just earned you 10 XP ✦")`;
 
-    const resp = await fetch("https://api.anthropic.com/v1/messages", {
+    const resp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
-        "x-api-key": ANTHROPIC_API_KEY,
-        "anthropic-version": "2023-06-01",
+        Authorization: `Bearer ${LOVABLE_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
+        model: "google/gemini-2.5-flash",
         max_tokens: 400,
-        system,
-        messages,
+        messages: [{ role: "system", content: system }, ...messages],
       }),
     });
 
     if (!resp.ok) {
       const t = await resp.text();
-      console.error("Anthropic error", resp.status, t);
+      console.error("AI gateway error", resp.status, t);
       return new Response(JSON.stringify({ error: "AI error", detail: t }), {
         status: resp.status,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
     const data = await resp.json();
-    const reply = data?.content?.[0]?.text ?? "";
+    const reply = data?.choices?.[0]?.message?.content ?? "";
     return new Response(JSON.stringify({ reply }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
