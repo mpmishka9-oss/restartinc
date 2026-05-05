@@ -186,10 +186,11 @@ const CheckInScreen = () => {
       }
 
       setDidiResp({ state: STATE_INSIGHT[fShort]?.label ?? fShort, insight, reply });
-      // Persist the user-facing state for the practices screen triad
+      // Persist the user-facing state for the practices/journey screens
       try {
         localStorage.setItem("restart_checkin_state", fShort.toLowerCase());
         localStorage.setItem("restart_checkin_emotion", fShort.toLowerCase());
+        localStorage.setItem("restart_checkin_date", new Date().toDateString());
       } catch {}
       setStep("result");
     } catch (e: any) {
@@ -316,8 +317,16 @@ const CheckInScreen = () => {
            })()}
          </div>
 
-         <button onClick={() => nav("/practices")} className="w-full mt-6 py-3.5 btn-cream flex items-center justify-center gap-2">
-           See my practices <ArrowRight className="w-4 h-4" />
+         <button
+           onClick={() => {
+             try {
+               localStorage.setItem("restart_checkin_state", feelingKey(feeling).toLowerCase());
+               localStorage.setItem("restart_checkin_date", new Date().toDateString());
+             } catch {}
+             nav("/journey");
+           }}
+           className="w-full mt-6 py-3.5 btn-cream flex items-center justify-center gap-2">
+           See today's plan <ArrowRight className="w-4 h-4" />
          </button>
        </motion.div>
      );

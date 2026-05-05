@@ -100,7 +100,8 @@ const DayRow = ({ d, status, expanded, onToggle, accent, checks, onCheck }: {
           className="px-4 pb-4 space-y-2">
           <Task label="Morning Anchor" body={d.morning} checked={!!checks["Morning Anchor"]} onChange={(v) => onCheck("Morning Anchor", v)} />
           {(() => {
-            const triad = getPracticesForState("default");
+            const state = (typeof window !== "undefined" && localStorage.getItem("restart_checkin_state")) || "default";
+            const triad = getPracticesForState(state);
             return (
               <div className="mt-2 space-y-1.5">
                 <TriadRow icon="🧠" label="NEUROSCIENCE" name={triad.neuro.name} duration={triad.neuro.duration} />
@@ -406,6 +407,8 @@ const JourneyScreen = () => {
       <TopBar />
       <h1 className="text-[24px] font-bold text-white">Your 21-day journey</h1>
       <p className="text-rs-muted text-[13px] mt-1">Day {day} of 21 — keep showing up.</p>
+
+      <TodaysPractices />
 
       <PhaseHeader n={1} title="Prove it works" accent="hsl(var(--rs-cream))" />
       <div className="space-y-2.5">
