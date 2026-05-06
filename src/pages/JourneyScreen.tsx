@@ -82,13 +82,40 @@ const DayRow = ({ d, status, expanded, onToggle, accent, checks, onCheck }: {
   onCheck: (label: string, value: boolean) => void;
 }) => {
   const locked = status === "locked";
+  const completed = status === "done";
   return (
-    <div className={`rounded-2xl border ${status === "active" ? "border-rs-cream bg-white/15" : "border-white/20 bg-white/8"} overflow-hidden`}>
+    <div
+      className={`rounded-2xl border overflow-hidden relative ${
+        status === "active" ? "border-rs-cream bg-white/15" : "border-white/20 bg-white/8"
+      }`}
+      style={
+        completed
+          ? { background: "rgba(29,158,117,0.06)", border: "1px solid rgba(29,158,117,0.2)" }
+          : undefined
+      }
+    >
+      {completed && (
+        <span
+          style={{
+            position: "absolute",
+            top: 8,
+            right: 10,
+            fontSize: 10,
+            background: "#E1F5EE",
+            color: "#085041",
+            padding: "2px 8px",
+            borderRadius: 20,
+            zIndex: 1,
+          }}
+        >
+          Completed
+        </span>
+      )}
       <button onClick={locked ? undefined : onToggle}
         className="w-full flex items-center gap-3 p-4 text-left btn-press disabled:cursor-not-allowed"
         disabled={locked}>
         <div className="w-9 h-9 rounded-full flex items-center justify-center text-[13px] font-bold"
-          style={{ background: status === "done" ? "hsl(var(--rs-green))" : status === "active" ? accent : "rgba(255,255,255,0.15)", color: status === "active" ? "hsl(var(--rs-navy))" : "white" }}>
+          style={{ background: status === "done" ? "#1D9E75" : status === "active" ? accent : "rgba(255,255,255,0.15)", color: status === "active" ? "hsl(var(--rs-navy))" : "white" }}>
           {status === "done" ? <Check className="w-4 h-4" /> : locked ? <Lock className="w-3.5 h-3.5 text-rs-navy" /> : d.day}
         </div>
         <div className="flex-1">
@@ -99,8 +126,9 @@ const DayRow = ({ d, status, expanded, onToggle, accent, checks, onCheck }: {
       </button>
       {expanded && !locked && (
         <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }}
-          className="px-4 pb-4 space-y-2">
-          <Task label="Morning Anchor" body={d.morning} checked={!!checks["Morning Anchor"]} onChange={(v) => onCheck("Morning Anchor", v)} />
+          className="px-4 pb-4 space-y-2"
+          style={completed ? { opacity: 0.7 } : undefined}>
+          <Task label="Morning Anchor" body={d.morning} checked={completed || !!checks["Morning Anchor"]} onChange={(v) => onCheck("Morning Anchor", v)} disabled={completed} />
           {(() => {
             const state = (typeof window !== "undefined" && localStorage.getItem("restart_checkin_state")) || "default";
             const triad = getPracticesForState(state);
@@ -112,10 +140,10 @@ const DayRow = ({ d, status, expanded, onToggle, accent, checks, onCheck }: {
               </div>
             );
           })()}
-          {d.midday && <Task label="Midday Reset" body={d.midday} checked={!!checks["Midday Reset"]} onChange={(v) => onCheck("Midday Reset", v)} />}
-          {d.focusWindow && <Task label="Focus Window" body={d.focusWindow} checked={!!checks["Focus Window"]} onChange={(v) => onCheck("Focus Window", v)} />}
-          {d.community && <Task label="Community" body={d.community} checked={!!checks["Community"]} onChange={(v) => onCheck("Community", v)} />}
-          <Task label="Evening Wind-Down" body={d.evening} checked={!!checks["Evening Wind-Down"]} onChange={(v) => onCheck("Evening Wind-Down", v)} />
+          {d.midday && <Task label="Midday Reset" body={d.midday} checked={completed || !!checks["Midday Reset"]} onChange={(v) => onCheck("Midday Reset", v)} disabled={completed} />}
+          {d.focusWindow && <Task label="Focus Window" body={d.focusWindow} checked={completed || !!checks["Focus Window"]} onChange={(v) => onCheck("Focus Window", v)} disabled={completed} />}
+          {d.community && <Task label="Community" body={d.community} checked={completed || !!checks["Community"]} onChange={(v) => onCheck("Community", v)} disabled={completed} />}
+          <Task label="Evening Wind-Down" body={d.evening} checked={completed || !!checks["Evening Wind-Down"]} onChange={(v) => onCheck("Evening Wind-Down", v)} disabled={completed} />
           <div className="mt-3 p-3 rounded-xl bg-rs-navy/40 border border-white/15">
             <p className="text-[10px] tracking-[0.16em] uppercase text-rs-cream font-semibold">Daily prompt</p>
             <p className="text-white text-[13px] mt-1 italic">{d.prompt}</p>
@@ -131,9 +159,9 @@ const DayRow = ({ d, status, expanded, onToggle, accent, checks, onCheck }: {
   );
 };
 
-const Task = ({ label, body, checked, onChange }: { label: string; body: string; checked: boolean; onChange: (v: boolean) => void }) => (
+const Task = ({ label, body, checked, onChange, disabled }: { label: string; body: string; checked: boolean; onChange: (v: boolean) => void; disabled?: boolean }) => (
   <div className="flex items-start gap-3 py-2">
-    <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} className="mt-1 accent-[hsl(var(--rs-cream))]" />
+    <input type="checkbox" checked={checked} disabled={disabled} onChange={(e) => onChange(e.target.checked)} className="mt-1 accent-[hsl(var(--rs-cream))]" />
     <div className="flex-1">
       <p className="text-[10px] tracking-[0.16em] uppercase text-rs-cream font-semibold">{label}</p>
       <p className="text-white text-[13px]">{body}</p>
