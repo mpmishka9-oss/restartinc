@@ -552,9 +552,9 @@ const JourneyScreen = () => {
       <BottomNav />
       {completedDay && (
         <MandalaComplete
-          day={completedDay}
+          dayNumber={completedDay}
           firstName={(profile?.name || "").split(" ")[0] || "friend"}
-          xpReward={25}
+          xpEarned={25}
           onDismiss={handleMandalaDismiss}
         />
       )}
