@@ -9,18 +9,18 @@ const LINES = [
 ];
 
 interface Props {
-  day: number;
-  firstName: string;
-  xpReward: number;
+  dayNumber: number;
+  firstName?: string;
+  xpEarned: number;
   onDismiss: () => void;
 }
 
-const MandalaComplete = ({ day, firstName, xpReward, onDismiss }: Props) => {
+const MandalaComplete = ({ dayNumber, firstName = "", xpEarned, onDismiss }: Props) => {
   const [showXP, setShowXP] = useState(false);
   const [showText, setShowText] = useState(false);
   const [showDismiss, setShowDismiss] = useState(false);
   const [pulse, setPulse] = useState(false);
-  const motivational = LINES[day % 5];
+  const motivational = LINES[dayNumber % 5];
 
   useEffect(() => {
     const t1 = setTimeout(() => setPulse(true), 2400);
@@ -102,7 +102,7 @@ const MandalaComplete = ({ day, firstName, xpReward, onDismiss }: Props) => {
       </div>
       {showText && (
         <div style={{ textAlign: "center", marginTop: 16, animation: "fadeIn 0.4s ease-out" }}>
-          <p style={{ fontSize: 22, fontWeight: 800, color: "#1A2A4A", margin: 0 }}>Day {day} complete</p>
+          <p style={{ fontSize: 22, fontWeight: 800, color: "#1A2A4A", margin: 0 }}>Day {dayNumber} complete</p>
           <p style={{ fontSize: 15, color: "#3A6A8A", marginTop: 4 }}>Well done, {firstName}.</p>
           <p style={{ fontSize: 12, color: "rgba(26,42,74,0.6)", fontStyle: "italic", marginTop: 6 }}>{motivational}</p>
         </div>
@@ -115,7 +115,7 @@ const MandalaComplete = ({ day, firstName, xpReward, onDismiss }: Props) => {
             animation: "fadeUp 0.4s ease-out",
           }}
         >
-          +{xpReward} XP earned
+          +{xpEarned} XP earned
         </div>
       )}
       {showDismiss && (
