@@ -95,7 +95,7 @@ const DayRow = ({ d, status, expanded, onToggle, accent, checks, onCheck }: {
           <p className="text-white text-[14px] font-semibold">Day {d.day}</p>
           <p className="text-rs-muted text-[12px]">{locked ? (d.day > 3 ? "Unlock with Pro" : "Unlocks soon") : d.morning}</p>
         </div>
-        {!locked && (expanded ? <ChevronUp className="w-4 h-4 text-white/60" /> : <ChevronDown className="w-4 h-4 text-white/60" />)}
+        {!locked && (expanded ? <ChevronUp className="w-4 h-4 text-rs-navy" /> : <ChevronDown className="w-4 h-4 text-rs-navy" />)}
       </button>
       {expanded && !locked && (
         <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }}
@@ -145,7 +145,7 @@ const TriadRow = ({ icon, label, name, duration }: { icon: string; label: string
   <div className="flex items-center gap-3 py-1.5 px-2 rounded-lg bg-white/5 cursor-pointer btn-press" onClick={() => { window.location.href = "/practices"; }}>
     <span className="text-base">{icon}</span>
     <p className="text-[10px] tracking-[0.16em] uppercase text-rs-cream font-semibold w-24 flex-shrink-0">{label}</p>
-    <p className="text-white text-[13px] flex-1">{name} — <span className="text-white/60">{duration}</span></p>
+    <p className="text-white text-[13px] flex-1">{name} — <span className="text-rs-navy">{duration}</span></p>
   </div>
 );
 
@@ -328,7 +328,7 @@ const RoadmapStrip = ({ currentDay }: { currentDay: number }) => {
 
 const PhaseHeader = ({ n, title, accent }: { n: number; title: string; accent: string }) => (
   <div className="mt-6 mb-3">
-    <p className="text-[10px] tracking-[0.2em] uppercase font-semibold" style={{ color: accent }}>Phase {n}</p>
+    <p className="text-[10px] tracking-[0.2em] uppercase font-semibold text-rs-navy" style={{ color: accent }}>Phase {n}</p>
     <p className="text-white text-[18px] font-bold">{title}</p>
   </div>
 );
