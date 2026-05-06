@@ -89,7 +89,7 @@ const DayRow = ({ d, status, expanded, onToggle, accent, checks, onCheck }: {
         disabled={locked}>
         <div className="w-9 h-9 rounded-full flex items-center justify-center text-[13px] font-bold"
           style={{ background: status === "done" ? "hsl(var(--rs-green))" : status === "active" ? accent : "rgba(255,255,255,0.15)", color: status === "active" ? "hsl(var(--rs-navy))" : "white" }}>
-          {status === "done" ? <Check className="w-4 h-4" /> : locked ? <Lock className="w-3.5 h-3.5" /> : d.day}
+          {status === "done" ? <Check className="w-4 h-4" /> : locked ? <Lock className="w-3.5 h-3.5 text-rs-navy" /> : d.day}
         </div>
         <div className="flex-1">
           <p className="text-white text-[14px] font-semibold">Day {d.day}</p>
@@ -202,7 +202,7 @@ const PaywallGate = () => {
         borderRadius: 16,
       }}
     >
-      <div className="flex justify-center"><Lock className="w-7 h-7 text-rs-cream" /></div>
+      <div className="flex justify-center"><Lock className="w-7 h-7 text-rs-navy" /></div>
       <p className="text-center font-bold text-[18px] mt-3" style={{ color: "#1A2A4A" }}>
         It takes 21 days to build a habit.
       </p>
