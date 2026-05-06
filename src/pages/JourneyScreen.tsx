@@ -328,7 +328,7 @@ const RoadmapStrip = ({ currentDay }: { currentDay: number }) => {
 
 const PhaseHeader = ({ n, title, accent }: { n: number; title: string; accent: string }) => (
   <div className="mt-6 mb-3">
-    <p className="text-[10px] tracking-[0.2em] uppercase font-semibold text-rs-navy" style={{ color: accent }}>Phase {n}</p>
+    <p className="text-[10px] tracking-[0.2em] uppercase font-semibold text-rs-bg" style={{ color: accent }}>Phase {n}</p>
     <p className="text-white text-[18px] font-bold">{title}</p>
   </div>
 );
