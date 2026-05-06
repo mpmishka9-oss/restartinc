@@ -371,6 +371,18 @@ const JourneyScreen = () => {
   const [localPro, setLocalPro] = useState<boolean>(() => {
     try { return localStorage.getItem("restart_pro") === "true"; } catch { return false; }
   });
+  const simDay = (() => {
+    try { return parseInt(localStorage.getItem("restart_day") || String(day)); } catch { return day; }
+  })();
+  const completedDaysLs: number[] = (() => {
+    try {
+      const raw = localStorage.getItem("restart_completed_days");
+      const arr = raw ? JSON.parse(raw) : [];
+      return Array.isArray(arr) ? arr : [];
+    } catch { return []; }
+  })();
+  const showDay3Celebration =
+    simDay === 3 && [1, 2, 3].every((d) => completedDaysLs.includes(d));
 
   useEffect(() => {
     const onStorage = () => {
@@ -451,6 +463,7 @@ const JourneyScreen = () => {
   const dayStatus = (n: number): "done" | "active" | "locked" => {
     // Days 4–21 are locked for non-Pro users
     if (!isPro && n > 3) return "locked";
+    if (completedDaysLs.includes(n)) return "done";
     if (n < day) return "done";
     if (n === day) return "active";
     return "locked";
@@ -464,8 +477,39 @@ const JourneyScreen = () => {
     <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}
       className="phone-frame min-h-screen pb-28 px-5 pt-10" style={{ paddingTop: 54 }}>
       <TopBar />
+      {showDay3Celebration && (
+        <div
+          style={{
+            background:
+              "linear-gradient(135deg, rgba(245,240,160,0.3), rgba(123,155,214,0.2))",
+            border: "1px solid rgba(245,240,160,0.5)",
+            borderRadius: 16,
+            padding: "16px 20px",
+            margin: "16px 0 8px",
+            textAlign: "center",
+          }}
+        >
+          <div style={{ fontSize: 28 }}>🌱</div>
+          <div style={{ fontSize: 18, fontWeight: 700, color: "#1A2A4A" }}>3 days done.</div>
+          <div style={{ fontSize: 13, color: "rgba(26,42,74,0.65)", marginTop: 4 }}>
+            Your brain has already started changing.
+          </div>
+          <div style={{ fontSize: 12, fontStyle: "italic", color: "rgba(26,42,74,0.5)", marginTop: 4 }}>
+            Most people quit at day 3. You didn't.
+          </div>
+        </div>
+      )}
       <h1 className="text-[24px] font-bold text-white">Your 21-day journey</h1>
       <p className="text-rs-muted text-[13px] mt-1">Day {day} of 21 — keep showing up.</p>
+
+      {showDay3Celebration && !isPro && (
+        <>
+          <p className="text-white text-[15px] font-semibold mt-4">
+            Keep going — Days 4–21 are waiting.
+          </p>
+          <PaywallGate />
+        </>
+      )}
 
       <PhaseHeader n={1} title="Prove it works" accent="hsl(var(--rs-cream))" />
       <div className="space-y-2.5">
@@ -514,7 +558,72 @@ const JourneyScreen = () => {
           onDismiss={handleMandalaDismiss}
         />
       )}
+      {import.meta.env.VITE_RAZORPAY_KEY_ID?.includes("test") && (
+        <DevDayPanel simDay={simDay} />
+      )}
     </motion.div>
   );
 };
 export default JourneyScreen;
+
+const DevDayPanel = ({ simDay }: { simDay: number }) => {
+  const setDay1 = () => {
+    localStorage.setItem("restart_day", "1");
+    localStorage.setItem("restart_completed_days", JSON.stringify([]));
+    localStorage.setItem("restart_pro", "false");
+    window.location.reload();
+  };
+  const setDay3 = () => {
+    localStorage.setItem("restart_day", "3");
+    localStorage.setItem("restart_completed_days", JSON.stringify([1, 2, 3]));
+    localStorage.setItem("restart_streak", "3");
+    localStorage.setItem("restart_pro", "false");
+    window.location.reload();
+  };
+  const setDay4 = () => {
+    localStorage.setItem("restart_day", "4");
+    localStorage.setItem("restart_completed_days", JSON.stringify([1, 2, 3]));
+    localStorage.setItem("restart_streak", "3");
+    localStorage.setItem("restart_pro", "false");
+    window.location.reload();
+  };
+  const baseBtn: React.CSSProperties = {
+    fontSize: 11,
+    padding: "5px 10px",
+    borderRadius: 8,
+    border: "1px solid rgba(255,255,255,0.2)",
+    background: "rgba(255,255,255,0.1)",
+    color: "white",
+    cursor: "pointer",
+    margin: 2,
+  };
+  const activeBtn: React.CSSProperties = {
+    ...baseBtn,
+    background: "#F5F0A0",
+    color: "#1A2A4A",
+    borderColor: "#F5F0A0",
+  };
+  return (
+    <div
+      style={{
+        position: "fixed",
+        bottom: 80,
+        right: 16,
+        background: "#1A2A4A",
+        borderRadius: 12,
+        padding: "12px 14px",
+        zIndex: 999,
+        boxShadow: "0 4px 20px rgba(0,0,0,0.2)",
+      }}
+    >
+      <div style={{ fontSize: 10, color: "rgba(255,255,255,0.5)", marginBottom: 8 }}>
+        Dev: Simulate days
+      </div>
+      <div style={{ display: "flex", flexDirection: "row" }}>
+        <button style={simDay === 1 ? activeBtn : baseBtn} onClick={setDay1}>Day 1</button>
+        <button style={simDay === 3 ? activeBtn : baseBtn} onClick={setDay3}>Day 3 ✓</button>
+        <button style={simDay >= 4 ? activeBtn : baseBtn} onClick={setDay4}>Day 4+</button>
+      </div>
+    </div>
+  );
+};
