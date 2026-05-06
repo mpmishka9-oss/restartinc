@@ -82,13 +82,40 @@ const DayRow = ({ d, status, expanded, onToggle, accent, checks, onCheck }: {
   onCheck: (label: string, value: boolean) => void;
 }) => {
   const locked = status === "locked";
+  const completed = status === "done";
   return (
-    <div className={`rounded-2xl border ${status === "active" ? "border-rs-cream bg-white/15" : "border-white/20 bg-white/8"} overflow-hidden`}>
+    <div
+      className={`rounded-2xl border overflow-hidden relative ${
+        status === "active" ? "border-rs-cream bg-white/15" : "border-white/20 bg-white/8"
+      }`}
+      style={
+        completed
+          ? { background: "rgba(29,158,117,0.06)", border: "1px solid rgba(29,158,117,0.2)" }
+          : undefined
+      }
+    >
+      {completed && (
+        <span
+          style={{
+            position: "absolute",
+            top: 8,
+            right: 10,
+            fontSize: 10,
+            background: "#E1F5EE",
+            color: "#085041",
+            padding: "2px 8px",
+            borderRadius: 20,
+            zIndex: 1,
+          }}
+        >
+          Completed
+        </span>
+      )}
       <button onClick={locked ? undefined : onToggle}
         className="w-full flex items-center gap-3 p-4 text-left btn-press disabled:cursor-not-allowed"
         disabled={locked}>
         <div className="w-9 h-9 rounded-full flex items-center justify-center text-[13px] font-bold"
-          style={{ background: status === "done" ? "hsl(var(--rs-green))" : status === "active" ? accent : "rgba(255,255,255,0.15)", color: status === "active" ? "hsl(var(--rs-navy))" : "white" }}>
+          style={{ background: status === "done" ? "#1D9E75" : status === "active" ? accent : "rgba(255,255,255,0.15)", color: status === "active" ? "hsl(var(--rs-navy))" : "white" }}>
           {status === "done" ? <Check className="w-4 h-4" /> : locked ? <Lock className="w-3.5 h-3.5 text-rs-navy" /> : d.day}
         </div>
         <div className="flex-1">
@@ -99,8 +126,9 @@ const DayRow = ({ d, status, expanded, onToggle, accent, checks, onCheck }: {
       </button>
       {expanded && !locked && (
         <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }}
-          className="px-4 pb-4 space-y-2">
-          <Task label="Morning Anchor" body={d.morning} checked={!!checks["Morning Anchor"]} onChange={(v) => onCheck("Morning Anchor", v)} />
+          className="px-4 pb-4 space-y-2"
+          style={completed ? { opacity: 0.7 } : undefined}>
+          <Task label="Morning Anchor" body={d.morning} checked={completed || !!checks["Morning Anchor"]} onChange={(v) => onCheck("Morning Anchor", v)} disabled={completed} />
           {(() => {
             const state = (typeof window !== "undefined" && localStorage.getItem("restart_checkin_state")) || "default";
             const triad = getPracticesForState(state);
@@ -112,10 +140,10 @@ const DayRow = ({ d, status, expanded, onToggle, accent, checks, onCheck }: {
               </div>
             );
           })()}
-          {d.midday && <Task label="Midday Reset" body={d.midday} checked={!!checks["Midday Reset"]} onChange={(v) => onCheck("Midday Reset", v)} />}
-          {d.focusWindow && <Task label="Focus Window" body={d.focusWindow} checked={!!checks["Focus Window"]} onChange={(v) => onCheck("Focus Window", v)} />}
-          {d.community && <Task label="Community" body={d.community} checked={!!checks["Community"]} onChange={(v) => onCheck("Community", v)} />}
-          <Task label="Evening Wind-Down" body={d.evening} checked={!!checks["Evening Wind-Down"]} onChange={(v) => onCheck("Evening Wind-Down", v)} />
+          {d.midday && <Task label="Midday Reset" body={d.midday} checked={completed || !!checks["Midday Reset"]} onChange={(v) => onCheck("Midday Reset", v)} disabled={completed} />}
+          {d.focusWindow && <Task label="Focus Window" body={d.focusWindow} checked={completed || !!checks["Focus Window"]} onChange={(v) => onCheck("Focus Window", v)} disabled={completed} />}
+          {d.community && <Task label="Community" body={d.community} checked={completed || !!checks["Community"]} onChange={(v) => onCheck("Community", v)} disabled={completed} />}
+          <Task label="Evening Wind-Down" body={d.evening} checked={completed || !!checks["Evening Wind-Down"]} onChange={(v) => onCheck("Evening Wind-Down", v)} disabled={completed} />
           <div className="mt-3 p-3 rounded-xl bg-rs-navy/40 border border-white/15">
             <p className="text-[10px] tracking-[0.16em] uppercase text-rs-cream font-semibold">Daily prompt</p>
             <p className="text-white text-[13px] mt-1 italic">{d.prompt}</p>
@@ -131,9 +159,9 @@ const DayRow = ({ d, status, expanded, onToggle, accent, checks, onCheck }: {
   );
 };
 
-const Task = ({ label, body, checked, onChange }: { label: string; body: string; checked: boolean; onChange: (v: boolean) => void }) => (
+const Task = ({ label, body, checked, onChange, disabled }: { label: string; body: string; checked: boolean; onChange: (v: boolean) => void; disabled?: boolean }) => (
   <div className="flex items-start gap-3 py-2">
-    <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} className="mt-1 accent-[hsl(var(--rs-cream))]" />
+    <input type="checkbox" checked={checked} disabled={disabled} onChange={(e) => onChange(e.target.checked)} className="mt-1 accent-[hsl(var(--rs-cream))]" />
     <div className="flex-1">
       <p className="text-[10px] tracking-[0.16em] uppercase text-rs-cream font-semibold">{label}</p>
       <p className="text-white text-[13px]">{body}</p>
@@ -343,6 +371,18 @@ const JourneyScreen = () => {
   const [localPro, setLocalPro] = useState<boolean>(() => {
     try { return localStorage.getItem("restart_pro") === "true"; } catch { return false; }
   });
+  const simDay = (() => {
+    try { return parseInt(localStorage.getItem("restart_day") || String(day)); } catch { return day; }
+  })();
+  const completedDaysLs: number[] = (() => {
+    try {
+      const raw = localStorage.getItem("restart_completed_days");
+      const arr = raw ? JSON.parse(raw) : [];
+      return Array.isArray(arr) ? arr : [];
+    } catch { return []; }
+  })();
+  const showDay3Celebration =
+    simDay === 3 && [1, 2, 3].every((d) => completedDaysLs.includes(d));
 
   useEffect(() => {
     const onStorage = () => {
@@ -423,6 +463,7 @@ const JourneyScreen = () => {
   const dayStatus = (n: number): "done" | "active" | "locked" => {
     // Days 4–21 are locked for non-Pro users
     if (!isPro && n > 3) return "locked";
+    if (completedDaysLs.includes(n)) return "done";
     if (n < day) return "done";
     if (n === day) return "active";
     return "locked";
@@ -436,8 +477,39 @@ const JourneyScreen = () => {
     <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}
       className="phone-frame min-h-screen pb-28 px-5 pt-10" style={{ paddingTop: 54 }}>
       <TopBar />
+      {showDay3Celebration && (
+        <div
+          style={{
+            background:
+              "linear-gradient(135deg, rgba(245,240,160,0.3), rgba(123,155,214,0.2))",
+            border: "1px solid rgba(245,240,160,0.5)",
+            borderRadius: 16,
+            padding: "16px 20px",
+            margin: "16px 0 8px",
+            textAlign: "center",
+          }}
+        >
+          <div style={{ fontSize: 28 }}>🌱</div>
+          <div style={{ fontSize: 18, fontWeight: 700, color: "#1A2A4A" }}>3 days done.</div>
+          <div style={{ fontSize: 13, color: "rgba(26,42,74,0.65)", marginTop: 4 }}>
+            Your brain has already started changing.
+          </div>
+          <div style={{ fontSize: 12, fontStyle: "italic", color: "rgba(26,42,74,0.5)", marginTop: 4 }}>
+            Most people quit at day 3. You didn't.
+          </div>
+        </div>
+      )}
       <h1 className="text-[24px] font-bold text-white">Your 21-day journey</h1>
       <p className="text-rs-muted text-[13px] mt-1">Day {day} of 21 — keep showing up.</p>
+
+      {showDay3Celebration && !isPro && (
+        <>
+          <p className="text-white text-[15px] font-semibold mt-4">
+            Keep going — Days 4–21 are waiting.
+          </p>
+          <PaywallGate />
+        </>
+      )}
 
       <PhaseHeader n={1} title="Prove it works" accent="hsl(var(--rs-cream))" />
       <div className="space-y-2.5">
@@ -486,7 +558,72 @@ const JourneyScreen = () => {
           onDismiss={handleMandalaDismiss}
         />
       )}
+      {import.meta.env.VITE_RAZORPAY_KEY_ID?.includes("test") && (
+        <DevDayPanel simDay={simDay} />
+      )}
     </motion.div>
   );
 };
 export default JourneyScreen;
+
+const DevDayPanel = ({ simDay }: { simDay: number }) => {
+  const setDay1 = () => {
+    localStorage.setItem("restart_day", "1");
+    localStorage.setItem("restart_completed_days", JSON.stringify([]));
+    localStorage.setItem("restart_pro", "false");
+    window.location.reload();
+  };
+  const setDay3 = () => {
+    localStorage.setItem("restart_day", "3");
+    localStorage.setItem("restart_completed_days", JSON.stringify([1, 2, 3]));
+    localStorage.setItem("restart_streak", "3");
+    localStorage.setItem("restart_pro", "false");
+    window.location.reload();
+  };
+  const setDay4 = () => {
+    localStorage.setItem("restart_day", "4");
+    localStorage.setItem("restart_completed_days", JSON.stringify([1, 2, 3]));
+    localStorage.setItem("restart_streak", "3");
+    localStorage.setItem("restart_pro", "false");
+    window.location.reload();
+  };
+  const baseBtn: React.CSSProperties = {
+    fontSize: 11,
+    padding: "5px 10px",
+    borderRadius: 8,
+    border: "1px solid rgba(255,255,255,0.2)",
+    background: "rgba(255,255,255,0.1)",
+    color: "white",
+    cursor: "pointer",
+    margin: 2,
+  };
+  const activeBtn: React.CSSProperties = {
+    ...baseBtn,
+    background: "#F5F0A0",
+    color: "#1A2A4A",
+    borderColor: "#F5F0A0",
+  };
+  return (
+    <div
+      style={{
+        position: "fixed",
+        bottom: 80,
+        right: 16,
+        background: "#1A2A4A",
+        borderRadius: 12,
+        padding: "12px 14px",
+        zIndex: 999,
+        boxShadow: "0 4px 20px rgba(0,0,0,0.2)",
+      }}
+    >
+      <div style={{ fontSize: 10, color: "rgba(255,255,255,0.5)", marginBottom: 8 }}>
+        Dev: Simulate days
+      </div>
+      <div style={{ display: "flex", flexDirection: "row" }}>
+        <button style={simDay === 1 ? activeBtn : baseBtn} onClick={setDay1}>Day 1</button>
+        <button style={simDay === 3 ? activeBtn : baseBtn} onClick={setDay3}>Day 3 ✓</button>
+        <button style={simDay >= 4 ? activeBtn : baseBtn} onClick={setDay4}>Day 4+</button>
+      </div>
+    </div>
+  );
+};
