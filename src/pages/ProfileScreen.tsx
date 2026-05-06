@@ -19,7 +19,7 @@ const ProfileScreen = () => {
     <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
       className="phone-frame min-h-screen px-5 pt-10 pb-28" style={{ paddingTop: 54 }}>
       <TopBar />
-      <h1 className="text-[24px] font-bold text-white">Profile</h1>
+      <h1 className="text-[24px] font-bold text-white text-rs-navy">Profile</h1>
 
       <div className="mt-6 rounded-2xl p-6 bg-white/13 border border-white/25 text-center">
         {ct && (
@@ -45,7 +45,7 @@ const ProfileScreen = () => {
       </div>
 
       <button onClick={signOut}
-        className="w-full mt-8 py-3 btn-outline-white inline-flex items-center justify-center gap-2 text-[14px]">
+        className="w-full mt-8 py-3 btn-outline-white inline-flex items-center justify-center gap-2 text-[14px] text-rs-navy">
         <LogOut className="w-4 h-4" /> Sign out
       </button>
 
