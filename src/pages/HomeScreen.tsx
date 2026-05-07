@@ -80,7 +80,6 @@ const HomeScreen = () => {
         {/* Mandala */}
         <div className="flex flex-col items-center my-7">
           <Mandala day={day} size={140} />
-          <p className="text-[12px] text-rs-muted mt-2">Day {day} of your reset</p>
         </div>
 
          {/* Daily Loop card */}
