@@ -6,7 +6,7 @@ import { useProfile } from "@/hooks/useProfile";
 import BottomNav from "@/components/layout/BottomNav";
 import TopBar from "@/components/layout/TopBar";
 import { useSubscription } from "@/hooks/useSubscription";
-import { getPracticesForState } from "@/lib/getPracticesForState";
+import { getPracticesForState, getWhyTodayLabel } from "@/lib/getPracticesForState";
 import { useAuth } from "@/hooks/useAuth";
 import { initiateRazorpayCheckout } from "@/lib/razorpay";
 import { toast } from "sonner";
@@ -131,12 +131,14 @@ const DayRow = ({ d, status, expanded, onToggle, accent, checks, onCheck }: {
           <Task label="Morning Anchor" body={d.morning} checked={completed || !!checks["Morning Anchor"]} onChange={(v) => onCheck("Morning Anchor", v)} disabled={completed} />
           {(() => {
             const state = (typeof window !== "undefined" && localStorage.getItem("restart_checkin_state")) || "default";
-            const triad = getPracticesForState(state);
+            const day = parseInt((typeof window !== "undefined" && localStorage.getItem("restart_day")) || "1", 10) || 1;
+            const triad = getPracticesForState(state, day);
+            const why = getWhyTodayLabel(day);
             return (
               <div className="mt-2 space-y-1.5">
-                <TriadRow icon="🧠" label="NEUROSCIENCE" name={triad.neuro.name} duration={triad.neuro.duration} />
-                <TriadRow icon="🌿" label="AYURVEDA" name={triad.ayurveda.name} duration={triad.ayurveda.duration} />
-                <TriadRow icon="💨" label="BREATHWORK" name={triad.breathwork.name} duration={triad.breathwork.duration} />
+                <TriadRow icon="🧠" label="NEUROSCIENCE" name={triad.neuro.name} duration={triad.neuro.duration} why={why} />
+                <TriadRow icon="🌿" label="AYURVEDA" name={triad.ayurveda.name} duration={triad.ayurveda.duration} why={why} />
+                <TriadRow icon="💨" label="BREATHWORK" name={triad.breathwork.name} duration={triad.breathwork.duration} why={why} />
               </div>
             );
           })()}
@@ -169,11 +171,16 @@ const Task = ({ label, body, checked, onChange, disabled }: { label: string; bod
   </div>
 );
 
-const TriadRow = ({ icon, label, name, duration }: { icon: string; label: string; name: string; duration: string }) => (
-  <div className="flex items-center gap-3 py-1.5 px-2 rounded-lg bg-white/5 cursor-pointer btn-press" onClick={() => { window.location.href = "/practices"; }}>
-    <span className="text-base">{icon}</span>
-    <p className="text-[10px] tracking-[0.16em] uppercase text-rs-cream font-semibold w-24 flex-shrink-0">{label}</p>
-    <p className="text-white text-[13px] flex-1">{name} — <span className="text-rs-navy">{duration}</span></p>
+const TriadRow = ({ icon, label, name, duration, why }: { icon: string; label: string; name: string; duration: string; why?: string }) => (
+  <div className="py-1.5 px-2 rounded-lg bg-white/5 cursor-pointer btn-press" onClick={() => { window.location.href = "/practices"; }}>
+    <div className="flex items-center gap-3">
+      <span className="text-base">{icon}</span>
+      <p className="text-[10px] tracking-[0.16em] uppercase text-rs-cream font-semibold w-24 flex-shrink-0">{label}</p>
+      <p className="text-white text-[13px] flex-1">{name} — <span className="text-rs-navy">{duration}</span></p>
+    </div>
+    {why && (
+      <p style={{ fontSize: 11, color: "rgba(26,42,74,0.45)", fontStyle: "italic", marginTop: 4, marginLeft: 28 }}>{why}</p>
+    )}
   </div>
 );
 

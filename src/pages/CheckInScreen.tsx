@@ -8,7 +8,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
  import { useSubscription } from "@/hooks/useSubscription";
 import TopBar from "@/components/layout/TopBar";
-import { getPracticesForState } from "@/lib/getPracticesForState";
+import { getPracticesForState, getWhyTodayLabel } from "@/lib/getPracticesForState";
 import { CATEGORY_COLORS } from "@/data/practices";
 
 const FEELINGS = [
@@ -301,8 +301,10 @@ const CheckInScreen = () => {
          <div className="mt-5 space-y-3">
            <p className="text-[10px] tracking-[0.2em] uppercase text-rs-cream font-semibold">Your 3 practices</p>
            {(() => {
-             const triad = getPracticesForState(feelingKey(feeling).toLowerCase());
-             return [triad.neuro, triad.ayurveda, triad.breathwork].map((p) => (
+              const day = parseInt((typeof window !== "undefined" && localStorage.getItem("restart_day")) || "1", 10) || 1;
+              const triad = getPracticesForState(feelingKey(feeling).toLowerCase(), day);
+              const why = getWhyTodayLabel(day);
+              return [triad.neuro, triad.ayurveda, triad.breathwork].map((p) => (
                <div key={p.id} className="rounded-2xl bg-white/13 border border-white/25 p-4">
                  <div className="flex items-center gap-2">
                     <span className="px-2 py-0.5 rounded-full font-bold text-[11px] bg-rs-cream text-rs-navy">
@@ -312,6 +314,7 @@ const CheckInScreen = () => {
                  </div>
                  <p className="text-white text-[15px] font-semibold mt-2">{p.name}</p>
                   <p className="text-[12px] mt-1 leading-relaxed text-rs-navy">{p.description}</p>
+                   <p style={{ fontSize: 11, color: "rgba(26,42,74,0.45)", fontStyle: "italic", marginTop: 4 }}>{why}</p>
                </div>
              ));
            })()}

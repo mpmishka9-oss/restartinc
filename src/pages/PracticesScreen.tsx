@@ -91,7 +91,8 @@ const SYSTEM_BADGE: Record<string, { label: string; bg: string; fg: string }> = 
             <div className="space-y-3">
               {(() => {
                 const state = (typeof window !== "undefined" && localStorage.getItem("restart_checkin_state")) || "default";
-                const triad = getPracticesForState(state);
+                const day = parseInt((typeof window !== "undefined" && localStorage.getItem("restart_day")) || "1", 10) || 1;
+                const triad = getPracticesForState(state, day);
                 const items = [triad.neuro, triad.ayurveda, triad.breathwork];
                 const featured = items[0];
                 const firstName = (profile?.name || "").split(" ")[0] || "friend";
