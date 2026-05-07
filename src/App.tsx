@@ -20,7 +20,6 @@ import CommunityScreen from "./pages/CommunityScreen";
 import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
 import ConsentForm from "@/components/ConsentForm";
-import { DevToolbar } from "@/components/DevToolbar";
 
  import Terms from "./pages/Terms";
  import Privacy from "./pages/Privacy";
@@ -80,7 +79,6 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <RoutedApp />
-            <DevToolbar />
           </BrowserRouter>
         </TooltipProvider>
       </AppProvider>
