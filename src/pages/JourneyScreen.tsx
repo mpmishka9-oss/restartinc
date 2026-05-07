@@ -587,6 +587,22 @@ const DevDayPanel = ({ simDay }: { simDay: number }) => {
     localStorage.setItem("restart_pro", "false");
     window.location.reload();
   };
+  const fullReset = () => {
+    const keys = [
+      "restart_day", "restart_completed_days",
+      "restart_streak", "restart_pro",
+      "restart_checkin_state", "restart_checkin_date",
+      "restart_checkin_emotion", "restart_consent_signed",
+      "restart_consent_signature", "restart_consent_date",
+      "restart_chronotype", "restart_name",
+      "restart_age", "restart_role", "restart_path",
+      "restart_sleep", "restart_lifestyle",
+      "restart_openness", "restart_whatsapp_asked",
+      "restart_launched",
+    ];
+    keys.forEach((k) => localStorage.removeItem(k));
+    window.location.href = "/onboarding";
+  };
   const baseBtn: React.CSSProperties = {
     fontSize: 11,
     padding: "5px 10px",
@@ -623,6 +639,7 @@ const DevDayPanel = ({ simDay }: { simDay: number }) => {
         <button style={simDay === 1 ? activeBtn : baseBtn} onClick={setDay1}>Day 1</button>
         <button style={simDay === 3 ? activeBtn : baseBtn} onClick={setDay3}>Day 3 ✓</button>
         <button style={simDay >= 4 ? activeBtn : baseBtn} onClick={setDay4}>Day 4+</button>
+        <button style={baseBtn} onClick={fullReset}>↺ Full Reset</button>
       </div>
     </div>
   );
