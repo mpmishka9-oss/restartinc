@@ -191,14 +191,6 @@ const DidiChat = () => {
             🔥 {streak}
           </span>
         )}
-        <span
-          style={{
-            background: "#F2EE9A", color: "#5A4A1A", borderRadius: 20,
-            padding: "4px 10px", fontSize: 11, fontWeight: 700, whiteSpace: "nowrap",
-          }}
-        >
-          ✦ {xp} XP · {level}
-        </span>
       </div>
 
       {/* Chat window */}
