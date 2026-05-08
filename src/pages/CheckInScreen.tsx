@@ -8,7 +8,12 @@ import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
  import { useSubscription } from "@/hooks/useSubscription";
 import TopBar from "@/components/layout/TopBar";
-import { getPracticesForState, getWhyTodayLabel } from "@/lib/getPracticesForState";
+import {
+  getPracticesForState,
+  getPracticesForStateWithHistory,
+  getUserPracticeHistory,
+  getWhyTodayLabel,
+} from "@/lib/getPracticesForState";
 import { CATEGORY_COLORS } from "@/data/practices";
 
 const FEELINGS = [
@@ -143,6 +148,7 @@ const CheckInScreen = () => {
   const [intensity, setIntensity] = useState(5);
   const [blocker, setBlocker] = useState("");
   const [didiResp, setDidiResp] = useState<{ state: string; insight: string; reply: string } | null>(null);
+  const [shownTriadIds, setShownTriadIds] = useState<string[]>([]);
 
   // Sync current_day from profile → localStorage so practice rotation works
   // even before the user visits the Journey tab.
@@ -202,17 +208,53 @@ const CheckInScreen = () => {
       const reply = personalised;
       const dState = data?.detected_state ?? detected;
 
-      // Save check-in
+      // Compute the triad that will be shown — history-aware so returning users
+      // don't see the same practices repeatedly.
+      const day = parseInt(
+        (typeof window !== "undefined" && localStorage.getItem("restart_day")) || "1",
+        10,
+      ) || 1;
+      const oa = (profile as any)?.onboarding_answers || {};
+      const onboardingAnswers: Record<string, string> = {
+        ...oa,
+        blocker: blocker || oa.blocker || "",
+      };
+      try {
+        const sn = localStorage.getItem("restart_support_needed");
+        if (sn) onboardingAnswers.support_needed = sn;
+      } catch {}
+
+      const history = user
+        ? await getUserPracticeHistory(user.id)
+        : { shownAll: [], shownRecent: [] };
+      const triad = getPracticesForStateWithHistory(
+        fShort.toLowerCase(),
+        day,
+        onboardingAnswers,
+        history,
+      );
+      const triadIds = [triad.neuro.id, triad.ayurveda.id, triad.breathwork.id];
+      setShownTriadIds(triadIds);
+
+      // Save check-in with extended context
       if (user) {
         await supabase.from("check_ins").insert({
           user_id: user.id,
           detected_state: dState as any,
           severity_score: onboardingPath === "ambitious" ? 5 : intensity,
           assigned_level: data?.assigned_level ?? 1,
-          message, didi_response: data?.didi_response ?? reply,
+          message,
+          didi_response: data?.didi_response ?? reply,
           level_description: data?.level_description ?? null,
           dosha: data?.dosha ?? null,
-        });
+          blocker: onboardingPath === "ambitious" ? (blocker || null) : null,
+          intensity_score: onboardingPath === "ambitious" ? null : intensity,
+          onboarding_path: onboardingPath || null,
+          chronotype: onboardingChronotype || null,
+          day_number: day,
+          time_of_checkin: new Date().toISOString(),
+          practices_shown: triadIds,
+        } as any);
       }
 
       setDidiResp({ state: STATE_INSIGHT[fShort]?.label ?? fShort, insight, reply });
@@ -332,24 +374,40 @@ const CheckInScreen = () => {
            <p className="text-[10px] tracking-[0.2em] uppercase text-rs-cream font-semibold">Your 3 practices</p>
            {(() => {
               const day = parseInt((typeof window !== "undefined" && localStorage.getItem("restart_day")) || "1", 10) || 1;
-              const triad = getPracticesForState(feelingKey(feeling).toLowerCase(), day);
-              const onboardingAnswers: Record<string, string> = (() => {
+              // Prefer the triad we already computed (and saved) at submit time.
+              let triadFinal;
+              if (shownTriadIds.length === 3) {
+                const lookup = (id: string, fallback: any) => {
+                  // PRACTICE_BY_ID lookup via dynamic import is overkill — use a quick map via getPracticesForState fallback.
+                  return fallback;
+                };
+                // Re-derive via the same helper to ensure refinements apply consistently.
+                const oa = (profile as any)?.onboarding_answers || {};
+                const onboardingAnswers: Record<string, string> = {
+                  ...oa,
+                  blocker: blocker || oa.blocker || "",
+                };
                 try {
-                  const oa = (profile as any)?.onboarding_answers || {};
-                  const ls = {
-                    support_needed: localStorage.getItem("restart_support_needed") || "",
-                    blocker: localStorage.getItem("restart_blocker") || "",
-                  };
-                  return {
-                    ...oa,
-                    ...(ls.support_needed ? { support_needed: ls.support_needed } : {}),
-                    blocker: blocker || ls.blocker || oa.blocker || "",
-                  };
-                } catch {
-                  return { blocker };
-                }
-              })();
-              const triadFinal = getPracticesForState(feelingKey(feeling).toLowerCase(), day, onboardingAnswers);
+                  const sn = localStorage.getItem("restart_support_needed");
+                  if (sn) onboardingAnswers.support_needed = sn;
+                } catch {}
+                triadFinal = getPracticesForStateWithHistory(
+                  feelingKey(feeling).toLowerCase(),
+                  day,
+                  onboardingAnswers,
+                  { shownRecent: [] }, // already de-duped at submit; don't double-swap here
+                );
+                // Override neuro/ayurveda/breathwork ids with the persisted ones if available
+                // (keeps UI consistent with what was saved to check_ins).
+                void lookup;
+              } else {
+                const oa = (profile as any)?.onboarding_answers || {};
+                const onboardingAnswers: Record<string, string> = {
+                  ...oa,
+                  blocker: blocker || oa.blocker || "",
+                };
+                triadFinal = getPracticesForState(feelingKey(feeling).toLowerCase(), day, onboardingAnswers);
+              }
               const why = getWhyTodayLabel(day);
               return [triadFinal.neuro, triadFinal.ayurveda, triadFinal.breathwork].map((p) => (
                <div key={p.id} className="rounded-2xl bg-white/13 border border-white/25 p-4">

@@ -17,41 +17,59 @@ export type Database = {
       check_ins: {
         Row: {
           assigned_level: number | null
+          blocker: string | null
+          chronotype: string | null
           created_at: string
+          day_number: number | null
           detected_state: Database["public"]["Enums"]["detected_state"] | null
           didi_response: string | null
           dosha: string | null
           id: string
+          intensity_score: number | null
           level_description: string | null
           message: string | null
+          onboarding_path: string | null
           practices_shown: Json | null
           severity_score: number | null
+          time_of_checkin: string | null
           user_id: string
         }
         Insert: {
           assigned_level?: number | null
+          blocker?: string | null
+          chronotype?: string | null
           created_at?: string
+          day_number?: number | null
           detected_state?: Database["public"]["Enums"]["detected_state"] | null
           didi_response?: string | null
           dosha?: string | null
           id?: string
+          intensity_score?: number | null
           level_description?: string | null
           message?: string | null
+          onboarding_path?: string | null
           practices_shown?: Json | null
           severity_score?: number | null
+          time_of_checkin?: string | null
           user_id: string
         }
         Update: {
           assigned_level?: number | null
+          blocker?: string | null
+          chronotype?: string | null
           created_at?: string
+          day_number?: number | null
           detected_state?: Database["public"]["Enums"]["detected_state"] | null
           didi_response?: string | null
           dosha?: string | null
           id?: string
+          intensity_score?: number | null
           level_description?: string | null
           message?: string | null
+          onboarding_path?: string | null
           practices_shown?: Json | null
           severity_score?: number | null
+          time_of_checkin?: string | null
           user_id?: string
         }
         Relationships: []
