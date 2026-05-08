@@ -360,8 +360,8 @@ const CheckInScreen = () => {
                    <span className="ml-auto text-[11px] text-rs-cream font-medium">{p.duration}</span>
                  </div>
                  <p className="text-white text-[15px] font-semibold mt-2">{p.name}</p>
-                  <p className="text-[12px] mt-1 leading-relaxed text-white/85">{p.description}</p>
-                   <p style={{ fontSize: 11, color: "rgba(255,255,255,0.6)", fontStyle: "italic", marginTop: 4 }}>{why}</p>
+                  <p className="text-[12px] mt-1 leading-relaxed text-slate-700">{p.description}</p>
+                   <p className="text-slate-600" style={{ fontSize: 11, fontStyle: "italic", marginTop: 4 }}>{why}</p>
                </div>
              ));
            })()}
