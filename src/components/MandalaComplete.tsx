@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 
 const LINES = [
   "Your brain is literally rewiring right now.",
@@ -16,52 +17,93 @@ interface Props {
 }
 
 const MandalaComplete = ({ dayNumber, firstName = "", xpEarned, onDismiss }: Props) => {
-  const [showXP, setShowXP] = useState(false);
-  const [showText, setShowText] = useState(false);
   const [showDismiss, setShowDismiss] = useState(false);
-  const [pulse, setPulse] = useState(false);
   const motivational = LINES[dayNumber % 5];
 
   useEffect(() => {
-    const t1 = setTimeout(() => setPulse(true), 2400);
-    const t2 = setTimeout(() => setShowText(true), 2600);
-    const t3 = setTimeout(() => setShowXP(true), 3000);
-    const t4 = setTimeout(() => setShowDismiss(true), 3800);
-    const t5 = setTimeout(onDismiss, 4500);
-    return () => { [t1, t2, t3, t4, t5].forEach(clearTimeout); };
+    const t1 = setTimeout(() => setShowDismiss(true), 3600);
+    const t2 = setTimeout(onDismiss, 5200);
+    return () => { [t1, t2].forEach(clearTimeout); };
   }, [onDismiss]);
 
-  // Build petals/segments
-  const cx = 120, cy = 120;
-  const ring1Petals = Array.from({ length: 8 }, (_, i) => {
-    const a = (i / 8) * Math.PI * 2;
-    const x = cx + Math.cos(a) * 28;
-    const y = cy + Math.sin(a) * 28;
-    return <ellipse key={i} cx={x} cy={y} rx="14" ry="6" transform={`rotate(${(a * 180) / Math.PI} ${x} ${y})`} />;
+  const PERIWINKLE = "#7B9BD6";
+  const CREAM = "#F5F0A0";
+  const NAVY = "#1A2A4A";
+
+  const cx = 160, cy = 160;
+
+  // Ring 1 — inner lotus (8 petals)
+  const innerPetals = Array.from({ length: 8 }, (_, i) => {
+    const angle = (i / 8) * 360;
+    return (
+      <motion.path
+        key={`p1-${i}`}
+        d="M 160 120 C 172 132, 172 148, 160 160 C 148 148, 148 132, 160 120 Z"
+        fill={CREAM}
+        stroke={NAVY}
+        strokeWidth={1}
+        transform={`rotate(${angle} ${cx} ${cy})`}
+        initial={{ scale: 0, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ delay: 0.3 + i * 0.04, duration: 0.5, ease: "easeOut" }}
+        style={{ transformOrigin: `${cx}px ${cy}px` }}
+      />
+    );
   });
-  const ring2Stars = Array.from({ length: 12 }, (_, i) => {
-    const a = (i / 12) * Math.PI * 2;
-    const x1 = cx + Math.cos(a) * 50;
-    const y1 = cy + Math.sin(a) * 50;
-    const x2 = cx + Math.cos(a) * 72;
-    const y2 = cy + Math.sin(a) * 72;
-    return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} />;
+
+  // Ring 2 — mid lotus (12 longer petals)
+  const midPetals = Array.from({ length: 12 }, (_, i) => {
+    const angle = (i / 12) * 360;
+    return (
+      <motion.path
+        key={`p2-${i}`}
+        d="M 160 70 C 178 95, 178 130, 160 155 C 142 130, 142 95, 160 70 Z"
+        fill={PERIWINKLE}
+        fillOpacity={0.55}
+        stroke={NAVY}
+        strokeWidth={1}
+        transform={`rotate(${angle + 15} ${cx} ${cy})`}
+        initial={{ scale: 0, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ delay: 0.9 + i * 0.035, duration: 0.55, ease: "easeOut" }}
+        style={{ transformOrigin: `${cx}px ${cy}px` }}
+      />
+    );
   });
-  const ring3Arcs = Array.from({ length: 16 }, (_, i) => {
-    const a1 = (i / 16) * Math.PI * 2;
-    const a2 = ((i + 0.7) / 16) * Math.PI * 2;
-    const r = 90;
-    const x1 = cx + Math.cos(a1) * r;
-    const y1 = cy + Math.sin(a1) * r;
-    const x2 = cx + Math.cos(a2) * r;
-    const y2 = cy + Math.sin(a2) * r;
-    return <path key={i} d={`M ${x1} ${y1} A ${r} ${r} 0 0 1 ${x2} ${y2}`} />;
+
+  // Ring 3 — outer rays (16 thin diamond petals) + dots
+  const outerRays = Array.from({ length: 16 }, (_, i) => {
+    const angle = (i / 16) * 360;
+    return (
+      <motion.path
+        key={`p3-${i}`}
+        d="M 160 20 L 167 60 L 160 70 L 153 60 Z"
+        fill={CREAM}
+        stroke={NAVY}
+        strokeWidth={0.8}
+        transform={`rotate(${angle} ${cx} ${cy})`}
+        initial={{ scale: 0, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ delay: 1.6 + i * 0.025, duration: 0.5, ease: "easeOut" }}
+        style={{ transformOrigin: `${cx}px ${cy}px` }}
+      />
+    );
   });
-  const ring4Circles = Array.from({ length: 24 }, (_, i) => {
-    const a = (i / 24) * Math.PI * 2;
-    const x = cx + Math.cos(a) * 110;
-    const y = cy + Math.sin(a) * 110;
-    return <circle key={i} cx={x} cy={y} r="4" />;
+
+  const outerDots = Array.from({ length: 16 }, (_, i) => {
+    const a = (i / 16) * Math.PI * 2 + Math.PI / 16;
+    const x = cx + Math.cos(a) * 78;
+    const y = cy + Math.sin(a) * 78;
+    return (
+      <motion.circle
+        key={`d-${i}`}
+        cx={x} cy={y} r={2.5}
+        fill={PERIWINKLE}
+        initial={{ scale: 0, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ delay: 1.8 + i * 0.02, duration: 0.4 }}
+      />
+    );
   });
 
   return (
@@ -74,60 +116,97 @@ const MandalaComplete = ({ dayNumber, firstName = "", xpEarned, onDismiss }: Pro
         padding: 24,
       }}
     >
-      <style>{`
-        @keyframes mandalaDraw { from { stroke-dashoffset: 1000; } to { stroke-dashoffset: 0; } }
-        @keyframes mandalaPulse { 0%,100% { transform: scale(1);} 50% { transform: scale(1.06);} }
-        @keyframes fadeUp { from { opacity:0; transform: translateY(20px);} to { opacity:1; transform: translateY(0);} }
-        @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
-        .m-ring { fill: none; stroke-width: 1.5; stroke-dasharray: 1000; stroke-dashoffset: 1000;
-          animation-fill-mode: forwards; animation-timing-function: ease-out; }
-        .m-r1 { stroke: #5BAEE0; fill: #5BAEE0; fill-opacity: 0.15; animation: mandalaDraw 0.6s 0s forwards; }
-        .m-r2 { stroke: #B8D4E0; animation: mandalaDraw 0.7s 0.5s forwards; }
-        .m-r3 { stroke: #C8C0E8; stroke-width: 2; animation: mandalaDraw 0.8s 1s forwards; }
-        .m-r4 { stroke: #8A7A20; fill: #F2EE9A; animation: mandalaDraw 0.9s 1.5s forwards; }
-      `}</style>
-      <div
-        style={{
-          width: 240, height: 240,
-          transformOrigin: "center",
-          animation: pulse ? "mandalaPulse 0.6s ease-in-out" : undefined,
-        }}
+      <motion.div
+        style={{ position: "relative", width: 320, height: 320 }}
+        animate={{ rotate: [0, 4, 0, -4, 0] }}
+        transition={{ duration: 18, repeat: Infinity, ease: "easeInOut", delay: 2.5 }}
       >
-        <svg width="240" height="240" viewBox="0 0 240 240">
-          <g className="m-ring m-r1">{ring1Petals}</g>
-          <g className="m-ring m-r2">{ring2Stars}</g>
-          <g className="m-ring m-r3">{ring3Arcs}</g>
-          <g className="m-ring m-r4">{ring4Circles}</g>
+        <svg width="320" height="320" viewBox="0 0 320 320">
+          {/* outer ring circle */}
+          <motion.circle
+            cx={cx} cy={cy} r={108}
+            fill="none" stroke={NAVY} strokeWidth={0.6} strokeOpacity={0.35}
+            initial={{ pathLength: 0, opacity: 0 }}
+            animate={{ pathLength: 1, opacity: 1 }}
+            transition={{ delay: 1.4, duration: 1, ease: "easeOut" }}
+          />
+          {outerRays}
+          {outerDots}
+          {midPetals}
+          {/* mid ring */}
+          <motion.circle
+            cx={cx} cy={cy} r={62}
+            fill="none" stroke={NAVY} strokeWidth={0.8} strokeOpacity={0.4}
+            initial={{ pathLength: 0, opacity: 0 }}
+            animate={{ pathLength: 1, opacity: 1 }}
+            transition={{ delay: 0.7, duration: 0.9 }}
+          />
+          {innerPetals}
+          {/* center disc */}
+          <motion.circle
+            cx={cx} cy={cy} r={38}
+            fill={NAVY}
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.05, duration: 0.5, ease: "easeOut" }}
+            style={{ transformOrigin: `${cx}px ${cy}px` }}
+          />
+          <motion.circle
+            cx={cx} cy={cy} r={38}
+            fill="none" stroke={CREAM} strokeWidth={1.2}
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+            transition={{ delay: 0.4, duration: 0.4 }}
+          />
         </svg>
-      </div>
-      {showText && (
-        <div style={{ textAlign: "center", marginTop: 16, animation: "fadeIn 0.4s ease-out" }}>
-          <p style={{ fontSize: 22, fontWeight: 800, color: "#1A2A4A", margin: 0 }}>Day {dayNumber} complete</p>
-          <p style={{ fontSize: 15, color: "#3A6A8A", marginTop: 4 }}>Well done, {firstName}.</p>
-          <p style={{ fontSize: 12, color: "rgba(26,42,74,0.6)", fontStyle: "italic", marginTop: 6 }}>{motivational}</p>
-        </div>
-      )}
-      {showXP && (
-        <div
+
+        {/* Center text overlay */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.6 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.3, duration: 0.5, ease: "easeOut" }}
           style={{
-            marginTop: 18, background: "#F2EE9A", color: "#5A4A1A",
-            borderRadius: 20, padding: "6px 16px", fontSize: 13, fontWeight: 700,
-            animation: "fadeUp 0.4s ease-out",
+            position: "absolute", inset: 0,
+            display: "flex", flexDirection: "column",
+            alignItems: "center", justifyContent: "center",
+            textAlign: "center", pointerEvents: "none",
           }}
         >
-          +{xpEarned} XP earned
-        </div>
-      )}
+          <p style={{ fontSize: 10, letterSpacing: "0.2em", color: CREAM, opacity: 0.85, margin: 0, textTransform: "uppercase" }}>
+            Day
+          </p>
+          <p style={{ fontSize: 36, fontWeight: 700, color: CREAM, margin: 0, lineHeight: 1, fontFamily: "'Playfair Display', serif" }}>
+            {dayNumber}
+          </p>
+          <p style={{ fontSize: 9, letterSpacing: "0.15em", color: "rgba(245,240,160,0.7)", margin: "4px 0 0", textTransform: "uppercase" }}>
+            +{xpEarned} XP
+          </p>
+        </motion.div>
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 2.4, duration: 0.6, ease: "easeOut" }}
+        style={{ textAlign: "center", marginTop: 28, maxWidth: 320 }}
+      >
+        <p style={{ fontSize: 20, fontWeight: 600, color: NAVY, margin: 0, fontFamily: "'Playfair Display', serif" }}>
+          Well done{firstName ? `, ${firstName}` : ""}.
+        </p>
+        <p style={{ fontSize: 13, color: "rgba(26,42,74,0.6)", fontStyle: "italic", marginTop: 8 }}>
+          {motivational}
+        </p>
+      </motion.div>
+
       {showDismiss && (
-        <p
+        <motion.p
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}
           style={{
             position: "absolute", bottom: 32, left: 0, right: 0, textAlign: "center",
-            fontSize: 10, color: "rgba(26,42,74,0.35)", fontStyle: "italic",
-            animation: "fadeIn 0.4s ease-out",
+            fontSize: 10, color: "rgba(26,42,74,0.4)", fontStyle: "italic",
           }}
         >
           Tap anywhere to continue
-        </p>
+        </motion.p>
       )}
     </div>
   );
