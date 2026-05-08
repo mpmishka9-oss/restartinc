@@ -185,7 +185,6 @@ const OnboardingFlow = () => {
           )}
 
           {q.type === "single" && (
-          {q.type === "single" && (
             <SingleAnswer
               qid={q.id}
               options={q.options}
