@@ -1,13 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import {
-  ArrowLeft, ArrowRight, Loader2,
-  GraduationCap, Briefcase, Laptop, Search, Home,
-  Sunrise, Sun, CloudSun, Sunset, Moon,
-  Grid3x3, LayoutGrid, Shuffle, Tornado, Compass,
-  Sparkles, Smile, HelpCircle, X,
-  Brain, Zap, Target, Cloud, Flame, Frown,
-} from "lucide-react";
+import { ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
