@@ -128,6 +128,19 @@ const CheckInScreen = () => {
   const [blocker, setBlocker] = useState("");
   const [didiResp, setDidiResp] = useState<{ state: string; insight: string; reply: string } | null>(null);
 
+  // Sync current_day from profile → localStorage so practice rotation works
+  // even before the user visits the Journey tab.
+  useEffect(() => {
+    const d = (profile as any)?.current_day;
+    if (typeof d === "number" && d > 0) {
+      try { localStorage.setItem("restart_day", String(d)); } catch {}
+    } else {
+      try {
+        if (!localStorage.getItem("restart_day")) localStorage.setItem("restart_day", "1");
+      } catch {}
+    }
+  }, [profile]);
+
   // Read onboarding context from AppContext / localStorage
   const onboardingPath = (profile?.path as string) || (() => { try { return localStorage.getItem("restart_path") || ""; } catch { return ""; } })();
   const onboardingChronotype = (profile?.chronotype as string) || (() => { try { return localStorage.getItem("restart_chronotype") || ""; } catch { return ""; } })();
