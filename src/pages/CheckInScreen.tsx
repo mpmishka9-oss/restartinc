@@ -86,6 +86,22 @@ const didiInsight = (chronotype: string, feelingShort: string): string => {
     owl_focused: "You're hitting your natural rhythm. Owls find their flow — ride this window as long as you can.",
     dolphin_overwhelmed: "Your Dolphin mind is running too many tabs. The goal right now is not to solve everything — it's to close a few tabs.",
     dolphin_anxious: "Your nervous system is highly sensitive — that's also why you're so perceptive. Right now it needs calming, not more input.",
+    lion_stressed: "Your Lion drive is pushing through stress on willpower alone. That's a short runway. Let's reset the system before you burn the tank.",
+    lion_low: "Even Lions have slow days. Your energy dip is hormonal, not a character flaw. One small action is enough to restart the reward circuit.",
+    lion_overwhelmed: "You've taken on too much — classic Lion pattern. Narrow the field to one thing. Your brain can't execute when it's managing twenty priorities.",
+    lion_angry: "Lion anger is high-octane fuel. Before you act on it, let's discharge the cortisol first — then you'll think clearly.",
+    lion_numb: "Numbness in a Lion usually means the nervous system hit its ceiling. Stillness isn't failure — it's your body asking for a reset.",
+    bear_anxious: "Bears absorb the mood of the room. Your anxiety might not even be yours — check what you've been exposed to today.",
+    bear_focused: "You're in your natural rhythm. Bears perform best mid-morning to early afternoon — protect this window.",
+    bear_angry: "Bear anger builds slowly and releases hard. You've been holding this. A physical discharge — even a short walk — will help more than thinking through it.",
+    bear_numb: "You've been giving steadily for too long without refilling. This flatness is depletion, not depression. Small restoration first.",
+    owl_stressed: "Late-night stress is your default trap. Your creative mind turns stress into spirals after 10pm. Interrupt the pattern now before it loops.",
+    owl_low: "Owls often crash in the morning — your low might just be circadian, not emotional. Don't make meaning of a morning dip.",
+    owl_overwhelmed: "Your Owl mind processes deeply — which means overwhelm hits harder and longer. You need to offload before you can think clearly.",
+    owl_angry: "You'll process this best in writing, later tonight. Right now, create distance from the trigger — your insight will come when the cortisol clears.",
+    owl_numb: "Owls go numb when overstimulated and under-restored. Your sensitivity is the cost of your depth. Rest is not optional right now.",
+    dolphin_stressed: "Your Dolphin nervous system runs hot. Stress compounds fast for you — small inputs create big outputs. Regulate the body first, then the mind.",
+    dolphin_low: "Dolphins tire easily from their own internal noise. Your low energy might be mental exhaustion, not emotional collapse. Light movement and silence will restore you faster than anything else.",
   };
   return map[key] ?? "Didi sees where you are. Let's work with what you have right now, not against it.";
 };
