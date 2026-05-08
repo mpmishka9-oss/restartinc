@@ -6,32 +6,32 @@ export interface PracticeTriad {
   breathwork: Practice;
 }
 
-type Triplet = [string, string, string];
-interface StateOptions { neuro: Triplet; ayurveda: Triplet; breathwork: Triplet }
+type Septet = [string, string, string, string, string, string, string];
+interface StateOptions { neuro: Septet; ayurveda: Septet; breathwork: Septet }
 
 const STATE_OPTIONS: Record<string, StateOptions> = {
-  anxious:        { neuro: ["n2", "n3", "n4"], ayurveda: ["a1", "a2", "a3"], breathwork: ["b1", "b2", "b3"] },
-  worried:        { neuro: ["n2", "n3", "n4"], ayurveda: ["a1", "a2", "a3"], breathwork: ["b1", "b2", "b3"] },
-  stressed:       { neuro: ["n5", "n3", "n1"], ayurveda: ["a3", "a4", "a5"], breathwork: ["b2", "b1", "b3"] },
-  "under pressure": { neuro: ["n5", "n3", "n1"], ayurveda: ["a3", "a4", "a5"], breathwork: ["b2", "b1", "b3"] },
-  overwhelmed:    { neuro: ["n4", "n5", "n3"], ayurveda: ["a2", "a1", "a6"], breathwork: ["b1", "b3", "b2"] },
-  scattered:      { neuro: ["n4", "n5", "n3"], ayurveda: ["a2", "a1", "a6"], breathwork: ["b1", "b3", "b2"] },
-  low:            { neuro: ["n6", "n1", "n7"], ayurveda: ["a4", "a6", "a5"], breathwork: ["b2", "b1", "b3"] },
-  sad:            { neuro: ["n6", "n1", "n7"], ayurveda: ["a4", "a6", "a5"], breathwork: ["b2", "b1", "b3"] },
-  angry:          { neuro: ["n3", "n4", "n5"], ayurveda: ["a5", "a4", "a2"], breathwork: ["b2", "b3", "b1"] },
-  frustrated:     { neuro: ["n3", "n4", "n5"], ayurveda: ["a5", "a4", "a2"], breathwork: ["b2", "b3", "b1"] },
-  focused:        { neuro: ["n1", "n7", "n4"], ayurveda: ["a1", "a6", "a2"], breathwork: ["b2", "b1", "b3"] },
-  good:           { neuro: ["n1", "n7", "n4"], ayurveda: ["a1", "a6", "a2"], breathwork: ["b2", "b1", "b3"] },
-  energised:      { neuro: ["n1", "n7", "n4"], ayurveda: ["a1", "a6", "a2"], breathwork: ["b2", "b1", "b3"] },
-  energized:      { neuro: ["n1", "n7", "n4"], ayurveda: ["a1", "a6", "a2"], breathwork: ["b2", "b1", "b3"] },
-  numb:           { neuro: ["n6", "n1", "n3"], ayurveda: ["a5", "a3", "a4"], breathwork: ["b3", "b2", "b1"] },
-  flat:           { neuro: ["n6", "n1", "n3"], ayurveda: ["a5", "a3", "a4"], breathwork: ["b3", "b2", "b1"] },
+  anxious:          { neuro: ["n2", "n3", "n4", "n5", "n2", "n3", "n4"], ayurveda: ["a1", "a2", "a3", "a5", "a6", "a1", "a2"], breathwork: ["b1", "b2", "b3", "b1", "b2", "b3", "b1"] },
+  worried:          { neuro: ["n2", "n3", "n4", "n5", "n2", "n3", "n4"], ayurveda: ["a1", "a2", "a3", "a5", "a6", "a1", "a2"], breathwork: ["b1", "b2", "b3", "b1", "b2", "b3", "b1"] },
+  stressed:         { neuro: ["n5", "n3", "n1", "n2", "n4", "n5", "n3"], ayurveda: ["a3", "a4", "a5", "a6", "a1", "a3", "a4"], breathwork: ["b2", "b1", "b3", "b2", "b1", "b3", "b2"] },
+  "under pressure": { neuro: ["n5", "n3", "n1", "n2", "n4", "n5", "n3"], ayurveda: ["a3", "a4", "a5", "a6", "a1", "a3", "a4"], breathwork: ["b2", "b1", "b3", "b2", "b1", "b3", "b2"] },
+  overwhelmed:      { neuro: ["n4", "n5", "n3", "n2", "n1", "n4", "n5"], ayurveda: ["a2", "a1", "a6", "a3", "a5", "a2", "a1"], breathwork: ["b1", "b3", "b2", "b1", "b3", "b2", "b1"] },
+  scattered:        { neuro: ["n4", "n5", "n3", "n2", "n1", "n4", "n5"], ayurveda: ["a2", "a1", "a6", "a3", "a5", "a2", "a1"], breathwork: ["b1", "b3", "b2", "b1", "b3", "b2", "b1"] },
+  low:              { neuro: ["n6", "n1", "n7", "n3", "n4", "n6", "n1"], ayurveda: ["a4", "a6", "a5", "a2", "a1", "a4", "a6"], breathwork: ["b2", "b1", "b3", "b2", "b1", "b3", "b2"] },
+  sad:              { neuro: ["n6", "n1", "n7", "n3", "n4", "n6", "n1"], ayurveda: ["a4", "a6", "a5", "a2", "a1", "a4", "a6"], breathwork: ["b2", "b1", "b3", "b2", "b1", "b3", "b2"] },
+  angry:            { neuro: ["n3", "n4", "n5", "n2", "n6", "n3", "n4"], ayurveda: ["a5", "a4", "a2", "a3", "a1", "a5", "a4"], breathwork: ["b2", "b3", "b1", "b2", "b3", "b1", "b2"] },
+  frustrated:       { neuro: ["n3", "n4", "n5", "n2", "n6", "n3", "n4"], ayurveda: ["a5", "a4", "a2", "a3", "a1", "a5", "a4"], breathwork: ["b2", "b3", "b1", "b2", "b3", "b1", "b2"] },
+  focused:          { neuro: ["n1", "n7", "n4", "n6", "n5", "n3", "n2"], ayurveda: ["a1", "a6", "a2", "a4", "a5", "a3", "a1"], breathwork: ["b2", "b1", "b3", "b1", "b2", "b3", "b1"] },
+  good:             { neuro: ["n1", "n7", "n4", "n6", "n5", "n3", "n2"], ayurveda: ["a1", "a6", "a2", "a4", "a5", "a3", "a1"], breathwork: ["b2", "b1", "b3", "b1", "b2", "b3", "b1"] },
+  energised:        { neuro: ["n1", "n7", "n4", "n6", "n5", "n3", "n2"], ayurveda: ["a1", "a6", "a2", "a4", "a5", "a3", "a1"], breathwork: ["b2", "b1", "b3", "b1", "b2", "b3", "b1"] },
+  energized:        { neuro: ["n1", "n7", "n4", "n6", "n5", "n3", "n2"], ayurveda: ["a1", "a6", "a2", "a4", "a5", "a3", "a1"], breathwork: ["b2", "b1", "b3", "b1", "b2", "b3", "b1"] },
+  numb:             { neuro: ["n6", "n1", "n3", "n7", "n4", "n6", "n1"], ayurveda: ["a5", "a3", "a4", "a2", "a6", "a5", "a3"], breathwork: ["b3", "b2", "b1", "b3", "b2", "b1", "b3"] },
+  flat:             { neuro: ["n6", "n1", "n3", "n7", "n4", "n6", "n1"], ayurveda: ["a5", "a3", "a4", "a2", "a6", "a5", "a3"], breathwork: ["b3", "b2", "b1", "b3", "b2", "b1", "b3"] },
 };
 
 const DEFAULT_OPTIONS: StateOptions = {
-  neuro: ["n1", "n4", "n2"],
-  ayurveda: ["a1", "a2", "a4"],
-  breathwork: ["b1", "b2", "b3"],
+  neuro: ["n1", "n4", "n2", "n3", "n5", "n6", "n7"],
+  ayurveda: ["a1", "a2", "a4", "a3", "a5", "a6", "a1"],
+  breathwork: ["b1", "b2", "b3", "b2", "b1", "b3", "b2"],
 };
 
 export function getPracticesForState(
@@ -42,7 +42,7 @@ export function getPracticesForState(
   const key = (emotionalState ?? "").toString().trim().toLowerCase();
   const opts = STATE_OPTIONS[key] ?? DEFAULT_OPTIONS;
   const safeDay = Number.isFinite(day) && day > 0 ? Math.floor(day) : 1;
-  const index = (safeDay - 1) % 3;
+  const index = (safeDay - 1) % 7;
 
   let neuroId = opts.neuro[index];
   let ayurvedaId = opts.ayurveda[index];
@@ -59,7 +59,7 @@ export function getPracticesForState(
     neuroId = "n6";
   }
   if (support.includes("under 5 minutes") || support.includes("quick")) {
-    const shortPick = (ids: Triplet, fallback: string) => {
+    const shortPick = (ids: Septet, fallback: string) => {
       const found = ids.find((id) => {
         const p = PRACTICE_BY_ID[id];
         return p && (p.duration === "2 min" || p.duration === "3 min");
