@@ -27,12 +27,31 @@ interface DayPlan {
   reflection?: string;
 }
 
+const PHASE_1_MORNINGS = [
+  "Haldi doodh + set one intention for today",
+  "Ajwain steam inhale + 2 min silent sitting",
+  "Tulsi ginger tea + write what you're carrying today",
+  "Warm water with jeera + body scan for 3 min",
+  "Coconut oil temple press + breathe before you open your phone",
+  "Ghee in warm milk + name one thing you're proud of this week",
+  "Haldi doodh + write: what has this week taught me?",
+];
+const PHASE_1_EVENINGS = [
+  "Shankhpushpi milk + write 3 sentences about today",
+  "Tulsi tea + one thing you want to release before sleep",
+  "Warm jeera water + 4-7-8 breathing for 5 min",
+  "Ghee warm milk + gratitude — name 3 specific moments",
+  "Ajwain steam + write: what did my body need today?",
+  "Shankhpushpi milk + Nadi Shodhana 5 min",
+  "Haldi doodh + full reflection: what's different in me?",
+];
+
 const PHASE_1: DayPlan[] = Array.from({ length: 7 }, (_, i) => ({
   day: i + 1,
-  morning: "5 min Brahmi tea + intention setting",
+  morning: PHASE_1_MORNINGS[i],
   neuro: ["Friction Sprint — 10 min avoided task", "Single-Sense Focus Drill", "Physiological Sigh × 5", "Cold-water wrists", "Observer Perspective Bridging", "Cognitive Reappraisal Journal", "Identity Rewriting"][i],
   ayurveda: ["Nasya oil drops before work", "Tulsi tea midday", "Shankhpushpi milk pre-sleep", "Abhyanga foot massage", "Triphala water on rising", "Ghee + turmeric warm milk", "Nadi Shodhana 5 min"][i],
-  evening: "Shankhpushpi milk + 3 reflection sentences",
+  evening: PHASE_1_EVENINGS[i],
   prompt: [
     "What does showing up look like for you today?",
     "What's one thing you proved to yourself yesterday?",
@@ -131,9 +150,10 @@ const DayRow = ({ d, status, expanded, onToggle, accent, checks, onCheck }: {
           <Task label="Morning Anchor" body={d.morning} checked={completed || !!checks["Morning Anchor"]} onChange={(v) => onCheck("Morning Anchor", v)} disabled={completed} />
           {(() => {
             const state = (typeof window !== "undefined" && localStorage.getItem("restart_checkin_state")) || "default";
-            const day = parseInt((typeof window !== "undefined" && localStorage.getItem("restart_day")) || "1", 10) || 1;
-            const triad = getPracticesForState(state, day);
-            const why = getWhyTodayLabel(day);
+            // Use this card's actual day number so each day shows a different
+            // practice variant (rotation index inside getPracticesForState).
+            const triad = getPracticesForState(state, d.day);
+            const why = getWhyTodayLabel(d.day);
             return (
               <div className="mt-2 space-y-1.5">
                 <TriadRow icon="🧠" label="NEUROSCIENCE" name={triad.neuro.name} duration={triad.neuro.duration} why={why} />
