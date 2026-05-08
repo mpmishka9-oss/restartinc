@@ -30,7 +30,10 @@ const Typewriter = ({ text, onDone }: { text: string; onDone: () => void }) => {
   return (
     <span>
       {out}
-      <span className="inline-block w-[2px] h-[1em] align-[-0.15em] ml-0.5 bg-rs-cream animate-pulse" />
+      <span
+        className="inline-block w-[2px] h-[1em] align-[-0.15em] ml-0.5 animate-pulse"
+        style={{ backgroundColor: "#F5F0A0" }}
+      />
     </span>
   );
 };
@@ -90,7 +93,12 @@ const DidiIntro = ({ onContinue }: { onContinue: () => void }) => {
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: i === lineIdx ? 1 : 0.45, y: 0 }}
               transition={{ duration: 0.4 }}
-              className="text-white text-[18px] leading-relaxed font-medium text-center"
+              className="text-[18px] leading-relaxed font-medium text-center bg-transparent"
+              style={{
+                color: "#F5F0A0",
+                background: "none",
+                textShadow: "none",
+              }}
             >
               {i === lineIdx ? (
                 <Typewriter text={line} onDone={advance} />
