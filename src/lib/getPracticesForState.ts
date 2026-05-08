@@ -1,4 +1,5 @@
 import { PRACTICE_BY_ID, type Practice } from "@/data/practices";
+import { supabase } from "@/integrations/supabase/client";
 
 export interface PracticeTriad {
   neuro: Practice;
@@ -92,4 +93,74 @@ export function getWhyTodayLabel(day: number): string {
   if (d <= 14) return "Week 2 — deepening the practice";
   if (d <= 21) return "Week 3 — this is now part of who you are";
   return "Week 3 — this is now part of who you are";
+}
+
+// ---------- History-aware practice selection ----------
+
+/**
+ * Fetches the last 7 check-ins for a user and returns a flat list of
+ * practice IDs that have already been shown, plus the IDs shown in the
+ * most recent 3 check-ins (treated as "very recent").
+ */
+export async function getUserPracticeHistory(userId: string): Promise<{
+  shownAll: string[];
+  shownRecent: string[];
+}> {
+  if (!userId) return { shownAll: [], shownRecent: [] };
+  try {
+    const { data, error } = await supabase
+      .from("check_ins")
+      .select("practices_shown, created_at")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false })
+      .limit(7);
+    if (error || !data) return { shownAll: [], shownRecent: [] };
+
+    const flat = (rows: any[]): string[] =>
+      rows.flatMap((r) => {
+        const ps = r?.practices_shown;
+        if (Array.isArray(ps)) return ps.filter((x): x is string => typeof x === "string");
+        return [];
+      });
+
+    return {
+      shownAll: flat(data),
+      shownRecent: flat(data.slice(0, 3)),
+    };
+  } catch {
+    return { shownAll: [], shownRecent: [] };
+  }
+}
+
+/**
+ * Like getPracticesForState, but de-duplicates against the user's recent
+ * history. If the rotation pick was shown in the last 3 check-ins, swap it
+ * for another option from the same emotion's septet that wasn't recently shown.
+ */
+export function getPracticesForStateWithHistory(
+  emotionalState: string,
+  day: number,
+  onboardingAnswers: Record<string, string>,
+  history: { shownRecent: string[] },
+): PracticeTriad {
+  const baseTriad = getPracticesForState(emotionalState, day, onboardingAnswers);
+  const key = (emotionalState ?? "").toString().trim().toLowerCase();
+  const opts = STATE_OPTIONS[key] ?? DEFAULT_OPTIONS;
+  const recent = new Set(history.shownRecent ?? []);
+
+  const swap = (currentId: string, pool: Septet): string => {
+    if (!recent.has(currentId)) return currentId;
+    const alt = pool.find((id) => id !== currentId && !recent.has(id));
+    return alt ?? currentId;
+  };
+
+  const neuroId = swap(baseTriad.neuro.id, opts.neuro);
+  const ayurvedaId = swap(baseTriad.ayurveda.id, opts.ayurveda);
+  const breathworkId = swap(baseTriad.breathwork.id, opts.breathwork);
+
+  return {
+    neuro: PRACTICE_BY_ID[neuroId] ?? baseTriad.neuro,
+    ayurveda: PRACTICE_BY_ID[ayurvedaId] ?? baseTriad.ayurveda,
+    breathwork: PRACTICE_BY_ID[breathworkId] ?? baseTriad.breathwork,
+  };
 }
