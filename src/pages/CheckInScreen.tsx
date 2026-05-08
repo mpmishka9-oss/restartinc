@@ -37,7 +37,7 @@ const feelingKey = (f: string): string => {
   if (s.startsWith("stressed")) return "Stressed";
   if (s.startsWith("low")) return "Low";
   if (s.startsWith("overwhelmed")) return "Overwhelmed";
-  if (s.startsWith("angry")) return "Stressed";
+  if (s.startsWith("angry")) return "Angry";
   if (s.startsWith("focused")) return "Focused";
   if (s.startsWith("good")) return "Good";
   if (s.startsWith("numb")) return "Numb";
@@ -95,6 +95,7 @@ const STATE_INSIGHT: Record<string, { label: string; insight: string; region: st
   Stressed: { label: "Stressed", insight: "Cortisol is up. A 2-minute physiological sigh resets your CO₂ and pulls you out of fight-or-flight.", region: "amygdala" },
   Low: { label: "Low", insight: "Dopamine is low. A small completed action — even 4 minutes of movement — restarts the reward circuit.", region: "ventral_striatum" },
   Overwhelmed: { label: "Overwhelmed", insight: "Your prefrontal cortex is overloaded. Single-sense focus narrows the field and brings the PFC back online.", region: "pfc" },
+  Angry: { label: "Angry", insight: "Your amygdala is hijacking your prefrontal cortex. Naming the emotion out loud and a long exhale re-engage top-down regulation within 90 seconds.", region: "amygdala" },
   Focused: { label: "Focused", insight: "You're in flow. Protect this state — no notifications, no context switches.", region: "pfc" },
   Good: { label: "Good", insight: "Use this energy to build a habit. Identity rewriting locks in change when mood is positive.", region: "default_mode" },
   Energised: { label: "Energised", insight: "Norepinephrine is high. This is your window for hard tasks — front-load the difficult thing.", region: "lc" },
@@ -150,7 +151,7 @@ const CheckInScreen = () => {
       // Map UI feeling → DB enum detected_state
       const map: Record<string, string> = {
         Anxious: "anxiety", Stressed: "stress", Low: "burnout",
-        Overwhelmed: "overwhelm", Focused: "peak", Good: "peak", Energised: "peak", Numb: "burnout",
+        Overwhelmed: "overwhelm", Angry: "stress", Focused: "peak", Good: "peak", Energised: "peak", Numb: "burnout",
       };
       const detected = map[fShort] ?? "stress";
       const q2Answer = onboardingPath === "ambitious"
@@ -303,8 +304,25 @@ const CheckInScreen = () => {
            {(() => {
               const day = parseInt((typeof window !== "undefined" && localStorage.getItem("restart_day")) || "1", 10) || 1;
               const triad = getPracticesForState(feelingKey(feeling).toLowerCase(), day);
+              const onboardingAnswers: Record<string, string> = (() => {
+                try {
+                  const oa = (profile as any)?.onboarding_answers || {};
+                  const ls = {
+                    support_needed: localStorage.getItem("restart_support_needed") || "",
+                    blocker: localStorage.getItem("restart_blocker") || "",
+                  };
+                  return {
+                    ...oa,
+                    ...(ls.support_needed ? { support_needed: ls.support_needed } : {}),
+                    blocker: blocker || ls.blocker || oa.blocker || "",
+                  };
+                } catch {
+                  return { blocker };
+                }
+              })();
+              const triadFinal = getPracticesForState(feelingKey(feeling).toLowerCase(), day, onboardingAnswers);
               const why = getWhyTodayLabel(day);
-              return [triad.neuro, triad.ayurveda, triad.breathwork].map((p) => (
+              return [triadFinal.neuro, triadFinal.ayurveda, triadFinal.breathwork].map((p) => (
                <div key={p.id} className="rounded-2xl bg-white/13 border border-white/25 p-4">
                  <div className="flex items-center gap-2">
                     <span className="px-2 py-0.5 rounded-full font-bold text-[11px] bg-rs-cream text-rs-navy">
@@ -313,8 +331,8 @@ const CheckInScreen = () => {
                    <span className="ml-auto text-[11px] text-rs-cream font-medium">{p.duration}</span>
                  </div>
                  <p className="text-white text-[15px] font-semibold mt-2">{p.name}</p>
-                  <p className="text-[12px] mt-1 leading-relaxed text-rs-navy">{p.description}</p>
-                   <p style={{ fontSize: 11, color: "rgba(26,42,74,0.45)", fontStyle: "italic", marginTop: 4 }}>{why}</p>
+                  <p className="text-[12px] mt-1 leading-relaxed text-white/85">{p.description}</p>
+                   <p style={{ fontSize: 11, color: "rgba(255,255,255,0.6)", fontStyle: "italic", marginTop: 4 }}>{why}</p>
                </div>
              ));
            })()}
