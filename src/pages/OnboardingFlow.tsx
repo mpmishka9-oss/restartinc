@@ -1,6 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
+import {
+  ArrowLeft, ArrowRight, Loader2,
+  GraduationCap, Briefcase, Laptop, Search, Home,
+  Sunrise, Sun, CloudSun, Sunset, Moon,
+  Grid3x3, LayoutGrid, Shuffle, Tornado, Compass,
+  Sparkles, Smile, HelpCircle, X,
+  Brain, Zap, Target, Cloud, Flame, Frown,
+} from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -178,21 +185,13 @@ const OnboardingFlow = () => {
           )}
 
           {q.type === "single" && (
-            <div className="mt-6 space-y-2.5">
-              {q.options.map((o) => {
-                const selected = answers[q.id] === o;
-                return (
-                  <button key={o} onClick={() => next(o)}
-                    className={`w-full text-left rounded-xl px-4 py-3.5 btn-press transition-all border ${
-                      selected
-                        ? "bg-rs-cream text-rs-navy font-semibold border-rs-cream"
-                        : "bg-white/13 text-white border-white/25 hover:bg-white/20"
-                    }`}>
-                    <span className="text-[15px]">{o}</span>
-                  </button>
-                );
-              })}
-            </div>
+          {q.type === "single" && (
+            <SingleAnswer
+              qid={q.id}
+              options={q.options}
+              selected={answers[q.id]}
+              onSelect={(o) => next(o)}
+            />
           )}
 
           {(q.type === "text" || q.type === "textarea") && (
@@ -208,3 +207,207 @@ const OnboardingFlow = () => {
   );
 };
 export default OnboardingFlow;
+
+// ---------- Answer presentation helpers ----------
+
+const EMOTION_QUESTIONS = new Set([
+  "feeling_word", "energy_today", "feel_about_work",
+]);
+const ICON_QUESTIONS = new Set([
+  "role", "deep_work_time", "work_style", "amb_challenge",
+  "blockers", "today_goal", "body_location", "driver",
+  "impact", "tried", "support_needed", "origin",
+]);
+const SPECTRUM_QUESTIONS = new Set([
+  "age", "lifestyle", "openness", "clarity", "workload",
+  "focus_window", "frequency", "history", "sleep",
+]);
+
+const EMOTION_META: Record<string, { emoji: string; tint: string; ring: string }> = {
+  "Anxious / worried":          { emoji: "😟", tint: "bg-amber-100",   ring: "ring-amber-300" },
+  "Angry / frustrated":         { emoji: "😤", tint: "bg-red-100",     ring: "ring-red-300" },
+  "Sad / low":                  { emoji: "😔", tint: "bg-blue-100",    ring: "ring-blue-300" },
+  "Overwhelmed / scattered":    { emoji: "😵‍💫", tint: "bg-purple-100", ring: "ring-purple-300" },
+  "Stressed / under pressure":  { emoji: "😣", tint: "bg-orange-100",  ring: "ring-orange-300" },
+  "Lost / confused":            { emoji: "😕", tint: "bg-slate-100",   ring: "ring-slate-300" },
+
+  "High — ready to go":         { emoji: "⚡️", tint: "bg-yellow-100",  ring: "ring-yellow-300" },
+  "Decent — not at my peak":    { emoji: "🙂", tint: "bg-lime-100",    ring: "ring-lime-300" },
+  "Low — struggling to start":  { emoji: "😮‍💨", tint: "bg-blue-100",   ring: "ring-blue-300" },
+  "Drained — no motivation":    { emoji: "🪫", tint: "bg-slate-100",   ring: "ring-slate-300" },
+
+  "Driven and on it":           { emoji: "🚀", tint: "bg-emerald-100", ring: "ring-emerald-300" },
+  "Pressured but pushing through": { emoji: "💪", tint: "bg-amber-100", ring: "ring-amber-300" },
+  "Stuck and frustrated":       { emoji: "🧱", tint: "bg-red-100",     ring: "ring-red-300" },
+  "Overwhelmed":                { emoji: "🌪", tint: "bg-purple-100",  ring: "ring-purple-300" },
+  "Scattered and unfocused":    { emoji: "🌀", tint: "bg-sky-100",     ring: "ring-sky-300" },
+};
+
+const ICON_FOR_OPTION = (opt: string) => {
+  const o = opt.toLowerCase();
+  if (o.includes("student")) return GraduationCap;
+  if (o.includes("working professional")) return Briefcase;
+  if (o.includes("freelancer") || o.includes("self-employed")) return Laptop;
+  if (o.includes("between jobs")) return Search;
+  if (o.includes("homemaker") || o.includes("caregiver")) return Home;
+
+  if (o.includes("early morning")) return Sunrise;
+  if (o.includes("morning")) return Sun;
+  if (o.includes("afternoon")) return CloudSun;
+  if (o.includes("evening")) return Sunset;
+  if (o.includes("late night") || o.includes("night")) return Moon;
+
+  if (o.includes("deep focus")) return Target;
+  if (o.includes("starting and stopping")) return Shuffle;
+  if (o.includes("avoiding")) return Cloud;
+  if (o.includes("busy")) return Tornado;
+
+  if (o.includes("stomach") || o.includes("gut")) return Flame;
+  if (o.includes("head") || o.includes("temples")) return Brain;
+  if (o.includes("throat") || o.includes("neck")) return Frown;
+  if (o.includes("whole body")) return Sparkles;
+
+  if (o.includes("distract")) return Zap;
+  if (o.includes("overthink") || o.includes("perfection")) return Brain;
+  if (o.includes("fatigue") || o.includes("low energy")) return Cloud;
+  if (o.includes("too many")) return LayoutGrid;
+  if (o.includes("direction")) return Compass;
+
+  if (o.includes("nothing")) return X;
+  if (o.includes("talking")) return Smile;
+  if (o.includes("exercise") || o.includes("movement")) return Zap;
+  if (o.includes("breathing") || o.includes("meditation")) return Sparkles;
+  if (o.includes("distraction")) return Shuffle;
+
+  return HelpCircle;
+};
+
+const SingleAnswer = ({
+  qid, options, selected, onSelect,
+}: {
+  qid: string;
+  options: string[];
+  selected: string | undefined;
+  onSelect: (o: string) => void;
+}) => {
+  if (EMOTION_QUESTIONS.has(qid)) {
+    return (
+      <div className="mt-6 grid grid-cols-2 gap-3">
+        {options.map((o) => {
+          const meta = EMOTION_META[o] ?? { emoji: "✨", tint: "bg-white/90", ring: "ring-rs-cream" };
+          const isSel = selected === o;
+          return (
+            <motion.button
+              key={o}
+              onClick={() => onSelect(o)}
+              whileTap={{ scale: 0.97 }}
+              animate={isSel ? { scale: 1.04 } : { scale: 1 }}
+              transition={{ type: "spring", stiffness: 320, damping: 22 }}
+              className={`relative rounded-2xl p-4 text-left btn-press ${meta.tint} ${
+                isSel ? `ring-2 ${meta.ring} shadow-lg` : "ring-1 ring-black/5"
+              }`}
+            >
+              <div className="text-3xl mb-2">{meta.emoji}</div>
+              <div className="text-[13px] font-semibold text-rs-navy leading-snug">{o}</div>
+            </motion.button>
+          );
+        })}
+      </div>
+    );
+  }
+
+  if (ICON_QUESTIONS.has(qid)) {
+    return (
+      <div className="mt-6 grid grid-cols-2 gap-3">
+        {options.map((o) => {
+          const Icon = ICON_FOR_OPTION(o);
+          const isSel = selected === o;
+          return (
+            <motion.button
+              key={o}
+              onClick={() => onSelect(o)}
+              whileTap={{ scale: 0.97 }}
+              animate={isSel ? { scale: 1.04 } : { scale: 1 }}
+              transition={{ type: "spring", stiffness: 320, damping: 22 }}
+              className={`rounded-2xl p-4 flex flex-col items-center text-center btn-press border transition-colors ${
+                isSel
+                  ? "bg-rs-cream text-rs-navy border-rs-cream shadow-lg"
+                  : "bg-white/10 text-white border-white/20 hover:bg-white/15"
+              }`}
+            >
+              <Icon className={`w-6 h-6 mb-2 ${isSel ? "text-rs-navy" : "text-rs-cream"}`} />
+              <div className="text-[13px] font-medium leading-snug">{o}</div>
+            </motion.button>
+          );
+        })}
+      </div>
+    );
+  }
+
+  if (SPECTRUM_QUESTIONS.has(qid)) {
+    const selIdx = options.indexOf(selected ?? "");
+    return (
+      <div className="mt-8">
+        <div className="flex gap-2 overflow-x-auto pb-3 -mx-1 px-1 snap-x snap-mandatory scrollbar-none">
+          {options.map((o, i) => {
+            const isSel = i === selIdx;
+            return (
+              <motion.button
+                key={o}
+                onClick={() => onSelect(o)}
+                whileTap={{ scale: 0.96 }}
+                animate={isSel ? { scale: 1.04 } : { scale: 1 }}
+                transition={{ type: "spring", stiffness: 320, damping: 22 }}
+                className={`snap-start shrink-0 min-w-[150px] max-w-[180px] rounded-2xl px-4 py-4 text-left border ${
+                  isSel
+                    ? "bg-rs-cream text-rs-navy border-rs-cream shadow-lg font-semibold"
+                    : "bg-white/10 text-white border-white/20"
+                }`}
+              >
+                <div className="text-[11px] uppercase tracking-wide opacity-60 mb-1">
+                  {i + 1} / {options.length}
+                </div>
+                <div className="text-[14px] leading-snug">{o}</div>
+              </motion.button>
+            );
+          })}
+        </div>
+        <div className="mt-3 flex gap-1.5 justify-center">
+          {options.map((_, i) => (
+            <span
+              key={i}
+              className={`h-1.5 rounded-full transition-all ${
+                i === selIdx ? "w-6 bg-rs-cream" : "w-1.5 bg-white/30"
+              }`}
+            />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // Fallback: original pill list with selection animation
+  return (
+    <div className="mt-6 space-y-2.5">
+      {options.map((o) => {
+        const isSel = selected === o;
+        return (
+          <motion.button
+            key={o}
+            onClick={() => onSelect(o)}
+            whileTap={{ scale: 0.98 }}
+            animate={isSel ? { scale: 1.04 } : { scale: 1 }}
+            transition={{ type: "spring", stiffness: 320, damping: 22 }}
+            className={`w-full text-left rounded-xl px-4 py-3.5 btn-press border ${
+              isSel
+                ? "bg-rs-cream text-rs-navy font-semibold border-rs-cream"
+                : "bg-white/13 text-white border-white/25 hover:bg-white/20"
+            }`}
+          >
+            <span className="text-[15px]">{o}</span>
+          </motion.button>
+        );
+      })}
+    </div>
+  );
+};
