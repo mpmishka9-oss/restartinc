@@ -86,65 +86,68 @@ export const PRACTICES: Practice[] = [
   },
   {
     id: "a1",
-    name: "Brahmi Tea",
+    name: "Haldi Doodh (Turmeric Milk)",
     category: "Ayurveda",
     duration: "5 min",
     description:
-      "Bacopa monnieri improves synaptic transmission and reduces anxiety-linked cognitive disturbances. Clinical effect builds over 8 weeks.",
-    protocol: "Brew 1 tsp dried Brahmi in hot water 8 minutes. Strain. Drink before work.",
-    emotionTargets: ["anxiety fog", "poor memory", "performance anxiety"],
+      "Reduces neuroinflammation and supports serotonin production. Built from ingredients in every Indian kitchen.",
+    protocol:
+      "Warm 1 cup milk. Add ¼ tsp turmeric, pinch of black pepper, 1 tsp jaggery. Simmer 3 min. Sip slowly.",
+    emotionTargets: ["low mood", "neuroinflammation", "poor sleep"],
   },
   {
     id: "a2",
-    name: "Nasya Oil Drops",
+    name: "Ajwain Steam Inhale",
     category: "Ayurveda",
     duration: "3 min",
     description:
-      "Nasal oil delivery crosses the blood-brain barrier and clears glymphatic channels — the brain's waste clearance system linked to brain fog.",
+      "Clears nasal passages, improves oxygen flow to the brain, and reduces Vata. Ajwain (carom seeds) sits in every Indian kitchen.",
     protocol:
-      "Lie flat, tilt head back. 2 drops warm sesame oil each nostril. Breathe deeply 5 minutes.",
-    emotionTargets: ["brain fog", "mental sluggishness", "emotional numbness"],
+      "Boil 2 cups water with 1 tsp ajwain. Cover head with towel and inhale steam for 3 minutes.",
+    emotionTargets: ["brain fog", "mental sluggishness", "anxiety tension"],
   },
   {
     id: "a3",
-    name: "Shankhpushpi Milk",
+    name: "Jeera Saunf Water",
     category: "Ayurveda",
     duration: "5 min",
     description:
-      "Directly suppresses cortisol and adrenaline production. One of the few herbs clinically shown to reduce stress hormones rather than just calming downstream.",
-    protocol: "1 tsp Shankhpushpi powder in warm milk. Drink 30 min before bed.",
-    emotionTargets: ["racing mind", "poor sleep", "elevated cortisol"],
+      "Regulates cortisol, supports the gut-brain axis, and eases bloating-linked anxiety.",
+    protocol:
+      "Boil ½ tsp jeera (cumin) + ½ tsp saunf (fennel) in 2 cups water for 5 min. Strain and drink warm.",
+    emotionTargets: ["elevated cortisol", "gut-linked anxiety", "racing mind"],
   },
   {
     id: "a4",
-    name: "Tulsi Adaptogen Tea",
+    name: "Tulsi Ginger Tea",
     category: "Ayurveda",
     duration: "5 min",
     description:
-      "True adaptogen — regulates stress hormones up or down as needed. Balances serotonin and dopamine simultaneously via eugenol compounds.",
-    protocol: "Brew 7–10 fresh Tulsi leaves in hot water 5 minutes. Drink at 3–4pm.",
+      "True adaptogen — regulates stress hormones up or down as needed. Tulsi grows in most Indian homes; ginger is a kitchen staple.",
+    protocol:
+      "Steep 7–10 fresh (or 1 tsp dried) tulsi leaves with ½ inch crushed ginger in hot water 5 min. Add honey. Drink at 3–4pm.",
     emotionTargets: ["afternoon crash", "irritability", "emotional swings"],
   },
   {
     id: "a5",
-    name: "Shiro Abhyanga Scalp Massage",
+    name: "Coconut Oil Scalp Press",
     category: "Ayurveda",
-    duration: "10 min",
+    duration: "5 min",
     description:
-      "Stimulates cerebral blood circulation and activates the vagus nerve via occipital pressure points. Reduces Vata — the anxiety-linked dosha.",
+      "Activates the vagus nerve via occipital pressure and reduces Vata — the anxiety-linked dosha. Coconut oil is universal in Indian households.",
     protocol:
-      "Warm 2 tbsp Brahmi Taila oil. Slow circular massage into scalp 10 min before shower.",
+      "Warm 3–4 drops coconut oil. Massage slow circles into temples and back of skull for 5 minutes.",
     emotionTargets: ["tension headaches", "mental fatigue", "anxiety tension"],
   },
   {
     id: "a6",
-    name: "Ghee + Turmeric Brain Fuel",
+    name: "Ghee + Pepper Brain Fuel",
     category: "Ayurveda",
     duration: "3 min",
     description:
-      "Curcumin crosses the blood-brain barrier and reduces neuroinflammation — the hidden driver of brain fog and low mood. Black pepper increases absorption 2000%.",
+      "Ghee carries fat-soluble compounds across the blood-brain barrier; black pepper boosts absorption and reduces neuroinflammation. Both universal in Indian cooking.",
     protocol:
-      "1 tsp A2 ghee + ¼ tsp turmeric + pinch black pepper in warm milk. Take at breakfast.",
+      "1 tsp desi ghee + pinch of black pepper stirred into warm water or milk. Sip at breakfast.",
     emotionTargets: ["brain fog", "low mood", "poor memory"],
   },
   {
