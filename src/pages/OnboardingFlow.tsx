@@ -352,41 +352,33 @@ const SingleAnswer = ({
   if (SPECTRUM_QUESTIONS.has(qid)) {
     const selIdx = options.indexOf(selected ?? "");
     return (
-      <div className="mt-8">
-        <div className="flex gap-2 overflow-x-auto pb-3 -mx-1 px-1 snap-x snap-mandatory scrollbar-none">
-          {options.map((o, i) => {
-            const isSel = i === selIdx;
-            return (
-              <motion.button
-                key={o}
-                onClick={() => onSelect(o)}
-                whileTap={{ scale: 0.96 }}
-                animate={isSel ? { scale: 1.04 } : { scale: 1 }}
-                transition={{ type: "spring", stiffness: 320, damping: 22 }}
-                className={`snap-start shrink-0 min-w-[150px] max-w-[180px] rounded-2xl px-4 py-4 text-left border ${
-                  isSel
-                    ? "bg-rs-cream text-rs-navy border-rs-cream shadow-lg font-semibold"
-                    : "bg-white/10 text-white border-white/20"
-                }`}
-              >
-                <div className="text-[11px] uppercase tracking-wide opacity-60 mb-1">
-                  {i + 1} / {options.length}
-                </div>
-                <div className="text-[14px] leading-snug">{o}</div>
-              </motion.button>
-            );
-          })}
-        </div>
-        <div className="mt-3 flex gap-1.5 justify-center">
-          {options.map((_, i) => (
-            <span
-              key={i}
-              className={`h-1.5 rounded-full transition-all ${
-                i === selIdx ? "w-6 bg-rs-cream" : "w-1.5 bg-white/30"
+      <div className="mt-6 space-y-2.5">
+        {options.map((o, i) => {
+          const isSel = i === selIdx;
+          return (
+            <motion.button
+              key={o}
+              onClick={() => onSelect(o)}
+              whileTap={{ scale: 0.98 }}
+              animate={isSel ? { scale: 1.04 } : { scale: 1 }}
+              transition={{ type: "spring", stiffness: 320, damping: 22 }}
+              className={`w-full text-left rounded-2xl px-4 py-3.5 btn-press border transition-colors ${
+                isSel
+                  ? "bg-rs-cream text-rs-navy border-rs-cream shadow-lg font-semibold"
+                  : "bg-white/10 text-white border-white/20 hover:bg-white/15"
               }`}
-            />
-          ))}
-        </div>
+            >
+              <div className="flex items-center gap-3">
+                <span className={`text-[11px] font-bold rounded-full w-6 h-6 flex items-center justify-center shrink-0 ${
+                  isSel ? "bg-rs-navy text-rs-cream" : "bg-white/20 text-white"
+                }`}>
+                  {i + 1}
+                </span>
+                <span className="text-[15px] leading-snug">{o}</span>
+              </div>
+            </motion.button>
+          );
+        })}
       </div>
     );
   }
