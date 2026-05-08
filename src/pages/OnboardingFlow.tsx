@@ -1,13 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import {
-  ArrowLeft, ArrowRight, Loader2,
-  GraduationCap, Briefcase, Laptop, Search, Home,
-  Sunrise, Sun, CloudSun, Sunset, Moon,
-  Grid3x3, LayoutGrid, Shuffle, Tornado, Compass,
-  Sparkles, Smile, HelpCircle, X,
-  Brain, Zap, Target, Cloud, Flame, Frown,
-} from "lucide-react";
+import { ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -228,64 +221,159 @@ const SPECTRUM_QUESTIONS = new Set([
   "focus_window", "frequency", "history", "sleep",
 ]);
 
-const EMOTION_META: Record<string, { emoji: string; tint: string; ring: string }> = {
-  "Anxious / worried":          { emoji: "😟", tint: "bg-amber-100",   ring: "ring-amber-300" },
-  "Angry / frustrated":         { emoji: "😤", tint: "bg-red-100",     ring: "ring-red-300" },
-  "Sad / low":                  { emoji: "😔", tint: "bg-blue-100",    ring: "ring-blue-300" },
-  "Overwhelmed / scattered":    { emoji: "😵‍💫", tint: "bg-purple-100", ring: "ring-purple-300" },
-  "Stressed / under pressure":  { emoji: "😣", tint: "bg-orange-100",  ring: "ring-orange-300" },
-  "Lost / confused":            { emoji: "😕", tint: "bg-slate-100",   ring: "ring-slate-300" },
-
-  "High — ready to go":         { emoji: "⚡️", tint: "bg-yellow-100",  ring: "ring-yellow-300" },
-  "Decent — not at my peak":    { emoji: "🙂", tint: "bg-lime-100",    ring: "ring-lime-300" },
-  "Low — struggling to start":  { emoji: "😮‍💨", tint: "bg-blue-100",   ring: "ring-blue-300" },
-  "Drained — no motivation":    { emoji: "🪫", tint: "bg-slate-100",   ring: "ring-slate-300" },
-
-  "Driven and on it":           { emoji: "🚀", tint: "bg-emerald-100", ring: "ring-emerald-300" },
-  "Pressured but pushing through": { emoji: "💪", tint: "bg-amber-100", ring: "ring-amber-300" },
-  "Stuck and frustrated":       { emoji: "🧱", tint: "bg-red-100",     ring: "ring-red-300" },
-  "Overwhelmed":                { emoji: "🌪", tint: "bg-purple-100",  ring: "ring-purple-300" },
-  "Scattered and unfocused":    { emoji: "🌀", tint: "bg-sky-100",     ring: "ring-sky-300" },
+// Exact-match emoji per option string. Every onboarding option is covered.
+const OPTION_EMOJI: Record<string, string> = {
+  // AGE
+  "Under 18": "🎒", "18–24": "⚡", "25–35": "💼", "36–45": "🌿", "45+": "🌙",
+  // SLEEP
+  "Sleep well most nights (7–8 hrs)": "😴",
+  "Varies a lot, unpredictable": "🌊",
+  "Consistently less sleep than I need": "😮‍💨",
+  "Struggle to fall or stay asleep": "🌀",
+  "Crash hard, wake up exhausted": "🪫",
+  // ROLE
+  "Student": "📚",
+  "Working professional": "💻",
+  "Freelancer or self-employed": "🛠️",
+  "Between jobs": "🧭",
+  "Homemaker or caregiver": "🏠",
+  // DEEP WORK TIME
+  "Early morning (5–9am)": "🌅",
+  "Morning (9am–12pm)": "☀️",
+  "Afternoon (12–5pm)": "🌤️",
+  "Evening (5–10pm)": "🌆",
+  "Late night (10pm+)": "🌙",
+  // LIFESTYLE
+  "Very structured and routine": "🗓️",
+  "Somewhat structured": "📋",
+  "Flexible and varied": "🎯",
+  "Chaotic": "🌪️",
+  "I'm figuring it out": "🧩",
+  // OPENNESS
+  "Very open — bring it on": "🔥",
+  "Somewhat open": "👐",
+  "Curious but sceptical": "🤔",
+  "Not really my thing": "🛡️",
+  // AMBITIOUS — BIGGEST CHALLENGE
+  "Distracted / struggling to focus": "🎯",
+  "Overworking — can't switch off": "⚙️",
+  "Procrastinating more than I'd like": "⏳",
+  "Starting strong then losing steam": "📉",
+  // ENERGY TODAY
+  "High — ready to go": "⚡",
+  "Decent — not at my peak": "🙂",
+  "Low — struggling to start": "😮‍💨",
+  "Drained — no motivation": "🪫",
+  // FEEL ABOUT WORK
+  "Driven and on it": "🚀",
+  "Pressured but pushing through": "💪",
+  "Stuck and frustrated": "🧱",
+  "Overwhelmed": "🌊",
+  "Scattered and unfocused": "🌀",
+  // CLARITY
+  "Very clear — I know exactly what to do": "🎯",
+  "Somewhat clear": "🗺️",
+  "Vague — ideas but no plan": "🌫️",
+  "No clarity at all": "❓",
+  // BLOCKERS
+  "Distractions": "📱",
+  "Overthinking or perfectionism": "🔁",
+  "Low energy or fatigue": "🪫",
+  "Too many things at once": "🤹",
+  "Lack of clear direction": "🧭",
+  // WORK STYLE
+  "Deep focus — locked in": "🔒",
+  "Starting and stopping": "⚡",
+  "Avoiding or delaying": "🌀",
+  "Busy but not really progressing": "🐹",
+  // WORKLOAD
+  "Under control": "✅",
+  "Slightly heavy but manageable": "⚖️",
+  "Overloaded but still going": "🏋️",
+  "Chaotic — no idea where to start": "🌪️",
+  // TODAY'S GOAL
+  "Complete one specific task": "🎯",
+  "Make meaningful progress": "📈",
+  "Get organised": "🗂️",
+  "Just get started": "👟",
+  // FOCUS WINDOW
+  "60+ minutes": "🔥",
+  "30–60 minutes": "⏱️",
+  "10–30 minutes": "⚡",
+  "Less than 10 minutes": "💨",
+  // STRESSED PATH — FEELING WORD
+  "Anxious / worried": "😰",
+  "Angry / frustrated": "😤",
+  "Sad / low": "😔",
+  "Overwhelmed / scattered": "🌊",
+  "Stressed / under pressure": "😮‍💨",
+  "Lost / confused": "🧭",
+  // FREQUENCY
+  "Almost every day": "🔁",
+  "A few times a week": "📅",
+  "Occasionally": "🌤️",
+  "It's a recent shift — new for me": "🆕",
+  // BODY LOCATION
+  "Stomach / gut": "🫁",
+  "Head / temples": "🧠",
+  "Throat / neck": "😮‍💨",
+  "Whole body / everywhere": "🌊",
+  "I don't feel it physically": "🤷",
+  // ORIGIN
+  "A specific event triggered it": "⚡",
+  "Slow build-up over time": "🌡️",
+  "It comes in cycles": "🔁",
+  "No idea where it started": "❓",
+  // DRIVER
+  "Work / studies": "💼",
+  "A relationship or person": "💔",
+  "My own thoughts about myself": "🪞",
+  "Nothing specific — it just is": "🌫️",
+  "Multiple things at once": "🤹",
+  // IMPACT
+  "Can't focus or concentrate": "🎯",
+  "Withdrawing / isolating": "🚪",
+  "Physical symptoms (headache, tension)": "🫀",
+  "Spiralling thoughts": "🌀",
+  "Going through the motions": "🤖",
+  // HISTORY
+  "Yes — very familiar, comes back often": "🔁",
+  "Yes but usually milder": "📉",
+  "Rarely — this feels unusual for me": "🆕",
+  "No — this is completely new": "❗",
+  // TRIED
+  "Nothing yet": "🤷",
+  "Talking to someone": "💬",
+  "Exercise or movement": "🏃",
+  "Breathing / meditation": "🫁",
+  "Distraction (scrolling, music)": "📱",
+  // SUPPORT NEEDED
+  "Something physical I can do": "🏃",
+  "Something to think through mentally": "🧠",
+  "A calming practice or ritual": "🕯️",
+  "Something quick — under 5 minutes": "⚡",
+  "Something tonight before sleep": "🌙",
 };
 
-const ICON_FOR_OPTION = (opt: string) => {
-  const o = opt.toLowerCase();
-  if (o.includes("student")) return GraduationCap;
-  if (o.includes("working professional")) return Briefcase;
-  if (o.includes("freelancer") || o.includes("self-employed")) return Laptop;
-  if (o.includes("between jobs")) return Search;
-  if (o.includes("homemaker") || o.includes("caregiver")) return Home;
-
-  if (o.includes("early morning")) return Sunrise;
-  if (o.includes("morning")) return Sun;
-  if (o.includes("afternoon")) return CloudSun;
-  if (o.includes("evening")) return Sunset;
-  if (o.includes("late night") || o.includes("night")) return Moon;
-
-  if (o.includes("deep focus")) return Target;
-  if (o.includes("starting and stopping")) return Shuffle;
-  if (o.includes("avoiding")) return Cloud;
-  if (o.includes("busy")) return Tornado;
-
-  if (o.includes("stomach") || o.includes("gut")) return Flame;
-  if (o.includes("head") || o.includes("temples")) return Brain;
-  if (o.includes("throat") || o.includes("neck")) return Frown;
-  if (o.includes("whole body")) return Sparkles;
-
-  if (o.includes("distract")) return Zap;
-  if (o.includes("overthink") || o.includes("perfection")) return Brain;
-  if (o.includes("fatigue") || o.includes("low energy")) return Cloud;
-  if (o.includes("too many")) return LayoutGrid;
-  if (o.includes("direction")) return Compass;
-
-  if (o.includes("nothing")) return X;
-  if (o.includes("talking")) return Smile;
-  if (o.includes("exercise") || o.includes("movement")) return Zap;
-  if (o.includes("breathing") || o.includes("meditation")) return Sparkles;
-  if (o.includes("distraction")) return Shuffle;
-
-  return HelpCircle;
+const EMOTION_TINT: Record<string, { tint: string; ring: string }> = {
+  "Anxious / worried":          { tint: "bg-amber-100",   ring: "ring-amber-300" },
+  "Angry / frustrated":         { tint: "bg-red-100",     ring: "ring-red-300" },
+  "Sad / low":                  { tint: "bg-blue-100",    ring: "ring-blue-300" },
+  "Overwhelmed / scattered":    { tint: "bg-purple-100",  ring: "ring-purple-300" },
+  "Stressed / under pressure":  { tint: "bg-orange-100",  ring: "ring-orange-300" },
+  "Lost / confused":            { tint: "bg-slate-100",   ring: "ring-slate-300" },
+  "High — ready to go":         { tint: "bg-yellow-100",  ring: "ring-yellow-300" },
+  "Decent — not at my peak":    { tint: "bg-lime-100",    ring: "ring-lime-300" },
+  "Low — struggling to start":  { tint: "bg-blue-100",    ring: "ring-blue-300" },
+  "Drained — no motivation":    { tint: "bg-slate-100",   ring: "ring-slate-300" },
+  "Driven and on it":           { tint: "bg-emerald-100", ring: "ring-emerald-300" },
+  "Pressured but pushing through": { tint: "bg-amber-100", ring: "ring-amber-300" },
+  "Stuck and frustrated":       { tint: "bg-red-100",     ring: "ring-red-300" },
+  "Overwhelmed":                { tint: "bg-purple-100",  ring: "ring-purple-300" },
+  "Scattered and unfocused":    { tint: "bg-sky-100",     ring: "ring-sky-300" },
 };
+
+const emojiFor = (opt: string): string => OPTION_EMOJI[opt] ?? "✨";
 
 const SingleAnswer = ({
   qid, options, selected, onSelect,
@@ -299,7 +387,7 @@ const SingleAnswer = ({
     return (
       <div className="mt-6 grid grid-cols-2 gap-3">
         {options.map((o) => {
-          const meta = EMOTION_META[o] ?? { emoji: "✨", tint: "bg-white/90", ring: "ring-rs-cream" };
+          const tint = EMOTION_TINT[o] ?? { tint: "bg-white/90", ring: "ring-rs-cream" };
           const isSel = selected === o;
           return (
             <motion.button
@@ -308,11 +396,11 @@ const SingleAnswer = ({
               whileTap={{ scale: 0.97 }}
               animate={isSel ? { scale: 1.04 } : { scale: 1 }}
               transition={{ type: "spring", stiffness: 320, damping: 22 }}
-              className={`relative rounded-2xl p-4 text-left btn-press ${meta.tint} ${
-                isSel ? `ring-2 ${meta.ring} shadow-lg` : "ring-1 ring-black/5"
+              className={`relative rounded-2xl p-4 text-left btn-press ${tint.tint} ${
+                isSel ? `ring-2 ${tint.ring} shadow-lg` : "ring-1 ring-black/5"
               }`}
             >
-              <div className="text-3xl mb-2">{meta.emoji}</div>
+              <div className="text-3xl mb-2">{emojiFor(o)}</div>
               <div className="text-[13px] font-semibold text-rs-navy leading-snug">{o}</div>
             </motion.button>
           );
@@ -325,7 +413,6 @@ const SingleAnswer = ({
     return (
       <div className="mt-6 grid grid-cols-2 gap-3">
         {options.map((o) => {
-          const Icon = ICON_FOR_OPTION(o);
           const isSel = selected === o;
           return (
             <motion.button
@@ -340,7 +427,7 @@ const SingleAnswer = ({
                   : "bg-white/10 text-white border-white/20 hover:bg-white/15"
               }`}
             >
-              <Icon className={`w-6 h-6 mb-2 ${isSel ? "text-rs-navy" : "text-rs-cream"}`} />
+              <div className="text-3xl mb-2 leading-none">{emojiFor(o)}</div>
               <div className="text-[13px] font-medium leading-snug">{o}</div>
             </motion.button>
           );
