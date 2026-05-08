@@ -18,6 +18,7 @@ import {
   totalOnboardingSteps, type Path, type Question, type Chronotype,
 } from "@/lib/restartData";
 import ChronotypeReveal from "@/components/onboarding/ChronotypeReveal";
+import DidiIntro from "@/components/onboarding/DidiIntro";
 import ConsentForm from "@/components/ConsentForm";
 
 const OnboardingFlow = () => {
@@ -41,6 +42,7 @@ const OnboardingFlow = () => {
   const [consentStep, setConsentStep] = useState(false);
   const [pendingAnswers, setPendingAnswers] = useState<Record<string, string> | null>(null);
   const [reveal, setReveal] = useState<{ chronotype: Chronotype; headline: string; description: string } | null>(null);
+  const [showDidiIntro, setShowDidiIntro] = useState(false);
 
   const q = questions[idx];
   const total = totalOnboardingSteps(path);
@@ -87,6 +89,7 @@ const OnboardingFlow = () => {
       }
       app.setOnboardingData({ chronotype: ct });
       setReveal({ chronotype: ct, headline: data.headline, description: data.description });
+      setShowDidiIntro(true);
     } catch (e: any) {
       toast.error(e.message ?? "Something felt off — try again?");
       setAssigning(false);
@@ -117,6 +120,9 @@ const OnboardingFlow = () => {
     setIdx(idx - 1);
   };
 
+  if (reveal && showDidiIntro) {
+    return <DidiIntro onContinue={() => setShowDidiIntro(false)} />;
+  }
   if (reveal) return <ChronotypeReveal {...reveal} onContinue={() => nav("/home")} />;
 
   if (consentStep && !assigning) {
