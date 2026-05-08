@@ -34,15 +34,52 @@ const DEFAULT_OPTIONS: StateOptions = {
   breathwork: ["b1", "b2", "b3"],
 };
 
-export function getPracticesForState(emotionalState: string, day: number = 1): PracticeTriad {
+export function getPracticesForState(
+  emotionalState: string,
+  day: number = 1,
+  onboardingAnswers: Record<string, string> = {},
+): PracticeTriad {
   const key = (emotionalState ?? "").toString().trim().toLowerCase();
   const opts = STATE_OPTIONS[key] ?? DEFAULT_OPTIONS;
   const safeDay = Number.isFinite(day) && day > 0 ? Math.floor(day) : 1;
   const index = (safeDay - 1) % 3;
+
+  let neuroId = opts.neuro[index];
+  let ayurvedaId = opts.ayurveda[index];
+  let breathworkId = opts.breathwork[index];
+
+  const support = (onboardingAnswers.support_needed ?? "").toLowerCase();
+  const blocker = (onboardingAnswers.blocker ?? "").toLowerCase();
+
+  // support_needed refinements
+  if (support.includes("tonight before sleep")) {
+    breathworkId = "b3";
+  }
+  if (support.includes("physical")) {
+    neuroId = "n6";
+  }
+  if (support.includes("under 5 minutes") || support.includes("quick")) {
+    const shortPick = (ids: Triplet, fallback: string) => {
+      const found = ids.find((id) => {
+        const p = PRACTICE_BY_ID[id];
+        return p && (p.duration === "2 min" || p.duration === "3 min");
+      });
+      return found ?? fallback;
+    };
+    neuroId = shortPick(opts.neuro, neuroId);
+    ayurvedaId = shortPick(opts.ayurveda, ayurvedaId);
+    breathworkId = shortPick(opts.breathwork, breathworkId);
+  }
+
+  // blocker refinements (override neuro)
+  if (blocker.includes("no energy")) neuroId = "n6";
+  else if (blocker.includes("overthinking")) neuroId = "n4";
+  else if (blocker.includes("avoiding")) neuroId = "n1";
+
   return {
-    neuro: PRACTICE_BY_ID[opts.neuro[index]],
-    ayurveda: PRACTICE_BY_ID[opts.ayurveda[index]],
-    breathwork: PRACTICE_BY_ID[opts.breathwork[index]],
+    neuro: PRACTICE_BY_ID[neuroId],
+    ayurveda: PRACTICE_BY_ID[ayurvedaId],
+    breathwork: PRACTICE_BY_ID[breathworkId],
   };
 }
 
