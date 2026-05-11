@@ -10,6 +10,8 @@ import TopBar from "@/components/layout/TopBar";
 import { getPracticesForState } from "@/lib/getPracticesForState";
 import { CATEGORY_COLORS, type Practice as TriadPractice } from "@/data/practices";
 import { useProfile } from "@/hooks/useProfile";
+import { useApp } from "@/context/AppContext";
+import { CHRONOTYPE_LABEL, type Chronotype } from "@/lib/restartData";
 import logoImg from "@/assets/logo.png";
 import DidiChat from "@/components/DidiChat";
 
@@ -29,11 +31,11 @@ const SYSTEM_BADGE: Record<string, { label: string; bg: string; fg: string }> = 
    const { user } = useAuth();
    const { isActive } = useSubscription();
    const { profile } = useProfile();
+  const app = useApp();
    const isPro = isActive;
   const nav = useNavigate();
   const [tab, setTab] = useState<"today" | "library">("today");
   const [subTab, setSubTab] = useState<"neuro" | "ayurveda">("neuro");
-  const [today, setToday] = useState<Practice[]>([]);
   const [allPractices, setAllPractices] = useState<Practice[]>([]);
   const [checkIn, setCheckIn] = useState<CheckIn | null>(null);
   const [expanded, setExpanded] = useState<string | null>(null);
@@ -47,11 +49,6 @@ const SYSTEM_BADGE: Record<string, { label: string; bg: string; fg: string }> = 
         .eq("user_id", user.id).gte("created_at", start.toISOString())
         .order("created_at", { ascending: false }).limit(1).maybeSingle();
       setCheckIn(ci);
-
-      if (ci?.detected_state) {
-        const { data: ps } = await supabase.from("practices").select("*").eq("state", ci.detected_state).limit(3);
-        setToday(ps ?? []);
-      }
       const { data: all } = await supabase.from("practices").select("*").order("title");
       setAllPractices(all ?? []);
       setLoading(false);
@@ -90,13 +87,27 @@ const SYSTEM_BADGE: Record<string, { label: string; bg: string; fg: string }> = 
           ) : (
             <div className="space-y-3">
               {(() => {
-                const state = (typeof window !== "undefined" && localStorage.getItem("restart_checkin_state")) || "default";
+                const state =
+                  checkIn?.detected_state ||
+                  (typeof window !== "undefined" && localStorage.getItem("restart_checkin_state")) ||
+                  "default";
                 const day = parseInt((typeof window !== "undefined" && localStorage.getItem("restart_day")) || "1", 10) || 1;
-                const triad = getPracticesForState(state, day);
+                const chronotype = (profile?.chronotype ?? app.chronotype ?? null) as Chronotype | null;
+                const path = (profile?.path ?? app.path ?? null) as string | null;
+                const onboardingAnswers =
+                  (profile?.onboarding_answers as Record<string, string> | null) ?? {};
+                const triad = getPracticesForState(state, day, {
+                  chronotype,
+                  path,
+                  onboardingAnswers,
+                });
                 const items = [triad.neuro, triad.ayurveda, triad.breathwork];
-                const featured = items[0];
+                const featured =
+                  triad.lead === "breathwork" ? triad.breathwork :
+                  triad.lead === "ayurveda" ? triad.ayurveda :
+                  triad.neuro;
                 const firstName = (profile?.name || "").split(" ")[0] || "friend";
-                const chronotype = profile?.chronotype || "natural";
+                const chronotypeName = chronotype || "natural";
                 const hour = new Date().getHours();
                 const windowLabel =
                   hour >= 5 && hour <= 11 ? "Morning window" :
@@ -104,9 +115,15 @@ const SYSTEM_BADGE: Record<string, { label: string; bg: string; fg: string }> = 
                   hour >= 17 && hour <= 21 ? "Evening window" : "Night window";
                 return (
                   <>
+                    {chronotype && (
+                      <p className="text-[12px] text-rs-cream/70 mb-1">
+                        Personalised for your {CHRONOTYPE_LABEL[chronotype] ?? chronotype} rhythm
+                        {path ? ` · ${path === "ambitious" ? "performance" : "recovery"} mode` : ""}
+                      </p>
+                    )}
                     <DidiPickCard
                       firstName={firstName}
-                      chronotype={chronotype}
+                      chronotype={chronotypeName}
                       windowLabel={windowLabel}
                       practice={featured}
                     />

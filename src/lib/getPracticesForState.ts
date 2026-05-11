@@ -5,6 +5,14 @@ export interface PracticeTriad {
   neuro: Practice;
   ayurveda: Practice;
   breathwork: Practice;
+  lead: "neuro" | "ayurveda" | "breathwork";
+}
+
+export interface PersonalProfile {
+  chronotype?: string | null;
+  path?: string | null;
+  onboardingAnswers?: Record<string, string>;
+  hour?: number;
 }
 
 type Septet = [string, string, string, string, string, string, string];
@@ -35,11 +43,31 @@ const DEFAULT_OPTIONS: StateOptions = {
   breathwork: ["b1", "b2", "b3", "b2", "b1", "b3", "b2"],
 };
 
+type Slot = "morning" | "midday" | "evening" | "night";
+function slotFromHour(h: number): Slot {
+  if (h >= 5 && h <= 11) return "morning";
+  if (h >= 12 && h <= 16) return "midday";
+  if (h >= 17 && h <= 21) return "evening";
+  return "night";
+}
+const isMorningType = (c?: string | null) => c === "lion" || c === "bear";
+const isEveningType = (c?: string | null) => c === "wolf" || c === "dolphin";
+
 export function getPracticesForState(
   emotionalState: string,
   day: number = 1,
-  onboardingAnswers: Record<string, string> = {},
+  profile: PersonalProfile | Record<string, string> = {},
 ): PracticeTriad {
+  // Back-compat: if a flat answers map is passed, treat it as onboardingAnswers.
+  const p: PersonalProfile = isPersonalProfile(profile)
+    ? profile
+    : { onboardingAnswers: profile as Record<string, string> };
+  const onboardingAnswers = p.onboardingAnswers ?? {};
+  const chronotype = p.chronotype ?? null;
+  const path = p.path ?? null;
+  const hour = typeof p.hour === "number" ? p.hour : new Date().getHours();
+  const slot = slotFromHour(hour);
+
   const key = (emotionalState ?? "").toString().trim().toLowerCase();
   const opts = STATE_OPTIONS[key] ?? DEFAULT_OPTIONS;
   const safeDay = Number.isFinite(day) && day > 0 ? Math.floor(day) : 1;
@@ -77,11 +105,38 @@ export function getPracticesForState(
   else if (blocker.includes("overthinking")) neuroId = "n4";
   else if (blocker.includes("avoiding")) neuroId = "n1";
 
+  // Chronotype × time-of-day overrides — only when rotation hasn't already
+  // landed on a matching practice, so day-to-day variety is preserved.
+  const HIGH_ENERGY_NEURO = new Set(["n1", "n6"]);
+  if (isMorningType(chronotype) && slot === "morning" && !HIGH_ENERGY_NEURO.has(neuroId)) {
+    neuroId = "n6";
+  }
+  if (isEveningType(chronotype)) {
+    if (slot === "midday" && !HIGH_ENERGY_NEURO.has(neuroId)) {
+      neuroId = "n1";
+    }
+    if (slot === "evening" || slot === "night") {
+      if (breathworkId !== "b3") breathworkId = "b3";
+      if (!["a1", "a4"].includes(ayurvedaId)) ayurvedaId = "a4";
+    }
+  }
+
+  // Path determines which practice leads ("featured").
+  const lead: PracticeTriad["lead"] =
+    path === "stressed" ? "breathwork" : "neuro";
+
   return {
     neuro: PRACTICE_BY_ID[neuroId],
     ayurveda: PRACTICE_BY_ID[ayurvedaId],
     breathwork: PRACTICE_BY_ID[breathworkId],
+    lead,
   };
+}
+
+function isPersonalProfile(v: any): v is PersonalProfile {
+  return v && typeof v === "object" && (
+    "chronotype" in v || "path" in v || "onboardingAnswers" in v || "hour" in v
+  );
 }
 
 export function getWhyTodayLabel(day: number): string {
@@ -140,10 +195,10 @@ export async function getUserPracticeHistory(userId: string): Promise<{
 export function getPracticesForStateWithHistory(
   emotionalState: string,
   day: number,
-  onboardingAnswers: Record<string, string>,
+  profile: PersonalProfile | Record<string, string>,
   history: { shownRecent: string[] },
 ): PracticeTriad {
-  const baseTriad = getPracticesForState(emotionalState, day, onboardingAnswers);
+  const baseTriad = getPracticesForState(emotionalState, day, profile);
   const key = (emotionalState ?? "").toString().trim().toLowerCase();
   const opts = STATE_OPTIONS[key] ?? DEFAULT_OPTIONS;
   const recent = new Set(history.shownRecent ?? []);
@@ -162,5 +217,6 @@ export function getPracticesForStateWithHistory(
     neuro: PRACTICE_BY_ID[neuroId] ?? baseTriad.neuro,
     ayurveda: PRACTICE_BY_ID[ayurvedaId] ?? baseTriad.ayurveda,
     breathwork: PRACTICE_BY_ID[breathworkId] ?? baseTriad.breathwork,
+    lead: baseTriad.lead,
   };
 }
