@@ -72,13 +72,7 @@ const PracticesScreen = () => {
             DIDI
           </div>
           <div
-            style={{
-              fontSize: 23,
-              fontWeight: 500,
-              color: "#1a3a6a",
-              marginTop: 8,
-              lineHeight: 1.3,
-            }}
+            className="text-yellow-100 font-serif text-6xl font-semibold mt-2 leading-[1.1]"
           >
             How are you,
             <br />
