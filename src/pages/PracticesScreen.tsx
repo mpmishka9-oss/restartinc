@@ -2,7 +2,6 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { Home, Calendar, Sparkles, User, ArrowUp } from "lucide-react";
 import { useProfile } from "@/hooks/useProfile";
-import restartLogo from "@/assets/restart-logo.png";
 
 const MOODS = [
   { emoji: "😮‍💨", label: "Anxious" },
@@ -58,37 +57,6 @@ const PracticesScreen = () => {
           "radial-gradient(circle at 50% 42%, #feffaf 0%, #c8dde8 22%, #a0c8dc 48%, #7bb0cc 78%, #5a9bb8 100%)",
       }}
     >
-      {/* White halo behind brain */}
-      <div
-        className="pointer-events-none"
-        style={{
-          position: "absolute",
-          left: "50%",
-          top: 80,
-          transform: "translateX(-50%)",
-          width: 260,
-          height: 260,
-          background:
-            "radial-gradient(circle, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0) 70%)",
-          zIndex: 0,
-        }}
-      />
-      {/* Brain watermark */}
-      <img
-        src={restartLogo}
-        alt=""
-        className="pointer-events-none"
-        style={{
-          position: "absolute",
-          left: "50%",
-          top: 80,
-          transform: "translateX(-50%)",
-          width: 220,
-          opacity: 0.28,
-          zIndex: 1,
-        }}
-      />
-
       {/* Foreground content */}
       <div className="relative flex flex-col min-h-screen" style={{ zIndex: 2 }}>
         {/* Header text */}
