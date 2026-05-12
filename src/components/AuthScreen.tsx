@@ -1,11 +1,25 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { lovable } from "@/integrations/lovable";
+import { supabase } from "@/integrations/supabase/client";
 import logo from "@/assets/logo-new.png";
 import authBg from "@/assets/auth-bg.jpeg";
 
 const AuthScreen = () => {
   const [loading, setLoading] = useState<null | "google" | "apple">(null);
+  const showDemo = typeof window !== "undefined" && new URLSearchParams(window.location.search).get("demo") === "true";
+
+  const demoLogin = async () => {
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email: "restartuser.wolf@gmail.com",
+        password: "Restart@2024",
+      });
+      if (error) throw error;
+    } catch (err: any) {
+      toast.error(err.message ?? "Demo login failed");
+    }
+  };
 
   const oauthSignIn = async (provider: "google" | "apple") => {
     setLoading(provider);
@@ -46,6 +60,27 @@ const AuthScreen = () => {
         minHeight: "100dvh",
       }}
     >
+      {showDemo && (
+        <button
+          onClick={demoLogin}
+          style={{
+            position: "fixed",
+            top: 16,
+            right: 16,
+            background: "#FEFFAF",
+            color: "#1a1a1a",
+            border: "none",
+            borderRadius: 8,
+            padding: "6px 12px",
+            fontSize: 12,
+            fontWeight: 600,
+            cursor: "pointer",
+            zIndex: 50,
+          }}
+        >
+          Demo
+        </button>
+      )}
       <div style={{ background: "transparent", border: "none", marginBottom: 24 }} className="flex flex-col items-center">
         <img src={logo} alt="reStart" className="object-cover text-xl" style={{ width: 160, background: "transparent" }} />
         <div style={{ background: "rgba(26, 42, 74, 0.06)", padding: "8px 0", width: "100%", marginTop: 8, textAlign: "center" }}>
