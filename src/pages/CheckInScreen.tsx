@@ -453,9 +453,7 @@ const CheckInScreen = () => {
           DIDI
         </div>
         <div className="text-yellow-100 font-serif text-4xl font-semibold mt-3 leading-[1.15]">
-          How intense is this
-          <br />
-          feeling right now?
+          {getIntensityCopy(selected?.key).question}
         </div>
       </div>
 
@@ -526,7 +524,7 @@ const CheckInScreen = () => {
 
         {/* Context line */}
         <p className="text-center text-white/85 text-[15px] mt-10 font-medium">
-          {intensityLine(intensity)}
+          {intensityLine(intensity, selected?.key)}
         </p>
       </div>
 
