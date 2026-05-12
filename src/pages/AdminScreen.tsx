@@ -5,6 +5,12 @@ import { useAuth } from "@/hooks/useAuth";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { toast } from "@/hooks/use-toast";
 
 const ADMIN_EMAIL = "mpmishka9@gmail.com";
 
@@ -14,22 +20,40 @@ const AdminScreen = () => {
   const [checkIns, setCheckIns] = useState<any[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [wiping, setWiping] = useState(false);
+
+  const loadData = async () => {
+    setDataLoading(true);
+    const [p, c] = await Promise.all([
+      supabase.from("profiles").select("*").order("created_at", { ascending: false }),
+      supabase.from("check_ins").select("*").order("time_of_checkin", { ascending: false }),
+    ]);
+    if (p.error) setError(p.error.message);
+    if (c.error) setError(c.error.message);
+    setProfiles(p.data ?? []);
+    setCheckIns(c.data ?? []);
+    setDataLoading(false);
+  };
 
   useEffect(() => {
     if (!user || user.email?.toLowerCase() !== ADMIN_EMAIL) return;
-    (async () => {
-      setDataLoading(true);
-      const [p, c] = await Promise.all([
-        supabase.from("profiles").select("*").order("created_at", { ascending: false }),
-        supabase.from("check_ins").select("*").order("time_of_checkin", { ascending: false }),
-      ]);
-      if (p.error) setError(p.error.message);
-      if (c.error) setError(c.error.message);
-      setProfiles(p.data ?? []);
-      setCheckIns(c.data ?? []);
-      setDataLoading(false);
-    })();
+    loadData();
   }, [user]);
+
+  const handleWipe = async () => {
+    setWiping(true);
+    const { error } = await supabase.functions.invoke("admin-wipe");
+    setWiping(false);
+    if (error) {
+      toast({ title: "Wipe failed", description: error.message, variant: "destructive" });
+      return;
+    }
+    toast({ title: "All data wiped", description: "Signing out…" });
+    setTimeout(async () => {
+      await supabase.auth.signOut();
+      window.location.href = "/";
+    }, 800);
+  };
 
   if (loading) return <div className="p-8">Loading…</div>;
   if (!user) return <Navigate to="/" replace />;
@@ -45,6 +69,27 @@ const AdminScreen = () => {
       <header>
         <h1 className="text-2xl font-bold">Admin · Founder console</h1>
         <p className="text-sm text-muted-foreground">Signed in as {user.email}</p>
+        <div className="mt-4">
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="destructive" disabled={wiping}>
+                {wiping ? "Wiping…" : "Wipe all data"}
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Wipe all data?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This permanently deletes every user account, profile, check-in, plan, and journey record. This cannot be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={handleWipe}>Yes, wipe everything</AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
       </header>
 
       {error && <div className="text-destructive text-sm">{error}</div>}
