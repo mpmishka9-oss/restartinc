@@ -344,8 +344,8 @@ const CheckInScreen = () => {
               animate={{ opacity: 1, y: 0 }}
               onClick={() => setStep("intensity")}
               style={{
-                background: "#6B63D4",
-                color: "white",
+                background: "#FEFFAF",
+                color: "#1a1a1a",
                 borderRadius: 999,
                 padding: "14px 22px",
                 fontSize: 15,
@@ -479,8 +479,8 @@ const CheckInScreen = () => {
       <button
         onClick={submit}
         style={{
-          background: "#6B63D4",
-          color: "white",
+          background: "#FEFFAF",
+          color: "#1a1a1a",
           borderRadius: 999,
           padding: "16px 22px",
           fontSize: 15,
