@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
+import { isDemoMode } from "@/lib/demo";
 import {
   getPracticesForStateWithHistory,
   getUserPracticeHistory,
@@ -166,7 +167,7 @@ const CheckInScreen = () => {
         ? `Feeling ${selected.label.toLowerCase()}. Intensity ${intensity}/10. "${freeText}"`
         : `Feeling ${selected.label.toLowerCase()}. Intensity ${intensity}/10.`;
 
-      if (user) {
+      if (user && !isDemoMode()) {
         await supabase.from("check_ins").insert({
           user_id: user.id,
           detected_state: selected.detected as any,
