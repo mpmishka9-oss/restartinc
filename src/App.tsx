@@ -22,6 +22,7 @@ import NotFound from "./pages/NotFound";
 import ConsentForm from "@/components/ConsentForm";
 import DevTestPage from "./pages/DevTestPage";
 import AdminScreen from "./pages/AdminScreen";
+import DemoBanner from "@/components/DemoBanner";
 
  import Terms from "./pages/Terms";
  import Privacy from "./pages/Privacy";
@@ -82,6 +83,7 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
+            <DemoBanner />
             <RoutedApp />
           </BrowserRouter>
         </TooltipProvider>
