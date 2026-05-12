@@ -1,11 +1,49 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 import logo from "@/assets/logo.png";
 
 const SplashScreen = () => {
   const nav = useNavigate();
   const [showPath, setShowPath] = useState(false);
+  const showDemo = typeof window !== "undefined" && new URLSearchParams(window.location.search).get("demo") === "true";
+
+  const demoLogin = async () => {
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email: "restartuser.wolf@gmail.com",
+        password: "Restart@2024",
+      });
+      if (error) throw error;
+    } catch (err: any) {
+      toast.error(err.message ?? "Demo login failed");
+    }
+  };
+
+  const DemoButton = () =>
+    showDemo ? (
+      <button
+        onClick={demoLogin}
+        style={{
+          position: "fixed",
+          top: 16,
+          right: 16,
+          background: "#FEFFAF",
+          color: "#1a1a1a",
+          border: "none",
+          borderRadius: 8,
+          padding: "6px 12px",
+          fontSize: 12,
+          fontWeight: 600,
+          cursor: "pointer",
+          zIndex: 50,
+        }}
+      >
+        Demo
+      </button>
+    ) : null;
 
   useEffect(() => {
     const t = setTimeout(() => setShowPath(true), 2000);
@@ -16,6 +54,7 @@ const SplashScreen = () => {
     return (
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}
         className="phone-frame min-h-screen flex flex-col items-center justify-center px-5 py-12">
+        <DemoButton />
         <h1 className="text-[22px] font-bold text-white text-center">How are you arriving today?</h1>
         <p className="text-[14px] text-rs-muted text-center mt-2">This shapes your entire experience.</p>
 
@@ -42,6 +81,7 @@ const SplashScreen = () => {
 
   return (
     <div className="phone-frame min-h-screen flex flex-col items-center justify-center">
+      <DemoButton />
       <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.7 }}
         className="flex flex-col items-center">
         <img src={logo} alt="reStart" style={{ width: 220, objectFit: "contain" }} />
