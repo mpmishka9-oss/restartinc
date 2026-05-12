@@ -301,6 +301,7 @@ export type Database = {
         Args: { check_env?: string; user_uuid: string }
         Returns: boolean
       }
+      is_admin: { Args: never; Returns: boolean }
     }
     Enums: {
       chronotype: "lion" | "bear" | "wolf" | "dolphin"
