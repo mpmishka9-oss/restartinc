@@ -31,11 +31,64 @@ const EMOTIONS: Emotion[] = [
   { label: "Numb / flat",              key: "numb",        detected: "burnout",   reply: "Flat days are real. We don't need to fix it — just move through it." },
 ];
 
-const intensityLine = (n: number) =>
-  n <= 3 ? "Mild — a background hum"
-  : n <= 6 ? "Moderate — it's taking up space"
-  : n <= 8 ? "High — hard to ignore"
-  : "Intense — this needs attention first";
+const INTENSITY_COPY: Record<string, { question: string; low: string; mid: string; high: string }> = {
+  anxious: {
+    question: "How loud is the worry right now?",
+    low: "A quiet hum in the background",
+    mid: "It's present and hard to ignore",
+    high: "It's taking over right now",
+  },
+  stressed: {
+    question: "How heavy is the pressure feeling?",
+    low: "Manageable, but it's building",
+    mid: "It's sitting on your chest",
+    high: "Feels like too much right now",
+  },
+  low: {
+    question: "How deep is the heaviness?",
+    low: "A dull ache, quietly there",
+    mid: "It's slowing you down",
+    high: "Feels hard to move through",
+  },
+  overwhelmed: {
+    question: "How scattered does your mind feel?",
+    low: "A little noisy, but manageable",
+    mid: "Hard to land on one thing",
+    high: "Everything feels like too much",
+  },
+  angry: {
+    question: "How activated are you right now?",
+    low: "A low simmer",
+    mid: "It's sharp and present",
+    high: "Fully charged, hard to contain",
+  },
+  numb: {
+    question: "How far away does everything feel?",
+    low: "Slightly disconnected",
+    mid: "Going through the motions",
+    high: "Completely switched off",
+  },
+  focused: {
+    question: "How strong is your focus right now?",
+    low: "Just warming up",
+    mid: "Steady — you're in it",
+    high: "Full flow — sharp and on",
+  },
+  good: {
+    question: "How alive is this energy feeling?",
+    low: "A gentle lift",
+    mid: "Solid and moving forward",
+    high: "Fully charged — let's go",
+  },
+};
+
+const getIntensityCopy = (key: string | undefined) =>
+  (key && INTENSITY_COPY[key]) || INTENSITY_COPY.stressed;
+
+const intensityLine = (n: number, key?: string) => {
+  const c = getIntensityCopy(key);
+  return n <= 3 ? c.low : n <= 6 ? c.mid : c.high;
+};
 
 const chipStyle: React.CSSProperties = {
   background: "rgba(255,255,255,0.50)",
@@ -400,9 +453,7 @@ const CheckInScreen = () => {
           DIDI
         </div>
         <div className="text-yellow-100 font-serif text-4xl font-semibold mt-3 leading-[1.15]">
-          How intense is this
-          <br />
-          feeling right now?
+          {getIntensityCopy(selected?.key).question}
         </div>
       </div>
 
@@ -473,7 +524,7 @@ const CheckInScreen = () => {
 
         {/* Context line */}
         <p className="text-center text-white/85 text-[15px] mt-10 font-medium">
-          {intensityLine(intensity)}
+          {intensityLine(intensity, selected?.key)}
         </p>
       </div>
 
