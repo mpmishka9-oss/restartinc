@@ -83,19 +83,25 @@ const PracticeCard = ({ practice, whyForToday, onStart }: PracticeCardProps) => 
         Start now <ArrowRight size={15} />
       </button>
 
-      <a
-        href={practice.sourceLink}
-        target="_blank"
-        rel="noopener noreferrer"
+      <button
+        type="button"
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          window.open(practice.sourceLink, "_blank", "noopener,noreferrer");
+        }}
         className="mt-3 inline-flex items-center gap-1"
         style={{
           fontSize: 11,
           color: "rgba(26,42,74,0.55)",
-          textDecoration: "none",
+          background: "none",
+          border: "none",
+          padding: 0,
+          cursor: "pointer",
         }}
       >
-        {practice.sourceLabel} <ExternalLink size={11} />
-      </a>
+        View research <ExternalLink size={11} /> <span className="sr-only">{practice.sourceLabel}</span>
+      </button>
     </div>
   );
 };
