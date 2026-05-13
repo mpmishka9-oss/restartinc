@@ -6,7 +6,9 @@ import { useProfile } from "@/hooks/useProfile";
 import BottomNav from "@/components/layout/BottomNav";
 import TopBar from "@/components/layout/TopBar";
 import { useSubscription } from "@/hooks/useSubscription";
-import { getPracticesForState, getWhyTodayLabel } from "@/lib/getPracticesForState";
+import { getWhyTodayLabel } from "@/lib/getPracticesForState";
+import { getBaselinePractices } from "@/lib/recommendPractices";
+import PracticeCard from "@/components/PracticeCard";
 import { useAuth } from "@/hooks/useAuth";
 import { initiateRazorpayCheckout } from "@/lib/razorpay";
 import { toast } from "sonner";
@@ -148,20 +150,7 @@ const DayRow = ({ d, status, expanded, onToggle, accent, checks, onCheck }: {
           className="px-4 pb-4 space-y-2"
           style={completed ? { opacity: 0.7 } : undefined}>
           <Task label="Morning Anchor" body={d.morning} checked={completed || !!checks["Morning Anchor"]} onChange={(v) => onCheck("Morning Anchor", v)} disabled={completed} />
-          {(() => {
-            const state = (typeof window !== "undefined" && localStorage.getItem("restart_checkin_state")) || "default";
-            // Use this card's actual day number so each day shows a different
-            // practice variant (rotation index inside getPracticesForState).
-            const triad = getPracticesForState(state, d.day);
-            const why = getWhyTodayLabel(d.day);
-            return (
-              <div className="mt-2 space-y-1.5">
-                <TriadRow icon="🧠" label="NEUROSCIENCE" name={triad.neuro.name} duration={triad.neuro.duration} why={why} />
-                <TriadRow icon="🌿" label="AYURVEDA" name={triad.ayurveda.name} duration={triad.ayurveda.duration} why={why} />
-                <TriadRow icon="💨" label="BREATHWORK" name={triad.breathwork.name} duration={triad.breathwork.duration} why={why} />
-              </div>
-            );
-          })()}
+          <DayPractices day={d.day} />
           {d.midday && <Task label="Midday Reset" body={d.midday} checked={completed || !!checks["Midday Reset"]} onChange={(v) => onCheck("Midday Reset", v)} disabled={completed} />}
           {d.focusWindow && <Task label="Focus Window" body={d.focusWindow} checked={completed || !!checks["Focus Window"]} onChange={(v) => onCheck("Focus Window", v)} disabled={completed} />}
           {d.community && <Task label="Community" body={d.community} checked={completed || !!checks["Community"]} onChange={(v) => onCheck("Community", v)} disabled={completed} />}
