@@ -36,6 +36,14 @@ const HomeScreen = () => {
   const day = profile?.current_day ?? 1;
   const streak = profile?.streak_days ?? 0;
   const ct = profile?.chronotype as Chronotype | null;
+  const hasDosha = !!(profile as any)?.dosha;
+  const showDoshaPrompt = !hasDosha && (() => {
+    try { return localStorage.getItem("restart_dosha_prompt_dismissed") !== "1"; }
+    catch { return true; }
+  })();
+  const dismissDoshaPrompt = () => {
+    try { localStorage.setItem("restart_dosha_prompt_dismissed", "1"); } catch {}
+  };
 
   if (loading) {
     return (
@@ -81,6 +89,27 @@ const HomeScreen = () => {
         <div className="flex flex-col items-center my-7">
           <Mandala day={day} size={140} />
         </div>
+
+        {showDoshaPrompt && (
+          <div className="mb-4 rounded-2xl p-4 bg-rs-cream/15 border border-rs-cream/40">
+            <p className="text-white text-[14px] font-semibold">Personalise your Ayurvedic practices</p>
+            <p className="text-rs-muted text-[12px] mt-1">
+              Take the 5-question dosha quiz so we can tailor your daily ritual.
+            </p>
+            <div className="flex items-center gap-3 mt-3">
+              <button
+                onClick={() => nav("/dosha-quiz")}
+                className="px-4 py-2 btn-cream text-[13px] font-semibold inline-flex items-center gap-1.5">
+                Take the quiz <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+              <button
+                onClick={() => { dismissDoshaPrompt(); nav(0 as any); }}
+                className="text-rs-muted text-[12px]">
+                Later
+              </button>
+            </div>
+          </div>
+        )}
 
          {/* Daily Loop card */}
          {day > 7 && !isActive ? (
