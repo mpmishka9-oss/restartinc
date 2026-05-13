@@ -196,8 +196,8 @@ const DayCard = ({
           {done ? <Check className="w-4 h-4" /> : locked ? <Lock className="w-3.5 h-3.5" /> : d.day}
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-white text-[14px] font-semibold">Day {d.day}</p>
-          <p className="text-rs-muted text-[12px] truncate">
+          <p className="text-[14px] font-semibold text-yellow-100">Day {d.day}</p>
+          <p className="text-rs-muted text-[12px] truncate text-yellow-100">
             {locked ? "Unlock with Pro" : `${d.title} · Neuro + Ayurveda`}
           </p>
         </div>
@@ -273,8 +273,8 @@ const ExerciseBlock = ({
         {kind}
       </span>
     </div>
-    <p className="text-white text-[14px] font-medium">{name}</p>
-    <p className="text-rs-muted text-[12px] mt-1 leading-relaxed">{explanation}</p>
+    <p className="text-[14px] font-medium text-yellow-100">{name}</p>
+    <p className="text-rs-muted text-[12px] mt-1 leading-relaxed text-yellow-100">{explanation}</p>
     <a
       href={source.url}
       target="_blank"
