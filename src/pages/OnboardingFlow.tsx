@@ -13,6 +13,8 @@ import {
 import ChronotypeReveal from "@/components/onboarding/ChronotypeReveal";
 import DidiIntro from "@/components/onboarding/DidiIntro";
 import ConsentForm from "@/components/ConsentForm";
+import DoshaQuiz from "@/components/onboarding/DoshaQuiz";
+import type { Dosha } from "@/data/practices";
 
 const OnboardingFlow = () => {
   const nav = useNavigate();
@@ -36,6 +38,7 @@ const OnboardingFlow = () => {
   const [pendingAnswers, setPendingAnswers] = useState<Record<string, string> | null>(null);
   const [reveal, setReveal] = useState<{ chronotype: Chronotype; headline: string; description: string } | null>(null);
   const [showDidiIntro, setShowDidiIntro] = useState(false);
+  const [showDoshaQuiz, setShowDoshaQuiz] = useState(false);
 
   const q = questions[idx];
   const total = totalOnboardingSteps(path);
@@ -116,7 +119,19 @@ const OnboardingFlow = () => {
   if (reveal && showDidiIntro) {
     return <DidiIntro onContinue={() => setShowDidiIntro(false)} />;
   }
-  if (reveal) return <ChronotypeReveal {...reveal} onContinue={() => nav("/home")} />;
+  if (reveal && showDoshaQuiz) {
+    return (
+      <DoshaQuiz
+        onComplete={async (dosha: Dosha) => {
+          if (user) {
+            await supabase.from("profiles").update({ dosha }).eq("id", user.id);
+          }
+          nav("/home");
+        }}
+      />
+    );
+  }
+  if (reveal) return <ChronotypeReveal {...reveal} onContinue={() => setShowDoshaQuiz(true)} />;
 
   if (consentStep && !assigning) {
     return (
