@@ -7,10 +7,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
 import { isDemoMode } from "@/lib/demo";
-import {
-  getPracticesForStateWithHistory,
-  getUserPracticeHistory,
-} from "@/lib/getPracticesForState";
 
 // ----- Emotion options -----
 type Emotion = {
@@ -195,27 +191,6 @@ const CheckInScreen = () => {
         10,
       ) || 1;
 
-      const oa = (profile as any)?.onboarding_answers || {};
-      const onboardingAnswers: Record<string, string> = {
-        ...oa,
-        blocker: freeText || oa.blocker || "",
-      };
-      try {
-        const sn = localStorage.getItem("restart_support_needed");
-        if (sn) onboardingAnswers.support_needed = sn;
-      } catch {}
-
-      const history = user
-        ? await getUserPracticeHistory(user.id)
-        : { shownAll: [], shownRecent: [] };
-      const triad = getPracticesForStateWithHistory(
-        selected.key,
-        day,
-        onboardingAnswers,
-        history,
-      );
-      const triadIds = [triad.neuro.id, triad.ayurveda.id, triad.breathwork.id];
-
       const message = freeText
         ? `Feeling ${selected.label.toLowerCase()}. Intensity ${intensity}/10. "${freeText}"`
         : `Feeling ${selected.label.toLowerCase()}. Intensity ${intensity}/10.`;
@@ -234,7 +209,7 @@ const CheckInScreen = () => {
           chronotype: (profile?.chronotype as string) || null,
           day_number: day,
           time_of_checkin: new Date().toISOString(),
-          practices_shown: triadIds,
+          practices_shown: [],
         } as any);
       }
 
