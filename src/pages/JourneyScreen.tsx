@@ -99,7 +99,7 @@ const DayRow = ({ d, status, expanded, onToggle, accent, checks, onCheck }: {
         </div>
         <div className="flex-1">
           <p className="text-white text-[14px] font-semibold">Day {d.day}</p>
-          <p className="text-rs-muted text-[12px]">{locked ? (d.day > 3 ? "Unlock with Pro" : "Unlocks soon") : d.morning}</p>
+          <p className="text-rs-muted text-[12px]">{locked ? (d.day > 3 ? "Unlock with Pro" : "Unlocks soon") : "1 neuroscience + 1 Ayurveda practice"}</p>
         </div>
         {!locked && (expanded ? <ChevronUp className="w-4 h-4 text-rs-navy" /> : <ChevronDown className="w-4 h-4 text-rs-navy" />)}
       </button>
@@ -107,12 +107,14 @@ const DayRow = ({ d, status, expanded, onToggle, accent, checks, onCheck }: {
         <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }}
           className="px-4 pb-4 space-y-2"
           style={completed ? { opacity: 0.7 } : undefined}>
-          <Task label="Morning Anchor" body={d.morning} checked={completed || !!checks["Morning Anchor"]} onChange={(v) => onCheck("Morning Anchor", v)} disabled={completed} />
           <DayPractices day={d.day} />
-          {d.midday && <Task label="Midday Reset" body={d.midday} checked={completed || !!checks["Midday Reset"]} onChange={(v) => onCheck("Midday Reset", v)} disabled={completed} />}
-          {d.focusWindow && <Task label="Focus Window" body={d.focusWindow} checked={completed || !!checks["Focus Window"]} onChange={(v) => onCheck("Focus Window", v)} disabled={completed} />}
-          {d.community && <Task label="Community" body={d.community} checked={completed || !!checks["Community"]} onChange={(v) => onCheck("Community", v)} disabled={completed} />}
-          <Task label="Evening Wind-Down" body={d.evening} checked={completed || !!checks["Evening Wind-Down"]} onChange={(v) => onCheck("Evening Wind-Down", v)} disabled={completed} />
+          {!completed && (
+            <button
+              onClick={() => { onCheck("Neuro", true); onCheck("Ayurveda", true); }}
+              className="w-full mt-2 py-2.5 rounded-xl border border-white/25 bg-white/8 text-white text-[13px] font-semibold btn-press">
+              Mark day {d.day} complete
+            </button>
+          )}
           <div className="mt-3 p-3 rounded-xl bg-rs-navy/40 border border-white/15">
             <p className="text-[10px] tracking-[0.16em] uppercase text-rs-cream font-semibold">Daily prompt</p>
             <p className="text-white text-[13px] mt-1 italic">{d.prompt}</p>
@@ -392,11 +394,7 @@ const JourneyScreen = () => {
   }, [day]);
 
   const requiredLabelsFor = (d: DayPlan): string[] => {
-    const base = ["Morning Anchor", "Neuro", "Ayurveda", "Evening Wind-Down"];
-    if (d.midday) base.push("Midday Reset");
-    if (d.focusWindow) base.push("Focus Window");
-    if (d.community) base.push("Community");
-    return base;
+    return ["Neuro", "Ayurveda"];
   };
 
   const findDayPlan = (n: number): DayPlan | undefined =>
