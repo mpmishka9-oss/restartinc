@@ -193,6 +193,24 @@ const TriadRow = ({ icon, label, name, duration, why }: { icon: string; label: s
   </div>
 );
 
+const DayPractices = ({ day }: { day: number }) => {
+  const { profile } = useProfile();
+  const dosha = (profile as any)?.dosha ?? null;
+  const { neuro, ayurveda } = getBaselinePractices(dosha, day);
+  const why = getWhyTodayLabel(day);
+  return (
+    <div className="mt-3 space-y-3">
+      {neuro && <PracticeCard practice={neuro} whyForToday={why} />}
+      {ayurveda && <PracticeCard practice={ayurveda} whyForToday={why} />}
+      {!ayurveda && (
+        <p className="text-[11px] italic text-rs-cream/80 px-1">
+          Take the dosha quiz in your profile to unlock personalised Ayurvedic practices.
+        </p>
+      )}
+    </div>
+  );
+};
+
 const PaywallGate = () => {
   const nav = useNavigate();
   const { user } = useAuth();
