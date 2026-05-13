@@ -112,6 +112,30 @@ export type Database = {
           },
         ]
       }
+      practice_history: {
+        Row: {
+          day_number: number | null
+          id: string
+          practice_id: string
+          shown_at: string
+          user_id: string
+        }
+        Insert: {
+          day_number?: number | null
+          id?: string
+          practice_id: string
+          shown_at?: string
+          user_id: string
+        }
+        Update: {
+          day_number?: number | null
+          id?: string
+          practice_id?: string
+          shown_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       practices: {
         Row: {
           created_at: string
@@ -163,6 +187,7 @@ export type Database = {
           created_at: string
           current_day: number
           didi_xp: number
+          dosha: Database["public"]["Enums"]["dosha_type"] | null
           email: string | null
           goal: string | null
           id: string
@@ -186,6 +211,7 @@ export type Database = {
           created_at?: string
           current_day?: number
           didi_xp?: number
+          dosha?: Database["public"]["Enums"]["dosha_type"] | null
           email?: string | null
           goal?: string | null
           id: string
@@ -209,6 +235,7 @@ export type Database = {
           created_at?: string
           current_day?: number
           didi_xp?: number
+          dosha?: Database["public"]["Enums"]["dosha_type"] | null
           email?: string | null
           goal?: string | null
           id?: string
@@ -306,6 +333,7 @@ export type Database = {
     Enums: {
       chronotype: "lion" | "bear" | "wolf" | "dolphin"
       detected_state: "anxiety" | "stress" | "burnout" | "overwhelm" | "peak"
+      dosha_type: "Vata" | "Pitta" | "Kapha"
       practice_system: "neuro" | "ayurveda" | "peak"
       user_path: "ambitious" | "emotional"
     }
@@ -437,6 +465,7 @@ export const Constants = {
     Enums: {
       chronotype: ["lion", "bear", "wolf", "dolphin"],
       detected_state: ["anxiety", "stress", "burnout", "overwhelm", "peak"],
+      dosha_type: ["Vata", "Pitta", "Kapha"],
       practice_system: ["neuro", "ayurveda", "peak"],
       user_path: ["ambitious", "emotional"],
     },
