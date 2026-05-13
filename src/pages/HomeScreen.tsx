@@ -20,6 +20,10 @@ const HomeScreen = () => {
    const { isPastDue, isActive } = useSubscription();
   const [todayChecked, setTodayChecked] = useState<boolean | null>(null);
   const [detectedState, setDetectedState] = useState<string | null>(null);
+  const [doshaPromptDismissed, setDoshaPromptDismissed] = useState<boolean>(() => {
+    try { return localStorage.getItem("restart_dosha_prompt_dismissed") === "1"; }
+    catch { return false; }
+  });
 
   useEffect(() => {
     if (!user) return;
@@ -37,12 +41,10 @@ const HomeScreen = () => {
   const streak = profile?.streak_days ?? 0;
   const ct = profile?.chronotype as Chronotype | null;
   const hasDosha = !!(profile as any)?.dosha;
-  const showDoshaPrompt = !hasDosha && (() => {
-    try { return localStorage.getItem("restart_dosha_prompt_dismissed") !== "1"; }
-    catch { return true; }
-  })();
+  const showDoshaPrompt = !hasDosha && !doshaPromptDismissed;
   const dismissDoshaPrompt = () => {
     try { localStorage.setItem("restart_dosha_prompt_dismissed", "1"); } catch {}
+    setDoshaPromptDismissed(true);
   };
 
   if (loading) {
@@ -103,7 +105,7 @@ const HomeScreen = () => {
                 Take the quiz <ArrowRight className="w-3.5 h-3.5" />
               </button>
               <button
-                onClick={() => { dismissDoshaPrompt(); nav(0 as any); }}
+                onClick={dismissDoshaPrompt}
                 className="text-rs-muted text-[12px]">
                 Later
               </button>
