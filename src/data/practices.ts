@@ -1,185 +1,83 @@
-export type PracticeCategory = "Neuroscience" | "Ayurveda" | "Breathwork";
+/**
+ * RESTART — Practice Library v1.0 + Dosha Quiz
+ */
 
-export interface Practice {
+// ─── TYPES ───────────────────────────────────────────────────────────────
+export type Dosha = "Vata" | "Pitta" | "Kapha";
+export type Category = "Neuroscience" | "Ayurveda";
+export type TimeOfDay = "morning" | "midday" | "evening" | "anytime";
+
+export type Mood =
+  | "anxious"
+  | "scattered"
+  | "stressed"
+  | "overwhelmed"
+  | "low"
+  | "flat"
+  | "focused"
+  | "good"
+  | "irritable"
+  | "all";
+
+export type Practice = {
   id: string;
   name: string;
-  category: PracticeCategory;
+  category: Category;
+  dosha: Dosha | null;
+  isBreathwork: boolean;
   duration: string;
-  description: string;
-  protocol: string;
-  emotionTargets: string[];
-}
+  targetMoods: Mood[];
+  timeOfDay: TimeOfDay[];
+  whyForMood: string;
+  appFlow: string;
+  sourceLink: string;
+  sourceLabel: string;
+};
 
+// ─── PRACTICES ───────────────────────────────────────────────────────────
 export const PRACTICES: Practice[] = [
-  {
-    id: "n1",
-    name: "Friction Sprint",
-    category: "Neuroscience",
-    duration: "10 min",
-    description:
-      "Start the one task you've been avoiding — no warm-up, no preparation. The aMCC (willpower centre) only grows when you do things you don't want to do.",
-    protocol: "Set a 10-min timer. Open the avoided task immediately. Do not prepare first.",
-    emotionTargets: ["procrastination", "low willpower", "avoidance"],
-  },
-  {
-    id: "n2",
-    name: "Physiological Sigh",
-    category: "Neuroscience",
-    duration: "2 min",
-    description:
-      "Double inhale through the nose, long exhale through the mouth. Proven to lower cortisol faster than any other breathing pattern.",
-    protocol: "2 sharp inhales through nose, 1 long exhale through mouth. Repeat 5 times.",
-    emotionTargets: ["anxiety", "stress", "overwhelm"],
-  },
-  {
-    id: "n3",
-    name: "Observer Perspective Bridging",
-    category: "Neuroscience",
-    duration: "5 min",
-    description:
-      "Describe yourself in third person for 60 seconds. Reduces emotional intensity by 30–40% and preserves executive function under stress (Kross et al.).",
-    protocol: "Say out loud: '[Your name] is feeling X because Y.' Repeat for 60 seconds.",
-    emotionTargets: ["emotional overwhelm", "anger", "anxiety escalation"],
-  },
-  {
-    id: "n4",
-    name: "Single-Sense Focus Drill",
-    category: "Neuroscience",
-    duration: "3 min",
-    description:
-      "Focus only on sounds for 3 minutes. Trains selective attention and suppresses the Default Mode Network responsible for rumination.",
-    protocol: "Close eyes. Identify every sound. Name it, locate it, note its quality.",
-    emotionTargets: ["distraction", "mind wandering", "overthinking"],
-  },
-  {
-    id: "n5",
-    name: "Cognitive Reappraisal Journal",
-    category: "Neuroscience",
-    duration: "5 min",
-    description:
-      "Reframe a stressful event at the meaning level — not what you feel but what it means in context. Strengthens PFC–amygdala regulation.",
-    protocol:
-      "Write 3 sentences: what happened, what it means in the bigger picture, one thing it teaches you.",
-    emotionTargets: ["stress spirals", "overthinking", "emotional reactivity"],
-  },
-  {
-    id: "n6",
-    name: "Deliberate Cold Exposure",
-    category: "Neuroscience",
-    duration: "2 min",
-    description:
-      "Cold water on face and wrists for 2 minutes. Produces a 300% norepinephrine spike for focus lasting 3–6 hours.",
-    protocol:
-      "Run cold water on both wrists and splash face for 2 full minutes. Do not enjoy it — the discomfort is the medicine.",
-    emotionTargets: ["low energy", "burnout", "motivational deficit"],
-  },
-  {
-    id: "n7",
-    name: "Identity Statement Read-Aloud",
-    category: "Neuroscience",
-    duration: "5 min",
-    description:
-      "Read your opposite identity statement aloud for 5 minutes. Begins remyelination of new identity pathways in the medial PFC.",
-    protocol:
-      "Write: 'I am someone who [positive opposite of limiting belief].' Read aloud slowly, 5 minutes. Log 3 daily proofs afterward.",
-    emotionTargets: ["imposter syndrome", "self-sabotage", "fixed mindset"],
-  },
-  {
-    id: "a1",
-    name: "Haldi Doodh (Turmeric Milk)",
-    category: "Ayurveda",
-    duration: "5 min",
-    description:
-      "Reduces neuroinflammation and supports serotonin production. Built from ingredients in every Indian kitchen.",
-    protocol:
-      "Warm 1 cup milk. Add ¼ tsp turmeric, pinch of black pepper, 1 tsp jaggery. Simmer 3 min. Sip slowly.",
-    emotionTargets: ["low mood", "neuroinflammation", "poor sleep"],
-  },
-  {
-    id: "a2",
-    name: "Ajwain Steam Inhale",
-    category: "Ayurveda",
-    duration: "3 min",
-    description:
-      "Clears nasal passages, improves oxygen flow to the brain, and reduces Vata. Ajwain (carom seeds) sits in every Indian kitchen.",
-    protocol:
-      "Boil 2 cups water with 1 tsp ajwain. Cover head with towel and inhale steam for 3 minutes.",
-    emotionTargets: ["brain fog", "mental sluggishness", "anxiety tension"],
-  },
-  {
-    id: "a3",
-    name: "Jeera Saunf Water",
-    category: "Ayurveda",
-    duration: "5 min",
-    description:
-      "Regulates cortisol, supports the gut-brain axis, and eases bloating-linked anxiety.",
-    protocol:
-      "Boil ½ tsp jeera (cumin) + ½ tsp saunf (fennel) in 2 cups water for 5 min. Strain and drink warm.",
-    emotionTargets: ["elevated cortisol", "gut-linked anxiety", "racing mind"],
-  },
-  {
-    id: "a4",
-    name: "Tulsi Ginger Tea",
-    category: "Ayurveda",
-    duration: "5 min",
-    description:
-      "True adaptogen — regulates stress hormones up or down as needed. Tulsi grows in most Indian homes; ginger is a kitchen staple.",
-    protocol:
-      "Steep 7–10 fresh (or 1 tsp dried) tulsi leaves with ½ inch crushed ginger in hot water 5 min. Add honey. Drink at 3–4pm.",
-    emotionTargets: ["afternoon crash", "irritability", "emotional swings"],
-  },
-  {
-    id: "a5",
-    name: "Coconut Oil Scalp Press",
-    category: "Ayurveda",
-    duration: "5 min",
-    description:
-      "Activates the vagus nerve via occipital pressure and reduces Vata — the anxiety-linked dosha. Coconut oil is universal in Indian households.",
-    protocol:
-      "Warm 3–4 drops coconut oil. Massage slow circles into temples and back of skull for 5 minutes.",
-    emotionTargets: ["tension headaches", "mental fatigue", "anxiety tension"],
-  },
-  {
-    id: "a6",
-    name: "Ghee + Pepper Brain Fuel",
-    category: "Ayurveda",
-    duration: "3 min",
-    description:
-      "Ghee carries fat-soluble compounds across the blood-brain barrier; black pepper boosts absorption and reduces neuroinflammation. Both universal in Indian cooking.",
-    protocol:
-      "1 tsp desi ghee + pinch of black pepper stirred into warm water or milk. Sip at breakfast.",
-    emotionTargets: ["brain fog", "low mood", "poor memory"],
-  },
-  {
-    id: "b1",
-    name: "Nadi Shodhana",
-    category: "Breathwork",
-    duration: "5 min",
-    description:
-      "Alternate nostril breathing physically balances left and right brain hemispheres. Restores coherent brainwave state within 4–8 minutes.",
-    protocol: "Close right nostril, inhale left. Close left, exhale right. Repeat 10 cycles.",
-    emotionTargets: ["anxiety", "cognitive decline mid-task", "creative block"],
-  },
-  {
-    id: "b2",
-    name: "Box Breathing",
-    category: "Breathwork",
-    duration: "4 min",
-    description:
-      "4-4-4-4 pattern activates the parasympathetic nervous system and signals safety to the amygdala. Used by Navy SEALs for high-pressure performance.",
-    protocol: "Inhale 4 counts. Hold 4. Exhale 4. Hold 4. Repeat 6 cycles.",
-    emotionTargets: ["stress", "performance anxiety", "pre-meeting nerves"],
-  },
-  {
-    id: "b3",
-    name: "4-7-8 Wind Down",
-    category: "Breathwork",
-    duration: "5 min",
-    description:
-      "Exhale is nearly double the inhale — this ratio maximally activates the vagus nerve and drops heart rate within 3 cycles.",
-    protocol: "Inhale 4 counts. Hold 7. Exhale 8 counts. Repeat 5 cycles before bed.",
-    emotionTargets: ["racing mind at night", "insomnia", "overthinking before sleep"],
-  },
+  // NEUROSCIENCE (14)
+  { id: "n_friction_sprint", name: "Friction Sprint", category: "Neuroscience", dosha: null, isBreathwork: false, duration: "10 min", targetMoods: ["low","flat","scattered","all"], timeOfDay: ["morning","midday","anytime"], whyForMood: "Procrastination and low willpower share one cause — the aMCC (anterior mid-cingulate cortex) is undertrained. Doing the avoided task for 10 minutes is the only known stimulus that grows this region. The resistance IS the rep.", appFlow: "10-min countdown timer. Asks 'What's the one task you've been avoiding?' Timer starts. Screen shows task + countdown only. End: 'You did it. Your aMCC just got stronger.'", sourceLink: "https://pubmed.ncbi.nlm.nih.gov/32027799/", sourceLabel: "View the aMCC research" },
+  { id: "n_pomodoro", name: "Pomodoro Focus Block", category: "Neuroscience", dosha: null, isBreathwork: false, duration: "25 + 5 min", targetMoods: ["focused","good","scattered","all"], timeOfDay: ["morning","midday"], whyForMood: "Sustained focus degrades from beta to theta brainwaves after 25 minutes. Pomodoro exploits this neurological vigilance cycle — stopping before degradation peaks. Peer-reviewed scoping review confirmed r=0.72 correlation with sustained focus.", appFlow: "25-min focus timer with pulsing animation. User types task first. Gentle chime at 25 min → 5-min break with breathing visual. After break: 'Continue another round?'", sourceLink: "https://pmc.ncbi.nlm.nih.gov/articles/PMC12532815/", sourceLabel: "View the Pomodoro study" },
+  { id: "n_bhramari", name: "Bhramari (Humming Breath)", category: "Neuroscience", dosha: null, isBreathwork: true, duration: "3 min", targetMoods: ["anxious","stressed","overwhelmed","scattered","all"], timeOfDay: ["anytime"], whyForMood: "Humming increases nitric oxide production in the nasal passages by 1500% — a vasodilator that increases cerebral blood flow within minutes. Also vibrates the vagus nerve through the throat wall, triggering parasympathetic activation. Effective for anxiety, brain fog, and pre-performance states.", appFlow: "Inhale prompt → humming timer per exhale → cycle counter (6–8 cycles) → nitric oxide explanation at end.", sourceLink: "https://pubmed.ncbi.nlm.nih.gov/12365827/", sourceLabel: "View the nitric oxide study" },
+  { id: "n_ultradian_reset", name: "Ultradian Reset", category: "Neuroscience", dosha: null, isBreathwork: false, duration: "10 min", targetMoods: ["stressed","overwhelmed","flat","all"], timeOfDay: ["midday","evening"], whyForMood: "The brain operates on 90-minute ultradian cycles. Performance degrades unless the user takes a non-sleep deep rest (NSDR) break. Eyes-closed rest restores depleted dopamine and norepinephrine — the physiological cause of afternoon cognitive crashes.", appFlow: "Screen dims to near-black. Soft ambient sound (optional). Gentle expanding circle for visual pacing. Timer counts silently. End: 'Your neurotransmitters just refilled.'", sourceLink: "https://pubmed.ncbi.nlm.nih.gov/7870505/", sourceLabel: "View the ultradian rhythm study" },
+  { id: "n_implementation_intention", name: "Implementation Intention", category: "Neuroscience", dosha: null, isBreathwork: false, duration: "3 min", targetMoods: ["scattered","low","all"], timeOfDay: ["morning","anytime"], whyForMood: "fMRI shows if-then plans reduce activity in brain areas for effortful control — the planned behaviour becomes automatic. Meta-analysis of 94 studies showed medium-to-large effect on goal follow-through. Closes the intention-behaviour gap.", appFlow: "Fill-in-the-blank: 'If [situation] happens today, I will [specific action] at [time/place].' App saves it and sends notification at the specified time.", sourceLink: "https://pmc.ncbi.nlm.nih.gov/articles/PMC4500900/", sourceLabel: "View the implementation intention meta-analysis" },
+  { id: "n_woop", name: "WOOP Goal Mapping", category: "Neuroscience", dosha: null, isBreathwork: false, duration: "5 min", targetMoods: ["stressed","overwhelmed","scattered","focused"], timeOfDay: ["morning","anytime"], whyForMood: "Pure positive visualisation reduces motivation by signalling the goal is already achieved. WOOP adds obstacle contrast, activating the PFC's prospective memory system. RCT at Maastricht: WOOP group studied 4.3 hrs vs 1.5 hrs in control.", appFlow: "4 screens: Wish → Best Outcome → Main Obstacle → Plan if obstacle appears. Saved as daily entry with progress bar.", sourceLink: "https://pmc.ncbi.nlm.nih.gov/articles/PMC5559239/", sourceLabel: "View the WOOP study" },
+  { id: "n_observer_perspective", name: "Observer Perspective Bridging", category: "Neuroscience", dosha: null, isBreathwork: false, duration: "5 min", targetMoods: ["anxious","overwhelmed","irritable","stressed"], timeOfDay: ["anytime"], whyForMood: "Anxiety collapses psychological distance between self and stressor. Third-person self-talk ('Mishka is feeling anxious right now') restores that distance, reducing amygdala reactivity by 30–40% and keeping the PFC online. Validated by Ethan Kross at Michigan.", appFlow: "Prompt: 'Describe what [name] is feeling right now — as if watching a friend.' 3-min timed input. Then shows words back: 'What would you tell this person?'", sourceLink: "https://www.nature.com/articles/s41598-017-04047-3", sourceLabel: "View the self-distancing study" },
+  { id: "n_single_sense_focus", name: "Single-Sense Focus Drill", category: "Neuroscience", dosha: null, isBreathwork: false, duration: "3 min", targetMoods: ["overwhelmed","scattered","anxious"], timeOfDay: ["anytime"], whyForMood: "Overwhelm is a default mode network (DMN) state — multiple parallel worry loops running simultaneously. Engaging one sense pulls attentional resources into the sensory cortex, which physically cannot run with DMN rumination. The mechanism is attentional competition, not relaxation.", appFlow: "Sense selector: Sight / Sound / Touch / Smell. 3-min timer: 'Describe everything you notice through [chosen sense] — don't stop.' App prompts: 'Keep going. What else?'", sourceLink: "https://pmc.ncbi.nlm.nih.gov/articles/PMC3679190/", sourceLabel: "View the DMN study" },
+  { id: "n_cognitive_reappraisal", name: "Cognitive Reappraisal Journal", category: "Neuroscience", dosha: null, isBreathwork: false, duration: "5 min", targetMoods: ["anxious","stressed","overwhelmed","irritable"], timeOfDay: ["anytime"], whyForMood: "Anxiety and stress attach catastrophic meanings to events. Reappraisal interrupts this at the meaning level — offering the PFC an alternative interpretation. Strengthens PFC–amygdala top-down regulation with repeated use. Ochsner & Gross (2005) established this as the gold standard.", appFlow: "3-step: 'What's the stressor?' → 'Worst meaning you've given it?' → 'Write 3 other meanings.' End: 'Your PFC just overrode your amygdala.'", sourceLink: "https://pmc.ncbi.nlm.nih.gov/articles/PMC3830620/", sourceLabel: "View the reappraisal study" },
+  { id: "n_spaced_repetition", name: "Spaced Repetition Review", category: "Neuroscience", dosha: null, isBreathwork: false, duration: "10 min", targetMoods: ["focused","good"], timeOfDay: ["morning","evening"], whyForMood: "Ebbinghaus forgetting curve: 70% of new information lost within 24 hours unless reviewed. Reviewing at Day 1 / Day 3 / Day 7 intercepts the curve at each decay point, building long-term potentiation in the hippocampus. Highest-impact learning tool per unit time.", appFlow: "Ask: 'What's one important thing you learned recently?' User types. App schedules D1/D3/D7 review reminders. On review days: 'Can you recall this without looking?' Then reveals it.", sourceLink: "https://pubmed.ncbi.nlm.nih.gov/39250798/", sourceLabel: "View the spaced repetition study" },
+  { id: "n_interleaved_learning", name: "Interleaved Learning", category: "Neuroscience", dosha: null, isBreathwork: false, duration: "25 min", targetMoods: ["focused","good"], timeOfDay: ["morning","midday"], whyForMood: "Blocking (studying one subject for hours) creates illusion of mastery through fluency. Interleaving forces active retrieval across topics — that difficulty is the learning. 40% better long-term retention. Kornell & Bjork (2008) confirmed interleaved learners outperformed even though they rated it harder.", appFlow: "User inputs up to 3 topics. App creates rotating 25-min timer, notifying: 'Switch to [Topic 2] now.' Topic input + rotating subject timer.", sourceLink: "https://pmc.ncbi.nlm.nih.gov/articles/PMC8476370/", sourceLabel: "View the interleaving study" },
+  { id: "n_identity_rewriting", name: "Identity Rewriting", category: "Neuroscience", dosha: null, isBreathwork: false, duration: "5 min", targetMoods: ["good","focused"], timeOfDay: ["morning"], whyForMood: "Identity change is more durable than behaviour change. Writing identity statements in present tense activates medial PFC self-concept regions. Cascio et al. (2016) showed self-affirmation during positive states initiates remyelination of new identity-linked neural pathways. Best performed when emotionally positive.", appFlow: "3 fill-in-the-blank: 'I am the kind of person who ___.' × 3. App shows each large, one at a time, with 10-sec read-aloud pause. Saved to identity profile, shown back on Day 7 and Day 21.", sourceLink: "https://pmc.ncbi.nlm.nih.gov/articles/PMC4814782/", sourceLabel: "View the self-affirmation study" },
+  { id: "n_deliberate_discomfort", name: "Deliberate Discomfort Protocol", category: "Neuroscience", dosha: null, isBreathwork: false, duration: "5 min", targetMoods: ["good","focused"], timeOfDay: ["morning","anytime"], whyForMood: "The aMCC grows fastest when difficult actions are chosen from resourcefulness, not necessity. Doing one hard thing while feeling good trains the initiation circuit proactively — what Huberman calls 'anti-fragility of will.' The positive emotional state during challenge is the key variable.", appFlow: "Ask: 'What's one thing you'd rather avoid right now?' User types. 5-min countdown with task on screen. Single rule: 'Don't stop until the timer ends.' End: 'You just chose difficulty.'", sourceLink: "https://pubmed.ncbi.nlm.nih.gov/32027799/", sourceLabel: "View the aMCC research" },
+  { id: "n_pre_mortem", name: "Pre-Mortem Planning", category: "Neuroscience", dosha: null, isBreathwork: false, duration: "5 min", targetMoods: ["stressed","overwhelmed","anxious"], timeOfDay: ["morning","anytime"], whyForMood: "Stress often arises from uncontrollable outcomes. Pre-mortem activates the PFC's prospective memory system — imagining failure in advance converts uncertainty into a plan, restoring the agency that stress depletes. Dr. Gary Klein's research showed significantly improved decision quality.", appFlow: "Prompts: 'What are you about to start?' → 'List every reason it could fail.' → 'Now solve for each one.' (paired input). End: 'You just activated your prefrontal contingency system.'", sourceLink: "https://hbr.org/2007/09/performing-a-project-premortem", sourceLabel: "View the pre-mortem method" },
+
+  // VATA (7)
+  { id: "v_nasya_oil", name: "Nasya Oil", category: "Ayurveda", dosha: "Vata", isBreathwork: false, duration: "3 min", targetMoods: ["anxious","scattered"], timeOfDay: ["morning"], whyForMood: "Anxiety in Ayurveda is a Vata disorder — excess air and ether creating dryness, coldness, and instability in the nervous system. The nasal passage is the direct pathway to the brain (Manovaha Srotas). Warm sesame oil nourishes this channel, calming Vata-driven mental scatter. The heavy, warm, oily qualities are the pharmacological opposite of Vata.", appFlow: "Illustrated step-by-step guide: warm oil → tilt head back → 2 drops per nostril → rest. 3-min timer with soft music. Steps auto-advance every 45 sec.", sourceLink: "https://www.banyanbotanicals.com/info/ayurvedic-living/living-ayurveda/health-guides/nasya/", sourceLabel: "View Nasya protocol" },
+  { id: "v_abhyanga", name: "Abhyanga Warm Oil Massage", category: "Ayurveda", dosha: "Vata", isBreathwork: false, duration: "10 min", targetMoods: ["anxious","low","flat"], timeOfDay: ["morning","evening"], whyForMood: "Vata anxiety and low mood share a root: loss of grounding. Abhyanga works through two mechanisms — sesame oil's pharmacological pacification of Vata through skin absorption, and rhythmic self-touch activating the body's oxytocin response, reducing cortisol. The most important daily Vata-pacifying practice in Ayurveda.", appFlow: "Body diagram with massage sequence: feet → legs → torso → arms → neck. Each area has a sequenced timer. Soothing background tone.", sourceLink: "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3667430/", sourceLabel: "View the Abhyanga study" },
+  { id: "v_ashwagandha_milk", name: "Ashwagandha Warm Milk", category: "Ayurveda", dosha: "Vata", isBreathwork: false, duration: "5 min", targetMoods: ["anxious","low"], timeOfDay: ["evening"], whyForMood: "Ashwagandha is Ayurveda's primary nervine tonic for Vata — warm, heavy, deeply grounding. 60-day RCT (Chandrasekhar et al., 2012) showed significant reduction in anxiety scores and serum cortisol vs placebo. Warm milk enhances bioavailability and adds its own Vata-pacifying properties. Evening timing aligns with Vata peak (2–6pm and 2–6am).", appFlow: "Recipe card: ½ tsp ashwagandha + warm milk + pinch of ghee. Step-by-step prep. 5-min slow-sip timer with calming visual.", sourceLink: "https://pmc.ncbi.nlm.nih.gov/articles/PMC3252722/", sourceLabel: "View the ashwagandha trial" },
+  { id: "v_cardamom_milk", name: "Cardamom Warm Milk", category: "Ayurveda", dosha: "Vata", isBreathwork: false, duration: "3 min", targetMoods: ["anxious","scattered"], timeOfDay: ["anytime","evening"], whyForMood: "Cardamom is one of Ayurveda's most accessible Vata-pacifying spices — warm, sweet, aromatic. Calms the nervous system via olfactory effect on the limbic system and reduces Vata's tendency toward mental hyperactivity. Present in every Indian kitchen. The warm milk base adds additional grounding.", appFlow: "Recipe card: warm milk + 2 crushed cardamom pods. Simple prep + sipping timer.", sourceLink: "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2995283/", sourceLabel: "View the cardamom study" },
+  { id: "v_foot_massage", name: "Warm Sesame Foot Massage", category: "Ayurveda", dosha: "Vata", isBreathwork: false, duration: "5 min", targetMoods: ["anxious","flat"], timeOfDay: ["evening"], whyForMood: "The soles contain Talahridaya — the Ayurvedic heart marma point — which regulates the nervous system when stimulated. Pada Abhyanga before bed is one of the most prescribed Vata-pacifying practices. Reflexology research confirms foot massage reduces cortisol and improves sleep onset.", appFlow: "Foot diagram with marma points highlighted. 5-min timer. Guides: 'Move to the arch. Hold 20 sec.' Pressure point sequence with timed prompts.", sourceLink: "https://pubmed.ncbi.nlm.nih.gov/24559410/", sourceLabel: "View the reflexology study" },
+  { id: "v_physiological_sigh", name: "Physiological Sigh", category: "Ayurveda", dosha: "Vata", isBreathwork: true, duration: "2 min", targetMoods: ["anxious","stressed","overwhelmed"], timeOfDay: ["anytime"], whyForMood: "The fastest known method to reduce acute anxiety. Double inhale (inflating collapsed alveoli) followed by long exhale drops blood CO2 rapidly, activating the parasympathetic nervous system within seconds. Balban et al. (2023, Cell Reports Medicine) showed it outperformed all other breathing techniques for real-time stress reduction.", appFlow: "Animated lungs: Double inhale (4 sec + 1 sec sniff) → long exhale (8 sec). Countdown shown. 8 cycles / 2 minutes.", sourceLink: "https://www.cell.com/cell-reports-medicine/fulltext/S2666-3791(22)00474-8", sourceLabel: "View the Stanford study" },
+  { id: "v_478_breathing", name: "4-7-8 Wind Down", category: "Ayurveda", dosha: "Vata", isBreathwork: true, duration: "5 min", targetMoods: ["anxious","scattered"], timeOfDay: ["evening"], whyForMood: "The extended 8-second exhale is the mechanism — prolonged exhalation maximally activates the vagus nerve, dropping heart rate within 3 cycles. The 7-second hold builds CO2 tolerance, amplifying the relaxation response. Vata anxiety peaks in the evening — this breathwork directly counters that window.", appFlow: "Circular breathing animation: inhale 4 sec (expands) → hold 7 sec (pulses) → exhale 8 sec (contracts). Screen dims progressively over 5 min.", sourceLink: "https://pmc.ncbi.nlm.nih.gov/articles/PMC6137615/", sourceLabel: "View the breathwork study" },
+
+  // PITTA (7)
+  { id: "p_ccf_tea", name: "CCF Tea", category: "Ayurveda", dosha: "Pitta", isBreathwork: false, duration: "5 min", targetMoods: ["stressed","overwhelmed","irritable"], timeOfDay: ["midday"], whyForMood: "Pitta stress manifests as internal heat, irritability, and inflammation — excess fire element. Coriander, Cumin, and Fennel are Ayurveda's three primary Pitta-cooling digestive herbs. Together they reduce internal heat, calm the reactive mind, support liver function, and regulate the gut-brain axis. The most prescribed daily Pitta tea in classical Ayurveda.", appFlow: "Recipe: equal parts coriander + cumin + fennel seeds, boiled 10 min. Step-by-step prep. Slow-sip 5-min timer. Midday suggestion (Pitta peak: 10am–2pm).", sourceLink: "https://www.banyanbotanicals.com/info/ayurvedic-living/living-ayurveda/herbal-remedies/digestive-support/ccf-tea/", sourceLabel: "View CCF protocol" },
+  { id: "p_amalaki", name: "Amalaki Morning Shot", category: "Ayurveda", dosha: "Pitta", isBreathwork: false, duration: "2 min", targetMoods: ["stressed","irritable"], timeOfDay: ["morning"], whyForMood: "Amalaki (Amla) is considered the single best herb for Pitta in classical Ayurveda. Deeply cooling, highest natural source of Vitamin C (20x an orange), and a Rasayana — rejuvenating tonic. Drains accumulated Pitta heat from the digestive tract and liver before the day begins. 2012 NCBI study confirmed significant antioxidant and anti-inflammatory effects.", appFlow: "Recipe card: 1 tsp amla powder + water. Single-step prep. 2-min timer. Morning-only trigger.", sourceLink: "https://pmc.ncbi.nlm.nih.gov/articles/PMC3685779/", sourceLabel: "View the Amalaki study" },
+  { id: "p_rose_water", name: "Rose Water Face Ritual", category: "Ayurveda", dosha: "Pitta", isBreathwork: false, duration: "2 min", targetMoods: ["stressed","irritable","overwhelmed"], timeOfDay: ["midday"], whyForMood: "Rose is one of Ayurveda's most Sattvic and Pitta-cooling plants. Applied topically at Pitta peak (12–2pm), it cools the skin, signals the nervous system to downshift from intensity, and reduces the agitation characteristic of Pitta stress. The olfactory pathway directly modulates the limbic system — rose has documented anxiolytic effects.", appFlow: "Instruction card: splash rose water on face and neck. 2-min mindful pause timer after. App suggests at 12–2pm.", sourceLink: "https://pubmed.ncbi.nlm.nih.gov/19370942/", sourceLabel: "View the rose aromatherapy study" },
+  { id: "p_coconut_scalp", name: "Coconut Oil Scalp Press", category: "Ayurveda", dosha: "Pitta", isBreathwork: false, duration: "5 min", targetMoods: ["stressed","irritable"], timeOfDay: ["evening"], whyForMood: "Coconut oil is one of the most cooling oils in Ayurveda — directly opposite to sesame's warming properties. Applied to the scalp at Adhipati marma (crown), it cools excess Pitta heat in the head. Field et al. (2005) confirmed massage activates the vagus nerve and reduces cortisol. Coconut oil is in every Indian household.", appFlow: "Head diagram with pressure points. 5-min timer. Guides: 'Apply warm oil to crown. Hold 30 sec. Move to temples.'", sourceLink: "https://pubmed.ncbi.nlm.nih.gov/16162447/", sourceLabel: "View the massage cortisol study" },
+  { id: "p_coriander_water", name: "Coriander Seed Water", category: "Ayurveda", dosha: "Pitta", isBreathwork: false, duration: "3 min", targetMoods: ["stressed","irritable"], timeOfDay: ["morning"], whyForMood: "Coriander is one of Ayurveda's primary Pitta-cooling herbs — anti-inflammatory, digestive, cooling for excess heat. Soaking seeds overnight and drinking the water is the simplest daily Pitta-cooling practice with cumulative effect. Every Indian kitchen has coriander seeds. Research confirms anti-inflammatory and digestive benefits.", appFlow: "Evening reminder to soak seeds. Morning shows drink instruction + 3-min timer.", sourceLink: "https://pubmed.ncbi.nlm.nih.gov/21695478/", sourceLabel: "View the coriander study" },
+  { id: "p_box_breathing", name: "Box Breathing", category: "Ayurveda", dosha: "Pitta", isBreathwork: true, duration: "4 min", targetMoods: ["stressed","overwhelmed","irritable"], timeOfDay: ["anytime"], whyForMood: "Box breathing (4-4-4-4) directly targets Pitta's stress response. The pattern of equal inhale, hold, exhale, hold disrupts sympathetic dominance and activates the parasympathetic response. The holds train CO2 tolerance, reducing the reactive stress physiology characteristic of Pitta types. Used by Navy SEALs for high-pressure performance.", appFlow: "Square animation: each side = one phase. Inhale 4 (up left) → hold 4 (top) → exhale 4 (down right) → hold 4 (bottom). 4 min / 6 cycles.", sourceLink: "https://pmc.ncbi.nlm.nih.gov/articles/PMC6137615/", sourceLabel: "View the box breathing study" },
+  { id: "p_nadi_shodhana", name: "Nadi Shodhana", category: "Ayurveda", dosha: "Pitta", isBreathwork: true, duration: "5 min", targetMoods: ["stressed","scattered","overwhelmed"], timeOfDay: ["anytime"], whyForMood: "Alternate nostril breathing balances left (cooling, parasympathetic) and right (warming, sympathetic) hemisphere activity. Pitta stress creates right-hemisphere dominance — Nadi Shodhana restores balance. Telles et al. (2013) confirmed coherent brainwave state restoration within 4–8 minutes. The cooling left-nostril breath is particularly effective for Pitta.", appFlow: "Hand position illustration. Step-by-step: close right → inhale left (4 sec) → close left → exhale right (4 sec) → inhale right (4 sec) → exhale left (4 sec). 5 min total.", sourceLink: "https://pmc.ncbi.nlm.nih.gov/articles/PMC3681046/", sourceLabel: "View the Nadi Shodhana study" },
+
+  // KAPHA (7)
+  { id: "k_tulsi_ginger_tea", name: "Tulsi Ginger Tea", category: "Ayurveda", dosha: "Kapha", isBreathwork: false, duration: "5 min", targetMoods: ["low","flat"], timeOfDay: ["morning","midday"], whyForMood: "Kapha low mood is caused by stagnation — excess earth and water creating heaviness and motivational flatness. Tulsi is a true adaptogen — regulates cortisol, dopamine, and serotonin simultaneously via eugenol compounds (Mondal et al., 2011). Ginger ignites Agni, the direct antidote to Kapha's cold, heavy stagnation. The most effective Kapha-lifting combination.", appFlow: "Recipe: 4–5 tulsi leaves + 1 ginger slice, boiled 3 min. Step-by-step. Sipping timer. Morning or afternoon based on chronotype.", sourceLink: "https://pmc.ncbi.nlm.nih.gov/articles/PMC4296439/", sourceLabel: "View the tulsi adaptogen study" },
+  { id: "k_trikatu", name: "Trikatu Morning Igniter", category: "Ayurveda", dosha: "Kapha", isBreathwork: false, duration: "2 min", targetMoods: ["low","flat"], timeOfDay: ["morning"], whyForMood: "Trikatu (three peppers: ginger + black pepper + long pepper) is Ayurveda's most powerful Agni-igniting formula and the primary classical medicine for Kapha stagnation. Stimulates metabolic fire, clears brain fog, activates the sluggish Kapha nervous system. Black pepper's piperine increases bioavailability by up to 2000%.", appFlow: "Recipe: equal parts ginger + black pepper. ¼ tsp with warm water. Warning callout: 'Do not heat honey — destroys enzymes.' Morning only.", sourceLink: "https://www.banyanbotanicals.com/info/ayurvedic-living/living-ayurveda/herbs/trikatu/", sourceLabel: "View Trikatu protocol" },
+  { id: "k_ginger_lemon_shot", name: "Ginger + Lemon Morning Shot", category: "Ayurveda", dosha: "Kapha", isBreathwork: false, duration: "2 min", targetMoods: ["low","flat"], timeOfDay: ["morning"], whyForMood: "The simplest daily Kapha ignition ritual — accessible to every user. Ginger's thermogenic properties (shogaols and gingerols) directly counter Kapha's cold, heavy qualities. Lemon's Vitamin C and sourness stimulate liver bile production, igniting Agni. Most accessible daily Kapha practice with immediate effect.", appFlow: "Recipe: 1 inch fresh ginger + half lemon + warm water. First-thing-on-waking trigger. App suggests as first notification of day for Kapha users.", sourceLink: "https://pmc.ncbi.nlm.nih.gov/articles/PMC7019938/", sourceLabel: "View the ginger metabolic study" },
+  { id: "k_ajwain_steam", name: "Ajwain Steam Inhale", category: "Ayurveda", dosha: "Kapha", isBreathwork: true, duration: "3 min", targetMoods: ["low","flat","scattered"], timeOfDay: ["morning","anytime"], whyForMood: "Ajwain contains thymol — a natural bronchodilator that opens nasal airways, improves oxygen delivery to the brain, and counteracts Kapha's tendency toward congestion and sluggishness. Inhaling the steam bypasses the digestive system for immediate neurological effect. Boskabady et al. (2014) confirmed thymol's bronchodilatory activity.", appFlow: "Prep guide: boil ajwain in water, lean over bowl with towel. 3-min steam timer. Guides: 'Breathe slowly and deeply. In through nose, out through mouth.'", sourceLink: "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4098099/", sourceLabel: "View the ajwain bronchodilator study" },
+  { id: "k_methi_water", name: "Methi Warm Water", category: "Ayurveda", dosha: "Kapha", isBreathwork: false, duration: "2 min", targetMoods: ["low","flat"], timeOfDay: ["morning"], whyForMood: "Fenugreek seeds soaked overnight produce a mildly bitter, warming water that stimulates Agni and reduces Kapha stagnation. Methi is specifically indicated in Ayurveda for sluggish digestion, low energy, and Kapha-type metabolic heaviness. Rich in soluble fibre and saponins that support gut microbiome — directly influencing mood via the gut-brain axis.", appFlow: "Evening reminder to soak seeds. Morning shows drink instruction + 2-min timer.", sourceLink: "https://pubmed.ncbi.nlm.nih.gov/22276489/", sourceLabel: "View the fenugreek study" },
+  { id: "k_jeera_water", name: "Jeera Warm Water", category: "Ayurveda", dosha: "Kapha", isBreathwork: false, duration: "3 min", targetMoods: ["low","flat"], timeOfDay: ["morning"], whyForMood: "Cumin is one of the most Agni-activating spices in Ayurvedic cooking. Boiled cumin water ignites digestive fire, reduces the bloating and heaviness that amplify Kapha low mood, and provides a warming start to the day. Research confirms cumin's effects on gut motility, inflammation, and metabolic activation — all directly countering Kapha stagnation.", appFlow: "Recipe: boil cumin seeds in water, drink warm. 3-min timer. Morning.", sourceLink: "https://pubmed.ncbi.nlm.nih.gov/25456022/", sourceLabel: "View the cumin study" },
+  { id: "k_kapalabhati", name: "Kapalabhati Breath", category: "Ayurveda", dosha: "Kapha", isBreathwork: true, duration: "3 min", targetMoods: ["low","flat"], timeOfDay: ["morning","midday"], whyForMood: "Kapalabhati (Skull-Shining Breath) is Ayurveda's most powerful Kapha-clearing breathwork. Rapid forceful exhalations increase cerebral blood flow, activate the sympathetic nervous system, and physically expel stagnant Kapha energy from the respiratory system. Sanskrit meaning 'that which makes the skull shine' — referring to the immediate mental clarity. Most effective pre-performance activation for Kapha.", appFlow: "Pulsing animation: forceful exhales through nose, 1 per second. 30 pumps → rest → 30 pumps → rest → 30 pumps. End: 'Your Kapha just got ignited. Agni is lit.'", sourceLink: "https://pmc.ncbi.nlm.nih.gov/articles/PMC3667430/", sourceLabel: "View the Kapalabhati study" },
 ];
 
 export const PRACTICE_BY_ID: Record<string, Practice> = PRACTICES.reduce(
@@ -187,8 +85,64 @@ export const PRACTICE_BY_ID: Record<string, Practice> = PRACTICES.reduce(
   {} as Record<string, Practice>,
 );
 
-export const CATEGORY_COLORS: Record<PracticeCategory, string> = {
+// ─── DOSHA QUIZ ──────────────────────────────────────────────────────────
+export type DoshaQuestion = {
+  id: number;
+  question: string;
+  options: { label: string; text: string; scoresFor: Dosha }[];
+};
+
+export const DOSHA_QUIZ_INTRO = {
+  title: "Discover your dosha",
+  subtitle: "These five questions reveal your Ayurvedic constitution — the lens through which we'll personalise your practices.",
+  ctaLabel: "Begin →",
+};
+
+export const DOSHA_QUIZ: DoshaQuestion[] = [
+  { id: 1, question: "Your body frame is naturally...", options: [
+    { label: "A", text: "Thin, light, find it hard to gain weight", scoresFor: "Vata" },
+    { label: "B", text: "Medium, athletic, gain or lose easily", scoresFor: "Pitta" },
+    { label: "C", text: "Solid, sturdy, gain weight easily", scoresFor: "Kapha" },
+  ]},
+  { id: 2, question: "Your skin tends to be...", options: [
+    { label: "A", text: "Dry, cool, often rough", scoresFor: "Vata" },
+    { label: "B", text: "Warm, prone to redness or breakouts", scoresFor: "Pitta" },
+    { label: "C", text: "Soft, smooth, oily", scoresFor: "Kapha" },
+  ]},
+  { id: 3, question: "Under stress, you tend to feel...", options: [
+    { label: "A", text: "Anxious, scattered, can't sit still", scoresFor: "Vata" },
+    { label: "B", text: "Irritated, sharp, frustrated", scoresFor: "Pitta" },
+    { label: "C", text: "Withdrawn, slow, emotionally heavy", scoresFor: "Kapha" },
+  ]},
+  { id: 4, question: "Your digestion is usually...", options: [
+    { label: "A", text: "Irregular, sometimes bloated", scoresFor: "Vata" },
+    { label: "B", text: "Strong, fast, get hungry easily", scoresFor: "Pitta" },
+    { label: "C", text: "Slow, heavy after meals", scoresFor: "Kapha" },
+  ]},
+  { id: 5, question: "Your mind, on a typical day, is...", options: [
+    { label: "A", text: "Quick, creative, jumps between ideas", scoresFor: "Vata" },
+    { label: "B", text: "Sharp, focused, ambitious, competitive", scoresFor: "Pitta" },
+    { label: "C", text: "Calm, steady, slow to change", scoresFor: "Kapha" },
+  ]},
+];
+
+export const DOSHA_RESULT_COPY: Record<Dosha, { headline: string; description: string }> = {
+  Vata: { headline: "You're Vata-dominant", description: "Your constitution is light, quick, and creative — like wind. Your gifts: imagination, agility, fast learning. Your edges: anxiety, scattered focus, difficulty settling. Your practices will focus on grounding, warming, and stabilising your nervous system." },
+  Pitta: { headline: "You're Pitta-dominant", description: "Your constitution is sharp, focused, and intense — like fire. Your gifts: ambition, clarity, leadership. Your edges: irritability, perfectionism, burnout from overdrive. Your practices will focus on cooling, softening, and balancing your intensity." },
+  Kapha: { headline: "You're Kapha-dominant", description: "Your constitution is steady, grounded, and resilient — like earth. Your gifts: patience, endurance, calm presence. Your edges: low motivation, heaviness, slow to start. Your practices will focus on igniting, warming, and activating your energy." },
+};
+
+export function scoreDoshaQuiz(answers: Dosha[]): Dosha {
+  const counts: Record<Dosha, number> = { Vata: 0, Pitta: 0, Kapha: 0 };
+  answers.forEach(d => counts[d]++);
+  const max = Math.max(counts.Vata, counts.Pitta, counts.Kapha);
+  if (counts.Vata === max) return "Vata";
+  if (counts.Pitta === max) return "Pitta";
+  return "Kapha";
+}
+
+// ─── COLORS (compat for older imports) ──────────────────────────────────
+export const CATEGORY_COLORS: Record<Category, string> = {
   Neuroscience: "#7B9BD6",
   Ayurveda: "#1D9E75",
-  Breathwork: "#7F77DD",
 };

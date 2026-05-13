@@ -51,4 +51,5 @@ export const DEMO_PROFILE: Tables<"profiles"> = {
   streak_days: 0,
   updated_at: new Date().toISOString(),
   whatsapp_phone: null,
+  dosha: "Vata" as any,
 };
