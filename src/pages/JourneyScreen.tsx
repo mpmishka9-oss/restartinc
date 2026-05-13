@@ -17,43 +17,12 @@ import { supabase } from "@/integrations/supabase/client";
 
 interface DayPlan {
   day: number;
-  morning: string;
-  neuro: string;
-  ayurveda: string;
-  evening: string;
   prompt: string;
-  // phase 2
-  midday?: string;
-  community?: string;
-  focusWindow?: string;
   reflection?: string;
 }
 
-const PHASE_1_MORNINGS = [
-  "Haldi doodh + set one intention for today",
-  "Ajwain steam inhale + 2 min silent sitting",
-  "Tulsi ginger tea + write what you're carrying today",
-  "Warm water with jeera + body scan for 3 min",
-  "Coconut oil temple press + breathe before you open your phone",
-  "Ghee in warm milk + name one thing you're proud of this week",
-  "Haldi doodh + write: what has this week taught me?",
-];
-const PHASE_1_EVENINGS = [
-  "Shankhpushpi milk + write 3 sentences about today",
-  "Tulsi tea + one thing you want to release before sleep",
-  "Warm jeera water + 4-7-8 breathing for 5 min",
-  "Ghee warm milk + gratitude — name 3 specific moments",
-  "Ajwain steam + write: what did my body need today?",
-  "Shankhpushpi milk + Nadi Shodhana 5 min",
-  "Haldi doodh + full reflection: what's different in me?",
-];
-
 const PHASE_1: DayPlan[] = Array.from({ length: 7 }, (_, i) => ({
   day: i + 1,
-  morning: PHASE_1_MORNINGS[i],
-  neuro: ["Friction Sprint — 10 min avoided task", "Single-Sense Focus Drill", "Physiological Sigh × 5", "Cold-water wrists", "Observer Perspective Bridging", "Cognitive Reappraisal Journal", "Identity Rewriting"][i],
-  ayurveda: ["Nasya oil drops before work", "Tulsi tea midday", "Shankhpushpi milk pre-sleep", "Abhyanga foot massage", "Triphala water on rising", "Ghee + turmeric warm milk", "Nadi Shodhana 5 min"][i],
-  evening: PHASE_1_EVENINGS[i],
   prompt: [
     "What does showing up look like for you today?",
     "What's one thing you proved to yourself yesterday?",
@@ -67,23 +36,12 @@ const PHASE_1: DayPlan[] = Array.from({ length: 7 }, (_, i) => ({
 
 const PHASE_2: DayPlan[] = Array.from({ length: 7 }, (_, i) => ({
   day: i + 8,
-  morning: "Brahmi tea + gratitude triple",
-  neuro: ["Dual N-Back drill", "HIIT 4-minute set", "Ultradian Reset 90 min", "Interleaved Learning block", "Friction Sprint × 2", "Deliberate Discomfort", "Reflection synthesis"][i],
-  ayurveda: ["Nasya + Nadi Shodhana", "Tulsi tea + walk", "Shankhpushpi milk", "Abhyanga full-body", "Cold rinse practice", "Ghee + turmeric", "Tongue scrape ritual"][i],
-  evening: "Light dinner + screen-off 60 min before sleep",
   prompt: ["A community moment to share", "Notice the midday shift", "Hold the focus window", "Track your grace days", "Notice what's softer", "What would future-you thank you for?", "Mid-point reflection"][i],
-  midday: "5-min reset",
-  community: "Share one win in your channel",
-  focusWindow: "25-min deep work block",
   reflection: i === 6 ? "You showed up for 14 days. The rhythm is yours now." : undefined,
 }));
 
 const PHASE_3: DayPlan[] = Array.from({ length: 7 }, (_, i) => ({
   day: i + 15,
-  morning: "Choose your own anchor today",
-  neuro: ["Identity statement aloud", "Goal review + visualisation", "Hard task first principle", "Single-task discipline", "Recovery-led day", "Stretch + cold rinse", "Synthesis: 21-day report prep"][i],
-  ayurveda: ["Nasya + warm oil", "Tulsi steam", "Shankhpushpi infusion", "Abhyanga + Pranayama", "Quiet day — light food", "Triphala reset", "Final ritual: gratitude bath"][i],
-  evening: "Long Nadi Shodhana 10 min",
   prompt: [
     "I am someone who shows up.",
     "I trust the process I built.",
