@@ -23,6 +23,7 @@ import ConsentForm from "@/components/ConsentForm";
 import DevTestPage from "./pages/DevTestPage";
 import AdminScreen from "./pages/AdminScreen";
 import DemoBanner from "@/components/DemoBanner";
+import DoshaQuizScreen from "./pages/DoshaQuizScreen";
 
  import Terms from "./pages/Terms";
  import Privacy from "./pages/Privacy";
@@ -65,6 +66,7 @@ const RoutedApp = () => {
          <Route path="/privacy" element={<Privacy />} />
          <Route path="/refund" element={<Refund />} />
         <Route path="/profile" element={<Gate><ProfileScreen /></Gate>} />
+        <Route path="/dosha-quiz" element={<Gate><DoshaQuizScreen /></Gate>} />
         <Route path="/community" element={<Gate><CommunityScreen /></Gate>} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/test-consent" element={<ConsentForm onAccept={() => console.log("Consent accepted (test)")} />} />

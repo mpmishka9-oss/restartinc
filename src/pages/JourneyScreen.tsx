@@ -17,43 +17,12 @@ import { supabase } from "@/integrations/supabase/client";
 
 interface DayPlan {
   day: number;
-  morning: string;
-  neuro: string;
-  ayurveda: string;
-  evening: string;
   prompt: string;
-  // phase 2
-  midday?: string;
-  community?: string;
-  focusWindow?: string;
   reflection?: string;
 }
 
-const PHASE_1_MORNINGS = [
-  "Haldi doodh + set one intention for today",
-  "Ajwain steam inhale + 2 min silent sitting",
-  "Tulsi ginger tea + write what you're carrying today",
-  "Warm water with jeera + body scan for 3 min",
-  "Coconut oil temple press + breathe before you open your phone",
-  "Ghee in warm milk + name one thing you're proud of this week",
-  "Haldi doodh + write: what has this week taught me?",
-];
-const PHASE_1_EVENINGS = [
-  "Shankhpushpi milk + write 3 sentences about today",
-  "Tulsi tea + one thing you want to release before sleep",
-  "Warm jeera water + 4-7-8 breathing for 5 min",
-  "Ghee warm milk + gratitude — name 3 specific moments",
-  "Ajwain steam + write: what did my body need today?",
-  "Shankhpushpi milk + Nadi Shodhana 5 min",
-  "Haldi doodh + full reflection: what's different in me?",
-];
-
 const PHASE_1: DayPlan[] = Array.from({ length: 7 }, (_, i) => ({
   day: i + 1,
-  morning: PHASE_1_MORNINGS[i],
-  neuro: ["Friction Sprint — 10 min avoided task", "Single-Sense Focus Drill", "Physiological Sigh × 5", "Cold-water wrists", "Observer Perspective Bridging", "Cognitive Reappraisal Journal", "Identity Rewriting"][i],
-  ayurveda: ["Nasya oil drops before work", "Tulsi tea midday", "Shankhpushpi milk pre-sleep", "Abhyanga foot massage", "Triphala water on rising", "Ghee + turmeric warm milk", "Nadi Shodhana 5 min"][i],
-  evening: PHASE_1_EVENINGS[i],
   prompt: [
     "What does showing up look like for you today?",
     "What's one thing you proved to yourself yesterday?",
@@ -67,23 +36,12 @@ const PHASE_1: DayPlan[] = Array.from({ length: 7 }, (_, i) => ({
 
 const PHASE_2: DayPlan[] = Array.from({ length: 7 }, (_, i) => ({
   day: i + 8,
-  morning: "Brahmi tea + gratitude triple",
-  neuro: ["Dual N-Back drill", "HIIT 4-minute set", "Ultradian Reset 90 min", "Interleaved Learning block", "Friction Sprint × 2", "Deliberate Discomfort", "Reflection synthesis"][i],
-  ayurveda: ["Nasya + Nadi Shodhana", "Tulsi tea + walk", "Shankhpushpi milk", "Abhyanga full-body", "Cold rinse practice", "Ghee + turmeric", "Tongue scrape ritual"][i],
-  evening: "Light dinner + screen-off 60 min before sleep",
   prompt: ["A community moment to share", "Notice the midday shift", "Hold the focus window", "Track your grace days", "Notice what's softer", "What would future-you thank you for?", "Mid-point reflection"][i],
-  midday: "5-min reset",
-  community: "Share one win in your channel",
-  focusWindow: "25-min deep work block",
   reflection: i === 6 ? "You showed up for 14 days. The rhythm is yours now." : undefined,
 }));
 
 const PHASE_3: DayPlan[] = Array.from({ length: 7 }, (_, i) => ({
   day: i + 15,
-  morning: "Choose your own anchor today",
-  neuro: ["Identity statement aloud", "Goal review + visualisation", "Hard task first principle", "Single-task discipline", "Recovery-led day", "Stretch + cold rinse", "Synthesis: 21-day report prep"][i],
-  ayurveda: ["Nasya + warm oil", "Tulsi steam", "Shankhpushpi infusion", "Abhyanga + Pranayama", "Quiet day — light food", "Triphala reset", "Final ritual: gratitude bath"][i],
-  evening: "Long Nadi Shodhana 10 min",
   prompt: [
     "I am someone who shows up.",
     "I trust the process I built.",
@@ -141,7 +99,7 @@ const DayRow = ({ d, status, expanded, onToggle, accent, checks, onCheck }: {
         </div>
         <div className="flex-1">
           <p className="text-white text-[14px] font-semibold">Day {d.day}</p>
-          <p className="text-rs-muted text-[12px]">{locked ? (d.day > 3 ? "Unlock with Pro" : "Unlocks soon") : d.morning}</p>
+          <p className="text-rs-muted text-[12px]">{locked ? (d.day > 3 ? "Unlock with Pro" : "Unlocks soon") : "1 neuroscience + 1 Ayurveda practice"}</p>
         </div>
         {!locked && (expanded ? <ChevronUp className="w-4 h-4 text-rs-navy" /> : <ChevronDown className="w-4 h-4 text-rs-navy" />)}
       </button>
@@ -149,12 +107,14 @@ const DayRow = ({ d, status, expanded, onToggle, accent, checks, onCheck }: {
         <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }}
           className="px-4 pb-4 space-y-2"
           style={completed ? { opacity: 0.7 } : undefined}>
-          <Task label="Morning Anchor" body={d.morning} checked={completed || !!checks["Morning Anchor"]} onChange={(v) => onCheck("Morning Anchor", v)} disabled={completed} />
           <DayPractices day={d.day} />
-          {d.midday && <Task label="Midday Reset" body={d.midday} checked={completed || !!checks["Midday Reset"]} onChange={(v) => onCheck("Midday Reset", v)} disabled={completed} />}
-          {d.focusWindow && <Task label="Focus Window" body={d.focusWindow} checked={completed || !!checks["Focus Window"]} onChange={(v) => onCheck("Focus Window", v)} disabled={completed} />}
-          {d.community && <Task label="Community" body={d.community} checked={completed || !!checks["Community"]} onChange={(v) => onCheck("Community", v)} disabled={completed} />}
-          <Task label="Evening Wind-Down" body={d.evening} checked={completed || !!checks["Evening Wind-Down"]} onChange={(v) => onCheck("Evening Wind-Down", v)} disabled={completed} />
+          {!completed && (
+            <button
+              onClick={() => { onCheck("Neuro", true); onCheck("Ayurveda", true); }}
+              className="w-full mt-2 py-2.5 rounded-xl border border-white/25 bg-white/8 text-white text-[13px] font-semibold btn-press">
+              Mark day {d.day} complete
+            </button>
+          )}
           <div className="mt-3 p-3 rounded-xl bg-rs-navy/40 border border-white/15">
             <p className="text-[10px] tracking-[0.16em] uppercase text-rs-cream font-semibold">Daily prompt</p>
             <p className="text-white text-[13px] mt-1 italic">{d.prompt}</p>
@@ -434,11 +394,7 @@ const JourneyScreen = () => {
   }, [day]);
 
   const requiredLabelsFor = (d: DayPlan): string[] => {
-    const base = ["Morning Anchor", "Neuro", "Ayurveda", "Evening Wind-Down"];
-    if (d.midday) base.push("Midday Reset");
-    if (d.focusWindow) base.push("Focus Window");
-    if (d.community) base.push("Community");
-    return base;
+    return ["Neuro", "Ayurveda"];
   };
 
   const findDayPlan = (n: number): DayPlan | undefined =>
