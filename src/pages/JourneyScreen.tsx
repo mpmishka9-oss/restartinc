@@ -1,383 +1,242 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
-import { ChevronDown, ChevronUp, Check, Lock, Brain } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Check, Crown, Lock, X } from "lucide-react";
 import { useProfile } from "@/hooks/useProfile";
-import BottomNav from "@/components/layout/BottomNav";
-import TopBar from "@/components/layout/TopBar";
 import { useSubscription } from "@/hooks/useSubscription";
-import { getWhyTodayLabel } from "@/lib/getPracticesForState";
-import { getBaselinePractices } from "@/lib/recommendPractices";
-import PracticeCard from "@/components/PracticeCard";
 import { useAuth } from "@/hooks/useAuth";
-import { initiateRazorpayCheckout } from "@/lib/razorpay";
-import { toast } from "sonner";
-import MandalaComplete from "@/components/MandalaComplete";
-import { supabase } from "@/integrations/supabase/client";
+import { getBaselinePractices } from "@/lib/recommendPractices";
+import { getWhyTodayLabel } from "@/lib/getPracticesForState";
+import PracticeCard from "@/components/PracticeCard";
+import BottomNav from "@/components/layout/BottomNav";
 
-interface DayPlan {
-  day: number;
-  prompt: string;
-  reflection?: string;
+/* ──────────────────────────────────────────────────────────────
+   "Your Ascent" — milestone-based mountain journey
+   ────────────────────────────────────────────────────────────── */
+
+type MilestoneId = "m1" | "m2" | "m3" | "m4" | "peak";
+
+interface Milestone {
+  id: MilestoneId;
+  title: string;
+  sublabel: string;
+  dayStart: number;
+  dayEnd: number;        // inclusive; peak uses 21
+  // SVG coordinates inside a 400x820 viewBox
+  x: number;
+  y: number;
+  // anchor side of the label relative to node
+  side: "left" | "right" | "center";
+  // free tier? days <= 3 are free; everything else needs Pro
+  requiresPro: boolean;
 }
 
-const PHASE_1: DayPlan[] = Array.from({ length: 7 }, (_, i) => ({
-  day: i + 1,
-  prompt: [
-    "What does showing up look like for you today?",
-    "What's one thing you proved to yourself yesterday?",
-    "Where did you feel most alive today?",
-    "What did the day ask of you?",
-    "What kept you here today?",
-    "What's quietly shifting in you?",
-    "What's a new pattern you can feel taking root?",
-  ][i],
-}));
+const MILESTONES: Milestone[] = [
+  { id: "m1",   title: "In Control",        sublabel: "Noticing your patterns",  dayStart: 1,  dayEnd: 7,  x: 70,  y: 740, side: "right", requiresPro: false },
+  { id: "m2",   title: "Rewiring Begins",   sublabel: "New patterns take root",  dayStart: 8,  dayEnd: 14, x: 320, y: 580, side: "left",  requiresPro: true  },
+  { id: "m3",   title: "7 Days Consistency",sublabel: "Focused mind",            dayStart: 15, dayEnd: 18, x: 80,  y: 410, side: "right", requiresPro: true  },
+  { id: "m4",   title: "Focused Mind",      sublabel: "Pro versions and beyond", dayStart: 19, dayEnd: 21, x: 310, y: 250, side: "left",  requiresPro: true  },
+  { id: "peak", title: "Peak State",        sublabel: "Completion",              dayStart: 21, dayEnd: 21, x: 200, y: 80,  side: "center", requiresPro: true  },
+];
 
-const PHASE_2: DayPlan[] = Array.from({ length: 7 }, (_, i) => ({
-  day: i + 8,
-  prompt: ["A community moment to share", "Notice the midday shift", "Hold the focus window", "Track your grace days", "Notice what's softer", "What would future-you thank you for?", "Mid-point reflection"][i],
-  reflection: i === 6 ? "You showed up for 14 days. The rhythm is yours now." : undefined,
-}));
+/* The winding path expressed as a single SVG <path d="…"/> – passes through every milestone. */
+const PATH_D =
+  "M 70 740 " +
+  "C 200 730, 360 700, 320 580 " +
+  "C 280 480, 60 500, 80 410 " +
+  "C 100 330, 360 360, 310 250 " +
+  "C 270 170, 160 180, 200 80";
 
-const PHASE_3: DayPlan[] = Array.from({ length: 7 }, (_, i) => ({
-  day: i + 15,
-  prompt: [
-    "I am someone who shows up.",
-    "I trust the process I built.",
-    "My body knows what it needs.",
-    "I am calmer than I was 14 days ago.",
-    "My focus is stronger than my distractions.",
-    "I built this. No one did it for me.",
-    "Day 21 — what becomes possible now?",
-  ][i],
-  reflection: i === 6 ? "Day 21 — your full personalised Reset Report is ready." : undefined,
-}));
+/* ── Background mountain illustration ─────────────────────────── */
+const MountainBackdrop = () => (
+  <svg
+    viewBox="0 0 400 820"
+    preserveAspectRatio="xMidYMid slice"
+    className="absolute inset-0 w-full h-full"
+    aria-hidden
+  >
+    <defs>
+      <linearGradient id="sky" x1="0" x2="0" y1="0" y2="1">
+        <stop offset="0%"  stopColor="#FFFFFF" />
+        <stop offset="18%" stopColor="#E6F0FA" />
+        <stop offset="48%" stopColor="#7FA9DC" />
+        <stop offset="100%" stopColor="#2D1B69" />
+      </linearGradient>
+      <radialGradient id="peakGlow" cx="50%" cy="10%" r="35%">
+        <stop offset="0%"  stopColor="#FFFFFF" stopOpacity="0.95" />
+        <stop offset="60%" stopColor="#FFFFFF" stopOpacity="0.15" />
+        <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0" />
+      </radialGradient>
+      <linearGradient id="mtnFar" x1="0" x2="0" y1="0" y2="1">
+        <stop offset="0%"  stopColor="#9FBEE0" stopOpacity="0.55" />
+        <stop offset="100%" stopColor="#3A2C7B" stopOpacity="0.55" />
+      </linearGradient>
+      <linearGradient id="mtnNear" x1="0" x2="0" y1="0" y2="1">
+        <stop offset="0%"  stopColor="#6E8FBE" stopOpacity="0.85" />
+        <stop offset="100%" stopColor="#1F1450" stopOpacity="0.95" />
+      </linearGradient>
+    </defs>
 
-const DayRow = ({ d, status, expanded, onToggle, accent, checks, onCheck }: {
-  d: DayPlan; status: "locked" | "active" | "done"; expanded: boolean;
-  onToggle: () => void; accent: string;
-  checks: Record<string, boolean>;
-  onCheck: (label: string, value: boolean) => void;
+    {/* sky */}
+    <rect x="0" y="0" width="400" height="820" fill="url(#sky)" />
+    {/* peak halo */}
+    <rect x="0" y="0" width="400" height="400" fill="url(#peakGlow)" />
+
+    {/* far mountain ridge */}
+    <path
+      d="M 0 360 L 80 280 L 140 320 L 200 200 L 260 290 L 330 240 L 400 320 L 400 820 L 0 820 Z"
+      fill="url(#mtnFar)"
+    />
+    {/* near mountain silhouette behind path */}
+    <path
+      d="M 0 520 L 60 460 L 130 500 L 200 380 L 270 470 L 340 430 L 400 500 L 400 820 L 0 820 Z"
+      fill="url(#mtnNear)"
+    />
+  </svg>
+);
+
+/* ── Helper: classify a milestone’s status ────────────────────── */
+function milestoneStatus(m: Milestone, currentDay: number): "done" | "current" | "upcoming" {
+  if (currentDay > m.dayEnd) return "done";
+  if (currentDay >= m.dayStart && currentDay <= m.dayEnd) return "current";
+  return "upcoming";
+}
+
+/* ── Initials fallback for the avatar circle ──────────────────── */
+function initialsFor(name?: string | null): string {
+  if (!name) return "🧘";
+  const parts = name.trim().split(/\s+/);
+  return (parts[0]?.[0] ?? "") + (parts[1]?.[0] ?? "");
+}
+
+/* ── Expanded card for a tapped milestone ─────────────────────── */
+const MilestoneSheet = ({
+  milestone,
+  currentDay,
+  completedDays,
+  isPro,
+  onClose,
+  onUpgrade,
+}: {
+  milestone: Milestone;
+  currentDay: number;
+  completedDays: number[];
+  isPro: boolean;
+  onClose: () => void;
+  onUpgrade: () => void;
 }) => {
-  const locked = status === "locked";
-  const completed = status === "done";
-  return (
-    <div
-      className={`rounded-2xl border overflow-hidden relative ${
-        status === "active" ? "border-rs-cream bg-white/15" : "border-white/20 bg-white/8"
-      }`}
-      style={
-        completed
-          ? { background: "rgba(29,158,117,0.06)", border: "1px solid rgba(29,158,117,0.2)" }
-          : undefined
-      }
-    >
-      {completed && (
-        <span
-          style={{
-            position: "absolute",
-            top: 8,
-            right: 10,
-            fontSize: 10,
-            background: "#E1F5EE",
-            color: "#085041",
-            padding: "2px 8px",
-            borderRadius: 20,
-            zIndex: 1,
-          }}
-        >
-          Completed
-        </span>
-      )}
-      <button onClick={locked ? undefined : onToggle}
-        className="w-full flex items-center gap-3 p-4 text-left btn-press disabled:cursor-not-allowed"
-        disabled={locked}>
-        <div className="w-9 h-9 rounded-full flex items-center justify-center text-[13px] font-bold"
-          style={{ background: status === "done" ? "#1D9E75" : status === "active" ? accent : "rgba(255,255,255,0.15)", color: status === "active" ? "hsl(var(--rs-navy))" : "white" }}>
-          {status === "done" ? <Check className="w-4 h-4" /> : locked ? <Lock className="w-3.5 h-3.5 text-rs-navy" /> : d.day}
-        </div>
-        <div className="flex-1">
-          <p className="text-white text-[14px] font-semibold">Day {d.day}</p>
-          <p className="text-rs-muted text-[12px]">{locked ? (d.day > 3 ? "Unlock with Pro" : "Unlocks soon") : "1 neuroscience + 1 Ayurveda practice"}</p>
-        </div>
-        {!locked && (expanded ? <ChevronUp className="w-4 h-4 text-rs-navy" /> : <ChevronDown className="w-4 h-4 text-rs-navy" />)}
-      </button>
-      {expanded && !locked && (
-        <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }}
-          className="px-4 pb-4 space-y-2"
-          style={completed ? { opacity: 0.7 } : undefined}>
-          <DayPractices day={d.day} />
-          {!completed && (
-            <button
-              onClick={() => { onCheck("Neuro", true); onCheck("Ayurveda", true); }}
-              className="w-full mt-2 py-2.5 rounded-xl border border-white/25 bg-white/8 text-white text-[13px] font-semibold btn-press">
-              Mark day {d.day} complete
-            </button>
-          )}
-          <div className="mt-3 p-3 rounded-xl bg-rs-navy/40 border border-white/15">
-            <p className="text-[10px] tracking-[0.16em] uppercase text-rs-cream font-semibold">Daily prompt</p>
-            <p className="text-white text-[13px] mt-1 italic">{d.prompt}</p>
-          </div>
-          {d.reflection && (
-            <div className="mt-2 p-3 rounded-xl bg-rs-cream/15 border border-rs-cream">
-              <p className="text-white text-[13px]">{d.reflection}</p>
-            </div>
-          )}
-        </motion.div>
-      )}
-    </div>
-  );
-};
-
-const Task = ({ label, body, checked, onChange, disabled }: { label: string; body: string; checked: boolean; onChange: (v: boolean) => void; disabled?: boolean }) => (
-  <div className="flex items-start gap-3 py-2">
-    <input type="checkbox" checked={checked} disabled={disabled} onChange={(e) => onChange(e.target.checked)} className="mt-1 accent-[hsl(var(--rs-cream))]" />
-    <div className="flex-1">
-      <p className="text-[10px] tracking-[0.16em] uppercase text-rs-cream font-semibold">{label}</p>
-      <p className="text-white text-[13px]">{body}</p>
-    </div>
-  </div>
-);
-
-const TriadRow = ({ icon, label, name, duration, why }: { icon: string; label: string; name: string; duration: string; why?: string }) => (
-  <div className="py-1.5 px-2 rounded-lg bg-white/5 cursor-pointer btn-press" onClick={() => { window.location.href = "/practices"; }}>
-    <div className="flex items-center gap-3">
-      <span className="text-base">{icon}</span>
-      <p className="text-[10px] tracking-[0.16em] uppercase text-rs-cream font-semibold w-24 flex-shrink-0">{label}</p>
-      <p className="text-white text-[13px] flex-1">{name} — <span className="text-rs-navy">{duration}</span></p>
-    </div>
-    {why && (
-      <p style={{ fontSize: 11, color: "rgba(26,42,74,0.45)", fontStyle: "italic", marginTop: 4, marginLeft: 28 }}>{why}</p>
-    )}
-  </div>
-);
-
-const DayPractices = ({ day }: { day: number }) => {
   const { profile } = useProfile();
   const dosha = (profile as any)?.dosha ?? null;
-  const { neuro, ayurveda } = getBaselinePractices(dosha, day);
-  const why = getWhyTodayLabel(day);
-  return (
-    <div className="mt-3 space-y-3">
-      {neuro && <PracticeCard practice={neuro} whyForToday={why} />}
-      {ayurveda && <PracticeCard practice={ayurveda} whyForToday={why} />}
-      {!ayurveda && (
-        <p className="text-[11px] italic text-rs-cream/80 px-1">
-          Take the dosha quiz in your profile to unlock personalised Ayurvedic practices.
-        </p>
-      )}
-    </div>
+  const locked = milestone.requiresPro && !isPro;
+  const days = Array.from(
+    { length: milestone.dayEnd - milestone.dayStart + 1 },
+    (_, i) => milestone.dayStart + i,
   );
-};
-
-const PaywallGate = () => {
-  const nav = useNavigate();
-  const { user } = useAuth();
-  const [loading, setLoading] = useState(false);
-
-  const handleStart = () => {
-    if (!user) { nav("/pricing"); return; }
-    setLoading(true);
-    initiateRazorpayCheckout({
-      amount: 2100,
-      planId: import.meta.env.VITE_RAZORPAY_PLAN_ID,
-      userName: (user as any)?.user_metadata?.name || user.email || "",
-      userEmail: user.email || "",
-      onSuccess: (paymentId) => {
-        localStorage.setItem("restart_pro", "true");
-        localStorage.setItem("restart_payment_id", paymentId);
-        setLoading(false);
-        nav("/home");
-      },
-      onFailure: (error) => {
-        console.error("Payment failed:", error);
-        setLoading(false);
-        toast.error("Payment was not completed");
-      },
-    });
-  };
+  const [openDay, setOpenDay] = useState<number | null>(
+    days.includes(currentDay) ? currentDay : days[0],
+  );
+  const why = getWhyTodayLabel(openDay ?? currentDay);
+  const { neuro, ayurveda } = getBaselinePractices(dosha, openDay ?? currentDay);
 
   return (
-    <>
-    <div
-      className="mb-3 flex items-start gap-2"
-      style={{
-        background: "rgba(245,240,160,0.1)",
-        borderRadius: 10,
-        padding: "10px 14px",
-      }}
+    <motion.div
+      initial={{ y: "100%" }}
+      animate={{ y: 0 }}
+      exit={{ y: "100%" }}
+      transition={{ type: "spring", damping: 28, stiffness: 240 }}
+      className="fixed left-0 right-0 bottom-0 z-50"
     >
-      <Brain className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: "var(--color-text-secondary, rgba(26,42,74,0.7))" }} />
-      <p
-        className="italic"
-        style={{ fontSize: 12, color: "var(--color-text-secondary, rgba(26,42,74,0.7))" }}
-      >
-        Neuroscience fact: it takes 18–66 days to form a new habit. Day 3 is when most people quit. You didn't.
-      </p>
-    </div>
-    <div
-      className="my-4 rounded-2xl p-6"
-      style={{
-        border: "1.5px solid #F5F0A0",
-        background: "rgba(245,240,160,0.08)",
-        borderRadius: 16,
-      }}
-    >
-      <div className="flex justify-center"><Lock className="w-7 h-7 text-rs-navy" /></div>
-      <p className="text-center font-bold text-[18px] mt-3" style={{ color: "#1A2A4A" }}>
-        It takes 21 days to build a habit.
-      </p>
-      <p className="text-center text-[13px] mt-1" style={{ color: "rgba(26,42,74,0.6)" }}>
-        You've done 3. The hardest part is over. Don't stop now.
-      </p>
-      <p className="text-center text-[12px] italic mt-2" style={{ color: "rgba(26,42,74,0.6)" }}>
-        ₹21 for the full 21-day reset — less than a chai a day.
-      </p>
-      <div className="mt-5" style={{ width: "100%", maxWidth: 400, margin: "0 auto" }}>
-        {/* Monthly */}
-         <div className="p-4 bg-transparent" style={{ border: "1px solid #c5d3e8", borderRadius: 12 }}>
-           <p className="text-[11px] uppercase tracking-wider text-rs-navy" style={{ color: "#7B9BD6" }}>21-Day Reset</p>
-          <p className="mt-1">
-            <span className="text-[26px] font-bold" style={{ color: "#1A2A4A" }}>₹21</span>
-            <span className="text-[12px] text-black/50 ml-1">for days 4–21</span>
-          </p>
-          <p className="text-[11px] text-black/50">Then ₹199/mo to maintain your habit</p>
-          <p className="text-[11px] text-black/50">Then ₹199/mo from month 2.</p>
-          <button
-            onClick={handleStart}
-            disabled={loading}
-            className="w-full mt-3 py-2 text-white font-semibold"
-            style={{ background: "#7B9BD6", borderRadius: 8 }}
-          >
-            {loading ? "Opening…" : "Continue my reset →"}
-          </button>
-          {typeof import.meta.env.VITE_RAZORPAY_KEY_ID === "string" &&
-            import.meta.env.VITE_RAZORPAY_KEY_ID.includes("test") && (
+      <div className="phone-frame !min-h-0 px-5 pb-24">
+        <div
+          className="rounded-t-3xl p-5"
+          style={{
+            background: "rgba(15,12,40,0.92)",
+            backdropFilter: "blur(24px)",
+            border: "1px solid rgba(255,255,255,0.12)",
+            boxShadow: "0 -20px 60px rgba(0,0,0,0.5)",
+          }}
+        >
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-[10px] tracking-[0.2em] uppercase font-semibold" style={{ color: "rgba(245,240,160,0.85)" }}>
+                Days {milestone.dayStart}–{milestone.dayEnd}
+              </p>
+              <h3 className="text-white text-[20px] font-bold mt-1">{milestone.title}</h3>
+              <p className="text-[13px] mt-0.5" style={{ color: "rgba(255,255,255,0.65)" }}>{milestone.sublabel}</p>
+            </div>
+            <button onClick={onClose} className="p-2 rounded-full btn-press" style={{ background: "rgba(255,255,255,0.08)" }} aria-label="Close">
+              <X className="w-4 h-4 text-white" />
+            </button>
+          </div>
+
+          {locked ? (
+            <div className="mt-5 rounded-2xl p-5 text-center" style={{ background: "rgba(245,240,160,0.08)", border: "1px solid rgba(245,240,160,0.35)" }}>
+              <Crown className="w-6 h-6 mx-auto" style={{ color: "#F5F0A0" }} />
+              <p className="text-white text-[15px] font-semibold mt-2">Unlock the rest of your ascent</p>
+              <p className="text-[12px] mt-1" style={{ color: "rgba(255,255,255,0.6)" }}>
+                Days 4–21 + your full Reset Report.
+              </p>
               <button
-                onClick={() => {
-                  try {
-                    localStorage.setItem("restart_pro", "true");
-                    localStorage.setItem("restart_payment_id", "test_simulation");
-                  } catch {}
-                  window.location.href = "/journey";
-                }}
-                style={{
-                  fontSize: 11,
-                  color: "var(--color-text-tertiary)",
-                  background: "none",
-                  border: "none",
-                  cursor: "pointer",
-                  display: "block",
-                  textAlign: "center",
-                  marginTop: 8,
-                  width: "100%",
-                }}
+                onClick={onUpgrade}
+                className="mt-4 w-full py-3 rounded-xl font-semibold btn-press"
+                style={{ background: "#F5F0A0", color: "#1A2A4A" }}
               >
-                [Dev] Simulate payment success
+                Continue my reset →
               </button>
-            )}
-          {typeof import.meta.env.VITE_RAZORPAY_KEY_ID === "string" &&
-            import.meta.env.VITE_RAZORPAY_KEY_ID?.includes("test") === true && (
-              <button
-                onClick={() => {
-                  try {
-                    localStorage.setItem("restart_pro", "true");
-                    localStorage.setItem("restart_payment_id", "test_skip");
-                  } catch {}
-                  window.location.reload();
-                }}
-                style={{
-                  fontSize: 11,
-                  color: "var(--color-text-tertiary)",
-                  background: "none",
-                  border: "none",
-                  cursor: "pointer",
-                  display: "block",
-                  textAlign: "center",
-                  marginTop: 8,
-                  width: "100%",
-                }}
-              >
-                Skip payment (test mode)
-              </button>
-            )}
+            </div>
+          ) : (
+            <>
+              {/* Day chips */}
+              <div className="mt-4 flex flex-wrap gap-2">
+                {days.map((d) => {
+                  const done = completedDays.includes(d) || d < currentDay;
+                  const active = d === openDay;
+                  const isCurrent = d === currentDay;
+                  return (
+                    <button
+                      key={d}
+                      onClick={() => setOpenDay(d)}
+                      className="px-3 py-1.5 rounded-full text-[12px] font-semibold btn-press flex items-center gap-1.5"
+                      style={{
+                        background: active ? "#F5F0A0" : done ? "rgba(29,158,117,0.18)" : "rgba(255,255,255,0.08)",
+                        color: active ? "#1A2A4A" : "white",
+                        border: isCurrent && !active ? "1px solid #F5F0A0" : "1px solid transparent",
+                      }}
+                    >
+                      {done && <Check className="w-3 h-3" />}
+                      Day {d}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Practices for selected day */}
+              <div className="mt-4 max-h-[46vh] overflow-y-auto space-y-3 pr-1">
+                {neuro && <PracticeCard practice={neuro} whyForToday={why} />}
+                {ayurveda && <PracticeCard practice={ayurveda} whyForToday={why} />}
+                {!ayurveda && (
+                  <p className="text-[12px] italic px-1" style={{ color: "rgba(245,240,160,0.85)" }}>
+                    Take the dosha quiz in your profile to unlock personalised Ayurvedic practices.
+                  </p>
+                )}
+              </div>
+            </>
+          )}
         </div>
       </div>
-    </div>
-    </>
+    </motion.div>
   );
 };
 
-const RoadmapStrip = ({ currentDay }: { currentDay: number }) => {
-  const phases = [
-    {
-      label: "Phase 1 · Days 1–7",
-      title: "Prove it works",
-      status: currentDay <= 7 ? "✓ In progress" : "✓ Complete",
-      active: true,
-    },
-    { label: "Phase 2 · Days 8–14", title: "Deepen the experience", status: "🔒 Locked", active: false },
-    { label: "Phase 3 · Days 15–21", title: "Feel the stakes", status: "🔒 Locked", active: false },
-  ];
-  return (
-    <div className="mt-4 mb-4">
-      <div className="flex gap-2 overflow-x-auto pb-1">
-        {phases.map((p) => (
-          <div
-            key={p.label}
-            className="flex-shrink-0 px-3 py-2 min-w-[140px]"
-            style={{
-              background: p.active ? "rgba(245,240,160,0.15)" : "rgba(255,255,255,0.4)",
-              border: p.active ? "1px solid #F5F0A0" : "1px solid #c5d3e8",
-              borderRadius: 12,
-            }}
-          >
-            <p className="text-[12px] font-bold" style={{ color: "#1A2A4A" }}>{p.label}</p>
-            <p className="text-[11px] text-black/50">{p.title}</p>
-            <p className={`text-[11px] mt-1 ${p.active ? "text-[hsl(var(--rs-green))] font-semibold" : "text-black/50"}`}>
-              {p.status}
-            </p>
-          </div>
-        ))}
-      </div>
-      <p className="text-center text-[12px] italic mt-2" style={{ color: "rgba(26,42,74,0.5)" }}>
-        Unlock all 21 days + your full Reset Report on Day 21
-      </p>
-    </div>
-  );
-};
-
-const PhaseHeader = ({ n, title, accent }: { n: number; title: string; accent: string }) => (
-  <div className="mt-6 mb-3">
-    <p className="text-[10px] tracking-[0.2em] uppercase font-semibold text-rs-navy" style={{ color: accent }}>Phase {n}</p>
-    <p className="text-white text-[18px] font-bold">{title}</p>
-  </div>
-);
-
+/* ── Main screen ──────────────────────────────────────────────── */
 const JourneyScreen = () => {
+  const nav = useNavigate();
   const { profile } = useProfile();
+  const { user } = useAuth();
   const { isActive } = useSubscription();
-  const day = profile?.current_day ?? 1;
-  const [open, setOpen] = useState<number | null>(day);
-  const [checks, setChecks] = useState<Record<number, Record<string, boolean>>>({});
-  const [completedDay, setCompletedDay] = useState<number | null>(null);
   const [localPro, setLocalPro] = useState<boolean>(() => {
     try { return localStorage.getItem("restart_pro") === "true"; } catch { return false; }
   });
-  const simDay = (() => {
-    try { return parseInt(localStorage.getItem("restart_day") || String(day)); } catch { return day; }
-  })();
-  const completedDaysLs: number[] = (() => {
-    try {
-      const raw = localStorage.getItem("restart_completed_days");
-      const arr = raw ? JSON.parse(raw) : [];
-      return Array.isArray(arr) ? arr : [];
-    } catch { return []; }
-  })();
-  const showDay3Celebration =
-    simDay === 3 && [1, 2, 3].every((d) => completedDaysLs.includes(d));
-
   useEffect(() => {
     const onStorage = () => {
       try { setLocalPro(localStorage.getItem("restart_pro") === "true"); } catch {}
@@ -385,252 +244,273 @@ const JourneyScreen = () => {
     window.addEventListener("storage", onStorage);
     return () => window.removeEventListener("storage", onStorage);
   }, []);
-
   const isPro = isActive || localPro;
 
-  // Sync current day to localStorage so Mandala can read phase
-  useEffect(() => {
-    try { localStorage.setItem("restart_day", String(day)); } catch {}
+  const day = profile?.current_day ?? (() => {
+    try { return parseInt(localStorage.getItem("restart_day") || "1"); } catch { return 1; }
+  })();
+
+  const completedDays: number[] = useMemo(() => {
+    try {
+      const raw = localStorage.getItem("restart_completed_days");
+      const arr = raw ? JSON.parse(raw) : [];
+      return Array.isArray(arr) ? arr : [];
+    } catch { return []; }
+  }, []);
+
+  const [openMilestone, setOpenMilestone] = useState<Milestone | null>(null);
+
+  /* progress fraction along the path (0 → 1) for the brighter "completed" overlay */
+  const progress = useMemo(() => {
+    // map currentDay 1→0, 21→1
+    const t = Math.min(Math.max((day - 1) / 20, 0), 1);
+    return t;
   }, [day]);
 
-  const requiredLabelsFor = (d: DayPlan): string[] => {
-    return ["Neuro", "Ayurveda"];
-  };
+  const currentMilestone =
+    MILESTONES.find((m) => day >= m.dayStart && day <= m.dayEnd) ?? MILESTONES[0];
 
-  const findDayPlan = (n: number): DayPlan | undefined =>
-    [...PHASE_1, ...PHASE_2, ...PHASE_3].find((p) => p.day === n);
-
-  const handleCheck = (dayNum: number, label: string, value: boolean) => {
-    setChecks((prev) => {
-      const next = { ...prev, [dayNum]: { ...(prev[dayNum] ?? {}), [label]: value } };
-      const plan = findDayPlan(dayNum);
-      if (plan) {
-        const required = requiredLabelsFor(plan);
-        const allDone = required.every((l) => next[dayNum][l]);
-        if (allDone) {
-          try {
-            const raw = localStorage.getItem("restart_completed_days");
-            const arr: number[] = raw ? JSON.parse(raw) : [];
-            if (Array.isArray(arr) && !arr.includes(dayNum)) {
-              arr.push(dayNum);
-              localStorage.setItem("restart_completed_days", JSON.stringify(arr));
-              setCompletedDay(dayNum);
-            }
-          } catch {}
-        }
-      }
-      return next;
-    });
-  };
-
-  const handleMandalaDismiss = async () => {
-    const dayNum = completedDay;
-    setCompletedDay(null);
-    if (!dayNum) return;
-    try {
-      const today = new Date().toISOString().slice(0, 10);
-      const last = localStorage.getItem("restart_didi_last_date");
-      const cur = Number(localStorage.getItem("restart_didi_streak") || 0);
-      let next = 1;
-      if (last) {
-        const diff = Math.round((new Date(today).getTime() - new Date(last).getTime()) / 86400000);
-        if (diff === 0) next = cur || 1;
-        else if (diff === 1) next = cur + 1;
-      }
-      localStorage.setItem("restart_didi_streak", String(next));
-      localStorage.setItem("restart_didi_last_date", today);
-    } catch {}
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-      await supabase.from("user_journey_progress").upsert({ user_id: user.id, day: dayNum }, { onConflict: "user_id,day" });
-      const { data: prof } = await supabase.from("profiles").select("didi_xp").eq("id", user.id).maybeSingle();
-      const newXP = (prof?.didi_xp ?? 0) + 25;
-      await supabase.from("profiles").update({ didi_xp: newXP }).eq("id", user.id);
-      try { localStorage.setItem("restart_didi_xp", String(newXP)); } catch {}
-    }
-  };
-
-  const dayStatus = (n: number): "done" | "active" | "locked" => {
-    // Days 4–21 are locked for non-Pro users
-    if (!isPro && n > 3) return "locked";
-    if (completedDaysLs.includes(n)) return "done";
-    if (n < day) return "done";
-    if (n === day) return "active";
-    return "locked";
-  };
-
-  const showPaywall = !isPro;
-  const phase1FirstThree = PHASE_1.slice(0, 3);
-  const phase1Rest = PHASE_1.slice(3);
+  const avatarUrl = (user as any)?.user_metadata?.avatar_url as string | undefined;
+  const initials = initialsFor(profile?.name ?? (user as any)?.user_metadata?.name);
 
   return (
-    <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}
-      className="phone-frame min-h-screen pb-28 px-5 pt-10" style={{ paddingTop: 54 }}>
-      <TopBar />
-      {showDay3Celebration && (
+    <div
+      className="phone-frame relative min-h-screen overflow-hidden"
+      style={{ background: "linear-gradient(180deg,#FFFFFF 0%,#B8D4E8 18%,#4A90D9 55%,#2D1B69 100%)" }}
+    >
+      <MountainBackdrop />
+
+      {/* Title */}
+      <div className="relative z-10 pt-12 pb-2 text-center px-6">
+        <h1 className="text-[28px] font-bold" style={{ color: "#1A1A2E", letterSpacing: "-0.02em" }}>
+          Your Ascent
+        </h1>
+        <p className="text-[12px] mt-1" style={{ color: "rgba(26,26,46,0.55)" }}>
+          Day {day} of 21 — keep climbing
+        </p>
+      </div>
+
+      {/* Path + nodes layered SVG */}
+      <div className="relative z-10 mx-auto" style={{ width: "100%", maxWidth: 430 }}>
+        <svg
+          viewBox="0 0 400 820"
+          className="w-full h-auto"
+          style={{ display: "block", filter: "drop-shadow(0 4px 12px rgba(0,0,0,0.18))" }}
+        >
+          {/* Peak glow orb */}
+          <circle cx="200" cy="80" r="42" fill="#FFFFFF" opacity="0.35">
+            <animate attributeName="opacity" values="0.25;0.6;0.25" dur="3.5s" repeatCount="indefinite" />
+          </circle>
+          <circle cx="200" cy="80" r="22" fill="#FFFFFF" opacity="0.95" />
+
+          {/* Upcoming path — drawn first (full draw animation) */}
+          <motion.path
+            d={PATH_D}
+            fill="none"
+            stroke="rgba(255,255,255,0.55)"
+            strokeWidth="14"
+            strokeLinecap="round"
+            strokeDasharray="6 10"
+            initial={{ pathLength: 0, opacity: 0 }}
+            animate={{ pathLength: 1, opacity: 1 }}
+            transition={{ duration: 1.5, ease: "easeOut" }}
+          />
+          {/* Completed (warm) section overlaid */}
+          <motion.path
+            d={PATH_D}
+            fill="none"
+            stroke="#F5E1A0"
+            strokeWidth="10"
+            strokeLinecap="round"
+            initial={{ pathLength: 0 }}
+            animate={{ pathLength: progress }}
+            transition={{ duration: 1.6, ease: "easeOut", delay: 0.3 }}
+            style={{ filter: "drop-shadow(0 0 10px rgba(245,225,160,0.7))" }}
+          />
+
+          {/* Nodes */}
+          {MILESTONES.map((m) => {
+            const status = milestoneStatus(m, day);
+            const locked = m.requiresPro && !isPro;
+            const isPeak = m.id === "peak";
+            const r = isPeak ? 26 : 22;
+            const fill =
+              status === "done"
+                ? "#F5E1A0"
+                : status === "current"
+                ? "#FFFFFF"
+                : locked
+                ? "rgba(255,255,255,0.45)"
+                : "rgba(255,255,255,0.85)";
+            return (
+              <g
+                key={m.id}
+                style={{ cursor: "pointer" }}
+                onClick={() => setOpenMilestone(m)}
+              >
+                {/* outer halo for current */}
+                {status === "current" && (
+                  <circle cx={m.x} cy={m.y} r={r + 10} fill="#FFFFFF" opacity="0.25">
+                    <animate attributeName="r" values={`${r + 6};${r + 14};${r + 6}`} dur="2.4s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0.35;0.05;0.35" dur="2.4s" repeatCount="indefinite" />
+                  </circle>
+                )}
+                <circle
+                  cx={m.x}
+                  cy={m.y}
+                  r={r}
+                  fill={fill}
+                  stroke="#FFFFFF"
+                  strokeWidth={status === "current" ? 3 : 1.5}
+                  opacity={locked && status !== "current" ? 0.7 : 1}
+                />
+                {/* day numeral inside / beside */}
+                <text
+                  x={m.x}
+                  y={m.y + 5}
+                  textAnchor="middle"
+                  fontSize="13"
+                  fontWeight="700"
+                  fill="#1A2A4A"
+                >
+                  {isPeak ? "★" : m.dayEnd}
+                </text>
+                {/* crown for locked */}
+                {locked && !isPeak && (
+                  <g transform={`translate(${m.x + 14},${m.y - 22})`}>
+                    <circle r="9" fill="#1A2A4A" />
+                    <text x="0" y="3.5" textAnchor="middle" fontSize="10" fill="#F5E1A0">♛</text>
+                  </g>
+                )}
+              </g>
+            );
+          })}
+
+          {/* User avatar – sits on current milestone */}
+          <motion.g
+            initial={false}
+            animate={{ x: currentMilestone.x - 200, y: currentMilestone.y - 80 }}
+            transition={{ type: "spring", damping: 22, stiffness: 140 }}
+          >
+            <g transform="translate(200,80)">
+              <circle r="22" fill="#FFFFFF" opacity="0.45">
+                <animate attributeName="r" values="20;28;20" dur="2.6s" repeatCount="indefinite" />
+                <animate attributeName="opacity" values="0.5;0.1;0.5" dur="2.6s" repeatCount="indefinite" />
+              </circle>
+              <circle r="16" fill="#FFFFFF" stroke="#F5E1A0" strokeWidth="2.5" />
+              {avatarUrl ? (
+                <image
+                  href={avatarUrl}
+                  x="-14" y="-14" width="28" height="28"
+                  clipPath="circle(14px at 14px 14px)"
+                />
+              ) : (
+                <text x="0" y="4.5" textAnchor="middle" fontSize="11" fontWeight="700" fill="#1A2A4A">
+                  {initials.toUpperCase()}
+                </text>
+              )}
+            </g>
+          </motion.g>
+        </svg>
+
+        {/* HTML labels positioned over the SVG (percentage positioned to scale with width) */}
+        <div className="absolute inset-0 pointer-events-none">
+          {MILESTONES.map((m) => {
+            const xPct = (m.x / 400) * 100;
+            const yPct = (m.y / 820) * 100;
+            const status = milestoneStatus(m, day);
+            const locked = m.requiresPro && !isPro;
+            const align =
+              m.side === "left"
+                ? { right: `${100 - xPct + 7}%`, textAlign: "right" as const }
+                : m.side === "right"
+                ? { left: `${xPct + 7}%`, textAlign: "left" as const }
+                : { left: "50%", transform: "translateX(-50%)", textAlign: "center" as const };
+
+            return (
+              <div
+                key={m.id}
+                className="absolute"
+                style={{
+                  top: `calc(${yPct}% - 18px)`,
+                  ...align,
+                  maxWidth: "44%",
+                  opacity: locked && status !== "current" ? 0.55 : 1,
+                }}
+              >
+                <p
+                  className="text-[13px] font-bold leading-tight"
+                  style={{ color: m.id === "peak" ? "#1A1A2E" : "#FFFFFF", textShadow: "0 1px 6px rgba(0,0,0,0.35)" }}
+                >
+                  {m.title}
+                </p>
+                <p
+                  className="text-[11px] leading-tight"
+                  style={{ color: "rgba(255,255,255,0.8)", textShadow: "0 1px 4px rgba(0,0,0,0.4)" }}
+                >
+                  {m.sublabel}
+                </p>
+                <p
+                  className="text-[10px] mt-0.5 font-semibold tracking-wide"
+                  style={{ color: "rgba(255,255,255,0.55)" }}
+                >
+                  Day {m.dayStart === m.dayEnd ? m.dayStart : `${m.dayStart}–${m.dayEnd}`}
+                </p>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* "You are here" footer */}
+      <div
+        className="fixed left-0 right-0 z-40 flex justify-center pointer-events-none"
+        style={{ bottom: 76 }}
+      >
         <div
+          className="flex items-center gap-2 px-4 py-2 rounded-full pointer-events-auto"
           style={{
-            background:
-              "linear-gradient(135deg, rgba(245,240,160,0.3), rgba(123,155,214,0.2))",
-            border: "1px solid rgba(245,240,160,0.5)",
-            borderRadius: 16,
-            padding: "16px 20px",
-            margin: "16px 0 8px",
-            textAlign: "center",
+            background: "rgba(15,12,40,0.7)",
+            backdropFilter: "blur(14px)",
+            border: "1px solid rgba(255,255,255,0.18)",
           }}
         >
-          <div style={{ fontSize: 28 }}>🌱</div>
-          <div style={{ fontSize: 18, fontWeight: 700, color: "#1A2A4A" }}>3 days done.</div>
-          <div style={{ fontSize: 13, color: "rgba(26,42,74,0.65)", marginTop: 4 }}>
-            Your brain has already started changing.
-          </div>
-          <div style={{ fontSize: 12, fontStyle: "italic", color: "rgba(26,42,74,0.5)", marginTop: 4 }}>
-            Most people quit at day 3. You didn't.
-          </div>
+          <span
+            className="w-2 h-2 rounded-full"
+            style={{ background: "#F5E1A0", boxShadow: "0 0 10px #F5E1A0" }}
+          />
+          <span className="text-white text-[12px] font-semibold tracking-wide">
+            You are here · {currentMilestone.title}
+          </span>
         </div>
-      )}
-      <h1 className="text-[24px] font-bold text-white">Your 21-day journey</h1>
-      <p className="text-rs-muted text-[13px] mt-1">Day {day} of 21 — keep showing up.</p>
-
-      {showDay3Celebration && !isPro && (
-        <>
-          <p className="text-white text-[15px] font-semibold mt-4">
-            Keep going — Days 4–21 are waiting.
-          </p>
-          <PaywallGate />
-        </>
-      )}
-
-      <PhaseHeader n={1} title="Prove it works" accent="hsl(var(--rs-cream))" />
-      <div className="space-y-2.5">
-        {phase1FirstThree.map((d) => (
-          <DayRow key={d.day} d={d} status={dayStatus(d.day)} expanded={open === d.day}
-            onToggle={() => setOpen(open === d.day ? null : d.day)} accent="hsl(var(--rs-cream))"
-            checks={checks[d.day] ?? {}} onCheck={(l, v) => handleCheck(d.day, l, v)} />
-        ))}
-      </div>
-
-      {showPaywall && <PaywallGate />}
-      {showPaywall && <RoadmapStrip currentDay={day} />}
-
-      <div className="space-y-2.5">
-        {phase1Rest.map((d) => (
-          <DayRow key={d.day} d={d} status={dayStatus(d.day)} expanded={open === d.day}
-            onToggle={() => setOpen(open === d.day ? null : d.day)} accent="hsl(var(--rs-cream))"
-            checks={checks[d.day] ?? {}} onCheck={(l, v) => handleCheck(d.day, l, v)} />
-        ))}
-      </div>
-
-      <PhaseHeader n={2} title="Deepen the experience" accent="#B8CCE8" />
-      <div className="space-y-2.5">
-        {PHASE_2.map((d) => (
-          <DayRow key={d.day} d={d} status={dayStatus(d.day)} expanded={open === d.day}
-            onToggle={() => setOpen(open === d.day ? null : d.day)} accent="#B8CCE8"
-            checks={checks[d.day] ?? {}} onCheck={(l, v) => handleCheck(d.day, l, v)} />
-        ))}
-      </div>
-
-      <PhaseHeader n={3} title="Feel the stakes" accent="#7B9BD6" />
-      <div className="space-y-2.5">
-        {PHASE_3.map((d) => (
-          <DayRow key={d.day} d={d} status={dayStatus(d.day)} expanded={open === d.day}
-            onToggle={() => setOpen(open === d.day ? null : d.day)} accent="#7B9BD6"
-            checks={checks[d.day] ?? {}} onCheck={(l, v) => handleCheck(d.day, l, v)} />
-        ))}
       </div>
 
       <BottomNav />
-      {completedDay && (
-        <MandalaComplete
-          dayNumber={completedDay}
-          firstName={(profile?.name || "").split(" ")[0] || "friend"}
-          xpEarned={25}
-          onDismiss={handleMandalaDismiss}
-        />
-      )}
-      {import.meta.env.VITE_RAZORPAY_KEY_ID?.includes("test") && (
-        <DevDayPanel simDay={simDay} />
-      )}
-    </motion.div>
-  );
-};
-export default JourneyScreen;
 
-const DevDayPanel = ({ simDay }: { simDay: number }) => {
-  const setDay1 = () => {
-    localStorage.setItem("restart_day", "1");
-    localStorage.setItem("restart_completed_days", JSON.stringify([]));
-    localStorage.setItem("restart_pro", "false");
-    window.location.reload();
-  };
-  const setDay3 = () => {
-    localStorage.setItem("restart_day", "3");
-    localStorage.setItem("restart_completed_days", JSON.stringify([1, 2, 3]));
-    localStorage.setItem("restart_streak", "3");
-    localStorage.setItem("restart_pro", "false");
-    window.location.reload();
-  };
-  const setDay4 = () => {
-    localStorage.setItem("restart_day", "4");
-    localStorage.setItem("restart_completed_days", JSON.stringify([1, 2, 3]));
-    localStorage.setItem("restart_streak", "3");
-    localStorage.setItem("restart_pro", "false");
-    window.location.reload();
-  };
-  const fullReset = () => {
-    const keys = [
-      "restart_day", "restart_completed_days",
-      "restart_streak", "restart_pro",
-      "restart_checkin_state", "restart_checkin_date",
-      "restart_checkin_emotion", "restart_consent_signed",
-      "restart_consent_signature", "restart_consent_date",
-      "restart_chronotype", "restart_name",
-      "restart_age", "restart_role", "restart_path",
-      "restart_sleep", "restart_lifestyle",
-      "restart_openness", "restart_whatsapp_asked",
-      "restart_launched",
-    ];
-    keys.forEach((k) => localStorage.removeItem(k));
-    window.location.href = "/onboarding";
-  };
-  const baseBtn: React.CSSProperties = {
-    fontSize: 11,
-    padding: "5px 10px",
-    borderRadius: 8,
-    border: "1px solid rgba(255,255,255,0.2)",
-    background: "rgba(255,255,255,0.1)",
-    color: "white",
-    cursor: "pointer",
-    margin: 2,
-  };
-  const activeBtn: React.CSSProperties = {
-    ...baseBtn,
-    background: "#F5F0A0",
-    color: "#1A2A4A",
-    borderColor: "#F5F0A0",
-  };
-  return (
-    <div
-      style={{
-        position: "fixed",
-        bottom: 80,
-        right: 16,
-        background: "#1A2A4A",
-        borderRadius: 12,
-        padding: "12px 14px",
-        zIndex: 999,
-        boxShadow: "0 4px 20px rgba(0,0,0,0.2)",
-      }}
-    >
-      <div style={{ fontSize: 10, color: "rgba(255,255,255,0.5)", marginBottom: 8 }}>
-        Dev: Simulate days
-      </div>
-      <div style={{ display: "flex", flexDirection: "row" }}>
-        <button style={simDay === 1 ? activeBtn : baseBtn} onClick={setDay1}>Day 1</button>
-        <button style={simDay === 3 ? activeBtn : baseBtn} onClick={setDay3}>Day 3 ✓</button>
-        <button style={simDay >= 4 ? activeBtn : baseBtn} onClick={setDay4}>Day 4+</button>
-        <button style={baseBtn} onClick={fullReset}>↺ Full Reset</button>
-      </div>
+      <AnimatePresence>
+        {openMilestone && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setOpenMilestone(null)}
+              className="fixed inset-0 z-40"
+              style={{ background: "rgba(0,0,0,0.45)" }}
+            />
+            <MilestoneSheet
+              milestone={openMilestone}
+              currentDay={day}
+              completedDays={completedDays}
+              isPro={isPro}
+              onClose={() => setOpenMilestone(null)}
+              onUpgrade={() => { setOpenMilestone(null); nav("/pricing"); }}
+            />
+          </>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
+
+export default JourneyScreen;
