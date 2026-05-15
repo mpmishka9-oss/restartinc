@@ -124,6 +124,11 @@ const CheckInScreen = () => {
   const [didiReply, setDidiReply] = useState<string>("");
   const [loadingReply, setLoadingReply] = useState(false);
   const [intensity, setIntensity] = useState(5);
+  const [alreadyChecked, setAlreadyChecked] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem("restart_checkin_date") === new Date().toDateString();
+    } catch { return false; }
+  });
 
   // Prefill from PracticesScreen
   useEffect(() => {
