@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, Crown, Lock, X } from "lucide-react";
+import { toast } from "sonner";
 import { useProfile } from "@/hooks/useProfile";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useAuth } from "@/hooks/useAuth";
@@ -9,6 +10,12 @@ import { getBaselinePractices } from "@/lib/recommendPractices";
 import { getWhyTodayLabel } from "@/lib/getPracticesForState";
 import PracticeCard from "@/components/PracticeCard";
 import BottomNav from "@/components/layout/BottomNav";
+import DayCard from "@/components/journey/DayCard";
+import {
+  advanceToNextDay,
+  getCompletedDays,
+  getCurrentDay,
+} from "@/lib/dayProgression";
 
 /* ──────────────────────────────────────────────────────────────
    "Your Ascent" — milestone-based mountain journey
@@ -250,15 +257,28 @@ const JourneyScreen = () => {
     try { return parseInt(localStorage.getItem("restart_day") || "1"); } catch { return 1; }
   })();
 
-  const completedDays: number[] = useMemo(() => {
-    try {
-      const raw = localStorage.getItem("restart_completed_days");
-      const arr = raw ? JSON.parse(raw) : [];
-      return Array.isArray(arr) ? arr : [];
-    } catch { return []; }
+  const [completedDays, setCompletedDays] = useState<number[]>(() => getCompletedDays());
+  useEffect(() => {
+    const refresh = () => setCompletedDays(getCompletedDays());
+    window.addEventListener("focus", refresh);
+    window.addEventListener("storage", refresh);
+    return () => {
+      window.removeEventListener("focus", refresh);
+      window.removeEventListener("storage", refresh);
+    };
   }, []);
 
   const [openMilestone, setOpenMilestone] = useState<Milestone | null>(null);
+  const [dayCardOpen, setDayCardOpen] = useState<number | null>(null);
+
+  const handleNodeTap = (m: Milestone) => {
+    if (day < m.dayStart) {
+      toast(`Complete Day ${day} first to unlock this`);
+      return;
+    }
+    const targetDay = Math.min(day, m.dayEnd);
+    setDayCardOpen(targetDay);
+  };
 
   /* progress fraction along the path (0 → 1) for the brighter "completed" overlay */
   const progress = useMemo(() => {
@@ -346,7 +366,7 @@ const JourneyScreen = () => {
               <g
                 key={m.id}
                 style={{ cursor: "pointer" }}
-                onClick={() => setOpenMilestone(m)}
+                onClick={() => handleNodeTap(m)}
               >
                 {/* outer halo for current */}
                 {status === "current" && (
@@ -505,6 +525,34 @@ const JourneyScreen = () => {
               isPro={isPro}
               onClose={() => setOpenMilestone(null)}
               onUpgrade={() => { setOpenMilestone(null); nav("/pricing"); }}
+            />
+          </>
+        )}
+        {dayCardOpen !== null && (
+          <>
+            <motion.div
+              key="daycard-backdrop"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setDayCardOpen(null)}
+              className="fixed inset-0 z-40"
+              style={{ background: "rgba(0,0,0,0.55)" }}
+            />
+            <DayCard
+              key={`daycard-${dayCardOpen}`}
+              day={dayCardOpen}
+              currentDay={day}
+              completedDays={completedDays}
+              dosha={(profile as any)?.dosha ?? null}
+              isPro={isPro}
+              onClose={() => setDayCardOpen(null)}
+              onAdvance={() => {
+                const next = advanceToNextDay(dayCardOpen);
+                setCompletedDays(getCompletedDays());
+                setDayCardOpen(next);
+              }}
+              onUpgrade={() => { setDayCardOpen(null); nav("/pricing"); }}
             />
           </>
         )}
