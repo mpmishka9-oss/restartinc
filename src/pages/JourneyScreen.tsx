@@ -366,7 +366,7 @@ const JourneyScreen = () => {
               <g
                 key={m.id}
                 style={{ cursor: "pointer" }}
-                onClick={() => setOpenMilestone(m)}
+                onClick={() => handleNodeTap(m)}
               >
                 {/* outer halo for current */}
                 {status === "current" && (
@@ -525,6 +525,34 @@ const JourneyScreen = () => {
               isPro={isPro}
               onClose={() => setOpenMilestone(null)}
               onUpgrade={() => { setOpenMilestone(null); nav("/pricing"); }}
+            />
+          </>
+        )}
+        {dayCardOpen !== null && (
+          <>
+            <motion.div
+              key="daycard-backdrop"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setDayCardOpen(null)}
+              className="fixed inset-0 z-40"
+              style={{ background: "rgba(0,0,0,0.55)" }}
+            />
+            <DayCard
+              key={`daycard-${dayCardOpen}`}
+              day={dayCardOpen}
+              currentDay={day}
+              completedDays={completedDays}
+              dosha={(profile as any)?.dosha ?? null}
+              isPro={isPro}
+              onClose={() => setDayCardOpen(null)}
+              onAdvance={() => {
+                const next = advanceToNextDay(dayCardOpen);
+                setCompletedDays(getCompletedDays());
+                setDayCardOpen(next);
+              }}
+              onUpgrade={() => { setDayCardOpen(null); nav("/pricing"); }}
             />
           </>
         )}
