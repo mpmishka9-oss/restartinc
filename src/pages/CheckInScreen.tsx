@@ -259,6 +259,47 @@ const CheckInScreen = () => {
   };
 
   // ---------- SCREEN 1: emotion ----------
+  if (alreadyChecked) {
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="phone-frame min-h-screen relative overflow-hidden flex items-center justify-center px-6"
+        style={{
+          background:
+            "radial-gradient(circle at 50% 42%, #feffaf 0%, #c8dde8 22%, #a0c8dc 48%, #7bb0cc 78%, #5a9bb8 100%)",
+        }}
+      >
+        <div
+          className="rounded-3xl p-7 text-center"
+          style={{
+            background: "rgba(255,255,255,0.55)",
+            border: "0.5px solid rgba(255,255,255,0.9)",
+            backdropFilter: "blur(12px)",
+            maxWidth: 360,
+          }}
+        >
+          <p style={{ fontSize: 11, letterSpacing: "0.18em", color: "rgba(30,80,150,0.55)", fontWeight: 600 }}>
+            DIDI
+          </p>
+          <h2 className="font-serif text-3xl font-semibold mt-2 leading-tight" style={{ color: "#1a3a6a" }}>
+            You've already checked in today.
+          </h2>
+          <p className="mt-3 text-[14px]" style={{ color: "rgba(26,58,106,0.75)" }}>
+            Come back tomorrow — your day's practices are waiting in your journey.
+          </p>
+          <button
+            onClick={() => nav("/journey")}
+            className="mt-6 w-full py-3 rounded-full font-semibold btn-press"
+            style={{ background: "#1a3a6a", color: "white", fontSize: 14 }}
+          >
+            Go to my journey →
+          </button>
+        </div>
+      </motion.div>
+    );
+  }
+
   if (step === "emotion") {
     return (
       <motion.div
