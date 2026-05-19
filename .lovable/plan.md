@@ -1,79 +1,75 @@
-# Personalise Today's Practices by Chronotype + Path
+# Chronotype timing + no-repeat + Didi guidance
 
-Make `getPracticesForState` aware of the user's onboarding `path` ("ambitious" / "stressed") and `chronotype` ("lion" / "bear" / "wolf" / "dolphin"), surface that personalisation in the UI, and remove the dead Supabase fetch.
+Three additive changes to the existing Day Card flow. No visual redesign of the card, timer, or practice library.
 
-## 1. Extend `getPracticesForState` signature
+## 1. Chronotype timing engine
 
-File: `src/lib/getPracticesForState.ts`
+New file: `src/lib/chronotype.ts`
 
-Change the third argument from `onboardingAnswers` to a richer profile object:
+- `CHRONOTYPE_WINDOWS` map for `lion | bear | wolf | dolphin` → `{ peak: [h,h], second: [h,h], windDown: [h,h] }` per the spec.
+- `getChronotypeWindow(chronotype)` — defaults to `bear` when missing.
+- `getCurrentWindow(chronotype, date=new Date())` → `"peak" | "between" | "second" | "windDown" | "off"`. Rounds boundary times in user's favour.
+- `formatPeakWindow(chronotype)` → "6am – 10am (Lion)" string.
+- `BANNER_COPY` per window state.
+- `PRACTICE_TIMING_TAGS: Record<practiceId, "morning" | "anytime" | "evening">` per the spec lists. Practices not listed default to `"anytime"`.
+- `getTimingMismatchNote(practice, chronotype)` → returns "This works best in your morning window — but doing it now still counts." or `null`.
 
-```ts
-interface PersonalProfile {
-  chronotype?: "lion" | "bear" | "wolf" | "dolphin" | string | null;
-  path?: "ambitious" | "stressed" | string | null;
-  onboardingAnswers?: Record<string, string>;
-}
+Practice timing does NOT swap the assignment — mood/dosha picks still win.
 
-export function getPracticesForState(
-  emotionalState: string,
-  day: number = 1,
-  profile: PersonalProfile = {},
-): PracticeTriad
-```
+## 2. No-repeat practice rule
 
-Keep the existing rotation + `support_needed` / `blocker` refinements (read from `profile.onboardingAnswers`) so nothing regresses, then layer two new rules on top:
+Edit `src/lib/dayProgression.ts`:
 
-**Path-based reframing (controls which practice leads):**
-- `path === "ambitious"` → ensure the lead/featured slot is the Neuroscience pick (already true; keep but tag it). Prefer Neuro IDs known as performance tools when there's a tie: `n1` (Friction Sprint), `n6` (Cold Exposure), `n7` (Identity Statement).
-- `path === "stressed"` → swap so Breathwork or Ayurveda becomes the lead. Implementation: when path is "stressed", reorder the returned triad so the breathwork pick is what `PracticesScreen` passes as the `featured` (currently it uses `items[0]` which is `triad.neuro`). Easiest fix: introduce an optional `lead: "neuro" | "breathwork" | "ayurveda"` field on the returned triad and have `PracticesScreen` use it to pick `featured`.
+- Persist `restart_practices_used` as `{ neuro: string[], ayurveda: string[] }` in localStorage.
+- New helpers:
+  - `getUsedPractices()` / `markPracticeUsed(category, id)`
+  - `pickUnusedFromPool(pool, usedIds, lastShownId)` — returns first unused; if pool exhausted, reset only that category's used list but exclude `lastShownId` so no back-to-back repeat.
+- Update `getNeuroPractice(mood, level)` and `getAyurvedaPractice(dosha, day)`:
+  - Compute the spec's first choice as today.
+  - If already in used list, walk the rest of that mood row (neuro) or dosha pool (ayurveda) for an unused id; on full exhaustion, reset that category and exclude the previous day's id.
+  - Mark the final pick used inside `getPracticesForDay` (single call site, so we don't double-mark).
+- `lastShownId` tracked via `restart_last_practice_{category}` to enforce no back-to-back.
 
-**Chronotype-based time-of-day swap:**
-Read the current hour (passed in or computed in helper) and map it to a slot:
-- morning (5–11), midday (12–16), evening (17–21), night (22–4)
+## 3. Day Card UI additions
 
-Rules:
-- Morning types (`lion`, `bear`) → in the **morning** slot, prefer high-energy Neuro: `n6` (Cold Exposure) or `n1` (Friction Sprint).
-- Evening types (`wolf`, `dolphin`) → in the **midday** slot, prefer those same high-energy picks; in the **evening/night** slot, prefer wind-down: breathwork `b3` (4-7-8) and ayurveda `a4` (Tulsi Ginger Tea) or `a1` (Haldi Doodh).
+Edit `src/components/journey/DayCard.tsx` (presentation only):
 
-Apply these as overrides only when the rotation hasn't already picked a matching ID, so the day-to-day variety still works.
+- Read `profile.chronotype` (default `"bear"`).
+- Under the "DAY X" heading, render timing line:
+  - In peak window: gold `✦ You're in your peak window right now`
+  - Otherwise: muted grey `⏱ Best time for your practices: {window} ({Chronotype})`
+- One banner above the practice list driven by `getCurrentWindow`:
+  - peak / second / windDown → spec copy (use profile name)
+  - between → no banner
+- Per practice card, if `PRACTICE_TIMING_TAGS[practice.id]` doesn't match current window state, show small muted note under the card: "This works best in your morning/evening window — but doing it now still counts."
 
-Add a small pure helper inside the file:
+## 4. Didi guided overlay
 
-```ts
-function slotFromHour(h: number): "morning" | "midday" | "evening" | "night"
-function isMorningType(c?: string | null): boolean   // lion, bear
-function isEveningType(c?: string | null): boolean   // wolf, dolphin
-```
+New file: `src/components/journey/DidiGuidance.tsx`
 
-## 2. Update `getPracticesForStateWithHistory`
+- Props: `practice, open, onClose`.
+- Reads script from `src/data/didiScripts.ts`.
+- Bottom sheet overlay (above existing timer). Shows one line at a time with Before → During[] → After phases.
+- Auto-advances during DURING phase pacing the practice's `durationSec` evenly across `during` lines; tap-to-advance also works. BEFORE shown until user taps "Begin", AFTER shown after timer completes (or user taps next on last DURING line).
+- Does not replace or modify existing timer/start UI — overlays on top.
 
-Same signature change — accept the new `profile` object and forward it to `getPracticesForState`.
+New file: `src/data/didiScripts.ts`
 
-## 3. Update `PracticesScreen.tsx`
+- `DIDI_SCRIPTS: Record<practiceId, { before: string; during: string[]; after: string }>` populated with all 35 scripts from the spec.
+- `getDidiScript(practiceId)` returns script or `null` (no overlay if missing).
 
-File: `src/pages/PracticesScreen.tsx`
+Wire into `DayCard`:
 
-- Import `useApp` from `@/context/AppContext` and read `path` (fallback to `profile?.path` from `useProfile`, since context is empty after refresh).
-- Read `chronotype` from `profile?.chronotype` (already in scope) with `useApp` chronotype as fallback.
-- **Remove the dead query** at line 52 (`supabase.from("practices").select("*").eq("state", ci.detected_state).limit(3)`) and the now-unused `today` state. Use `ci.detected_state` directly as the mood input to `getPracticesForState`, replacing the `localStorage.getItem("restart_checkin_state")` lookup. Keep localStorage as a fallback only when `ci?.detected_state` is missing.
-- Pass the new profile object to `getPracticesForState(state, day, { chronotype, path, onboardingAnswers: profile?.onboarding_answers })`.
-- Use the new `triad.lead` (or path) to choose the `featured` card instead of always `items[0]`.
-- Add a personalisation label under the "Today's Practices" tab, above the first card:
-
-```
-Personalised for your {CHRONOTYPE_LABEL[chronotype]} rhythm
-```
-
-Small muted text (`text-[12px] text-rs-cream/70`), only shown when `chronotype` is known.
-
-## 4. Notes / non-goals
-
-- No DB schema changes; reads `profiles.chronotype`, `profiles.path`, `profiles.onboarding_answers` which already exist.
-- `JourneyScreen.tsx` also calls `getPracticesForState(state, d.day)` — the signature change is backwards-compatible (third arg defaults to `{}`), so it keeps working untouched.
-- Library tab logic untouched.
+- When user taps "Start" on a practice card and a script exists, mount `<DidiGuidance>` for that practice. Keep existing Start flow intact — overlay is purely additive.
 
 ## Files touched
 
-- `src/lib/getPracticesForState.ts` — signature change + chronotype/path rules + `lead` field on triad
-- `src/pages/PracticesScreen.tsx` — import `useApp`, drop dead fetch, use `ci.detected_state`, pass profile, render personalisation label, use `lead` for featured card
+- new `src/lib/chronotype.ts`
+- new `src/data/didiScripts.ts`
+- new `src/components/journey/DidiGuidance.tsx`
+- edit `src/lib/dayProgression.ts` (no-repeat rule + mark used)
+- edit `src/components/journey/DayCard.tsx` (timing line, banner, mismatch note, mount DidiGuidance)
+
+## Out of scope (flagged for follow-up)
+
+- Push notifications (LION 6am etc.) — this app has no notification infrastructure yet. I'll add the chronotype-to-notification mapping as a constant in `chronotype.ts` but won't wire delivery. Confirm if you want me to scaffold a notifications service (web push / FCM) in a separate pass.
