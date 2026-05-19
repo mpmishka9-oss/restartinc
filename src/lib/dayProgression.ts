@@ -196,17 +196,97 @@ const AYURVEDA_POOLS: Record<Dosha, string[]> = {
 const FALLBACK_NEURO = PRACTICES.find((p) => p.category === "Neuroscience")!;
 const FALLBACK_AYUR  = PRACTICES.find((p) => p.category === "Ayurveda")!;
 
-export function getNeuroPractice(mood: CheckInMood, level: IntensityLevel): Practice {
+/* ── No-repeat practice tracking ──────────────────────────────────────── */
+
+type PracticeCategory = "neuro" | "ayurveda";
+const USED_KEY = "restart_practices_used";
+const LAST_KEY = (c: PracticeCategory) => `restart_last_practice_${c}`;
+
+interface UsedPractices { neuro: string[]; ayurveda: string[] }
+
+export function getUsedPractices(): UsedPractices {
+  try {
+    const raw = localStorage.getItem(USED_KEY);
+    if (!raw) return { neuro: [], ayurveda: [] };
+    const p = JSON.parse(raw);
+    return {
+      neuro: Array.isArray(p?.neuro) ? p.neuro : [],
+      ayurveda: Array.isArray(p?.ayurveda) ? p.ayurveda : [],
+    };
+  } catch { return { neuro: [], ayurveda: [] }; }
+}
+
+function writeUsed(u: UsedPractices) {
+  try { localStorage.setItem(USED_KEY, JSON.stringify(u)); } catch {}
+}
+
+export function markPracticeUsed(category: PracticeCategory, id: string) {
+  const u = getUsedPractices();
+  if (!u[category].includes(id)) {
+    u[category].push(id);
+    writeUsed(u);
+  }
+  try { localStorage.setItem(LAST_KEY(category), id); } catch {}
+}
+
+function getLastShown(category: PracticeCategory): string | null {
+  try { return localStorage.getItem(LAST_KEY(category)); } catch { return null; }
+}
+
+function resetUsedCategory(category: PracticeCategory) {
+  const u = getUsedPractices();
+  u[category] = [];
+  writeUsed(u);
+}
+
+/**
+ * Walk an ordered candidate list and return the first id that hasn't been
+ * used yet. If all are used, reset that category and return the first id
+ * that ISN'T the last-shown one (so no back-to-back repeats).
+ */
+function pickUnused(category: PracticeCategory, candidates: string[]): string {
+  if (candidates.length === 0) return "";
+  const used = new Set(getUsedPractices()[category]);
+  const fresh = candidates.find((id) => !used.has(id));
+  if (fresh) return fresh;
+  // Exhausted — reset only this category and avoid the last shown id.
+  resetUsedCategory(category);
+  const last = getLastShown(category);
+  return candidates.find((id) => id !== last) ?? candidates[0];
+}
+
+/**
+ * Build a candidate list for neuroscience: today's mood/level pick first,
+ * then the other two intensities for the same mood, then every other neuro
+ * practice (so we always converge on something unused).
+ */
+function neuroCandidates(mood: CheckInMood, level: IntensityLevel): string[] {
   const row = NEURO_MATRIX[mood] ?? NEURO_MATRIX.focused;
-  const id = row[level - 1] ?? row[0];
+  const primary = row[level - 1] ?? row[0];
+  const moodRow = [primary, ...row.filter((id) => id !== primary)];
+  const rest = PRACTICES
+    .filter((p) => p.category === "Neuroscience" && !moodRow.includes(p.id))
+    .map((p) => p.id);
+  return [...moodRow, ...rest];
+}
+
+function ayurvedaCandidates(dosha: Dosha | null | undefined, day: number): string[] {
+  const pool = dosha ? AYURVEDA_POOLS[dosha] : null;
+  if (!pool || pool.length === 0) {
+    return PRACTICES.filter((p) => p.category === "Ayurveda").map((p) => p.id);
+  }
+  const start = ((Math.max(1, day) - 1) % pool.length + pool.length) % pool.length;
+  return [...pool.slice(start), ...pool.slice(0, start)];
+}
+
+export function getNeuroPractice(mood: CheckInMood, level: IntensityLevel): Practice {
+  const id = pickUnused("neuro", neuroCandidates(mood, level));
   return PRACTICE_BY_ID[id] ?? FALLBACK_NEURO;
 }
 
 export function getAyurvedaPractice(dosha: Dosha | null | undefined, day: number): Practice {
-  const pool = dosha ? AYURVEDA_POOLS[dosha] : null;
-  if (!pool || pool.length === 0) return FALLBACK_AYUR;
-  const idx = ((Math.max(1, day) - 1) % pool.length + pool.length) % pool.length;
-  return PRACTICE_BY_ID[pool[idx]] ?? FALLBACK_AYUR;
+  const id = pickUnused("ayurveda", ayurvedaCandidates(dosha, day));
+  return PRACTICE_BY_ID[id] ?? FALLBACK_AYUR;
 }
 
 export interface DayPractices {
@@ -219,9 +299,14 @@ export interface DayPractices {
 
 export function getPracticesForDay(dosha: Dosha | null | undefined, day: number): DayPractices {
   const checkIn = getTodayCheckIn();
+  const neuro = getNeuroPractice(checkIn.mood, checkIn.intensityLevel);
+  const ayurveda = getAyurvedaPractice(dosha, day);
+  // Lock in today's picks so the no-repeat history advances.
+  markPracticeUsed("neuro", neuro.id);
+  markPracticeUsed("ayurveda", ayurveda.id);
   return {
-    neuro: getNeuroPractice(checkIn.mood, checkIn.intensityLevel),
-    ayurveda: getAyurvedaPractice(dosha, day),
+    neuro,
+    ayurveda,
     mood: checkIn.mood,
     intensityLevel: checkIn.intensityLevel,
     isDefaultMood: checkIn.isDefault,

@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { Check, X, Lock, Crown, ArrowRight, Play } from "lucide-react";
-import { toast } from "sonner";
 import type { Practice, Dosha } from "@/data/practices";
 import {
   getDayState,
@@ -16,12 +15,21 @@ import {
   TOTAL_DAYS,
   type DayPractices,
 } from "@/lib/dayProgression";
+import {
+  formatPeakWindow,
+  getCurrentWindow,
+  bannerCopy,
+  getTimingMismatchNote,
+} from "@/lib/chronotype";
+import DidiGuidance from "@/components/journey/DidiGuidance";
 
 interface DayCardProps {
   day: number;
   currentDay: number;
   completedDays: number[];
   dosha: Dosha | null | undefined;
+  chronotype: string | null | undefined;
+  userName: string;
   isPro: boolean;
   onClose: () => void;
   onAdvance: () => void;       // user tapped "Continue to Day N+1"
@@ -40,6 +48,7 @@ const PracticeBlock = ({
   label,
   practice,
   done,
+  timingNote,
   onStart,
   onMarkDone,
 }: {
@@ -47,6 +56,7 @@ const PracticeBlock = ({
   label: string;
   practice: Practice;
   done: boolean;
+  timingNote: string | null;
   onStart: () => void;
   onMarkDone: () => void;
 }) => (
@@ -61,6 +71,11 @@ const PracticeBlock = ({
     <p className="text-[11px] mt-1" style={{ color: "rgba(255,255,255,0.55)" }}>
       {practice.duration} · {practice.appFlow.split(".")[0]}.
     </p>
+    {timingNote && (
+      <p className="text-[11px] mt-2 italic" style={{ color: "rgba(255,255,255,0.55)" }}>
+        ⏱ {timingNote}
+      </p>
+    )}
     <div className="mt-3 flex gap-2">
       <button
         type="button"
@@ -102,6 +117,8 @@ const DayCard = ({
   currentDay,
   completedDays,
   dosha,
+  chronotype,
+  userName,
   isPro,
   onClose,
   onAdvance,
@@ -110,6 +127,7 @@ const DayCard = ({
   const [state, setState] = useState(() => getDayState(day));
   const [now, setNow] = useState(Date.now());
   const [paywall, setPaywall] = useState(false);
+  const [didiPractice, setDidiPractice] = useState<Practice | null>(null);
 
   // Mark this day as opened on first mount; refresh state ref.
   useEffect(() => {
@@ -140,9 +158,16 @@ const DayCard = ({
     return [start, start + 1, start + 2].filter((d) => d >= 1 && d <= TOTAL_DAYS);
   }, [day]);
 
-  const handleStart = (label: string, p: Practice) => {
-    toast(`${label}: ${p.name}`, { description: p.appFlow.split(".")[0] + "." });
+  const handleStart = (_label: string, p: Practice) => {
+    setDidiPractice(p);
   };
+
+  const windowState = getCurrentWindow(chronotype);
+  const inPeak = windowState === "peak";
+  const banner = bannerCopy(windowState, userName?.trim() || "you");
+  const peakLine = formatPeakWindow(chronotype);
+  const neuroTimingNote = getTimingMismatchNote(practices.neuro.id, chronotype);
+  const ayurTimingNote = getTimingMismatchNote(practices.ayurveda.id, chronotype);
 
   const handleAdvance = () => {
     const nextDay = day + 1;
@@ -204,6 +229,15 @@ const DayCard = ({
               <h3 className="text-white text-[22px] font-bold mt-1 leading-tight">
                 {day <= 7 ? "Taking back control" : day <= 14 ? "Rewiring begins" : "Peak state"}
               </h3>
+              {inPeak ? (
+                <p className="text-[11px] mt-1.5 font-semibold" style={{ color: "#F5E1A0" }}>
+                  ✦ You're in your peak window right now
+                </p>
+              ) : (
+                <p className="text-[11px] mt-1.5" style={{ color: "rgba(255,255,255,0.5)" }}>
+                  ⏱ Best time for your practices: {peakLine}
+                </p>
+              )}
               {practices.isDefaultMood && (
                 <p className="text-[11px] mt-1" style={{ color: "rgba(255,255,255,0.5)" }}>
                   No check-in today — using your baseline.
@@ -251,11 +285,31 @@ const DayCard = ({
             className="mt-5 space-y-3"
             style={paywall ? { filter: "blur(6px)", pointerEvents: "none" } : undefined}
           >
+            {banner && (
+              <div
+                className="rounded-xl px-3 py-2.5"
+                style={{
+                  background: windowState === "peak"
+                    ? "rgba(245,225,160,0.14)"
+                    : "rgba(255,255,255,0.06)",
+                  border: `1px solid ${windowState === "peak"
+                    ? "rgba(245,225,160,0.4)"
+                    : "rgba(255,255,255,0.10)"}`,
+                }}
+              >
+                <p className="text-[12px]" style={{
+                  color: windowState === "peak" ? "#F5E1A0" : "rgba(255,255,255,0.8)",
+                }}>
+                  {banner}
+                </p>
+              </div>
+            )}
             <PracticeBlock
               icon="🧠"
               label="Neuroscience"
               practice={practices.neuro}
               done={state.neuroDone}
+              timingNote={neuroTimingNote}
               onStart={() => handleStart("Neuroscience", practices.neuro)}
               onMarkDone={() => update({ neuroDone: true })}
             />
@@ -264,6 +318,7 @@ const DayCard = ({
               label="Ayurveda"
               practice={practices.ayurveda}
               done={state.ayurvedaDone}
+              timingNote={ayurTimingNote}
               onStart={() => handleStart("Ayurveda", practices.ayurveda)}
               onMarkDone={() => update({ ayurvedaDone: true })}
             />
@@ -334,6 +389,12 @@ const DayCard = ({
           )}
         </div>
       </div>
+      <DidiGuidance
+        practice={didiPractice}
+        open={!!didiPractice}
+        userName={userName}
+        onClose={() => setDidiPractice(null)}
+      />
     </motion.div>
   );
 };

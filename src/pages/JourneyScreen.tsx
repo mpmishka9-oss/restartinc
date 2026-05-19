@@ -545,6 +545,8 @@ const JourneyScreen = () => {
               currentDay={day}
               completedDays={completedDays}
               dosha={(profile as any)?.dosha ?? null}
+              chronotype={(profile as any)?.chronotype ?? null}
+              userName={profile?.name ?? (user as any)?.user_metadata?.name ?? "you"}
               isPro={isPro}
               onClose={() => setDayCardOpen(null)}
               onAdvance={() => {
