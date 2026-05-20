@@ -110,7 +110,7 @@ const DidiGuidance = ({ practice, open, userName, onClose }: Props) => {
                 className="p-1.5 rounded-full btn-press"
                 style={{ background: "rgba(255,255,255,0.08)" }}
               >
-                <X className="w-3.5 h-3.5 text-white" />
+                <X className="w-3.5 h-3.5 text-slate-50" />
               </button>
             </div>
 
