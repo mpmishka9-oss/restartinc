@@ -498,28 +498,24 @@ const JourneyScreen = () => {
         </div>
       </div>
 
-      {/* "You are here" footer */}
-      <div
-        className="fixed left-0 right-0 z-40 flex justify-center pointer-events-none"
-        style={{ bottom: 76 }}
-      >
-        <div
-          className="flex items-center gap-2 px-4 py-2 rounded-full pointer-events-auto"
-          style={{
-            background: "rgba(15,12,40,0.7)",
-            backdropFilter: "blur(14px)",
-            border: "1px solid rgba(255,255,255,0.18)",
-          }}
-        >
-          <span
-            className="w-2 h-2 rounded-full"
-            style={{ background: "#F5E1A0", boxShadow: "0 0 10px #F5E1A0" }}
+      {/* Practice-completion glow — soft warm golden, fades out in ~1s */}
+      <AnimatePresence>
+        {glowPulse > 0 && (
+          <motion.div
+            key={glowPulse}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 1, ease: "easeOut" }}
+            className="pointer-events-none fixed inset-0 z-30"
+            style={{
+              background:
+                "radial-gradient(circle at 50% 55%, rgba(245,225,160,0.55) 0%, rgba(245,225,160,0.18) 35%, rgba(245,225,160,0) 70%)",
+              mixBlendMode: "screen",
+            }}
           />
-          <span className="text-[12px] font-semibold tracking-wide text-amber-100 font-serif">
-            You are here · {currentMilestone.title}
-          </span>
-        </div>
-      </div>
+        )}
+      </AnimatePresence>
 
       <BottomNav />
 
