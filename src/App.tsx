@@ -24,6 +24,7 @@ import AdminScreen from "./pages/AdminScreen";
 import DemoBanner from "@/components/DemoBanner";
 import DoshaQuizScreen from "./pages/DoshaQuizScreen";
 import CompletionScreen from "./pages/CompletionScreen";
+import PreviewCompletion from "./pages/PreviewCompletion";
 
  import Terms from "./pages/Terms";
  import Privacy from "./pages/Privacy";
@@ -59,6 +60,7 @@ const RoutedApp = () => {
         <Route path="/home" element={<Gate><HomeScreen /></Gate>} />
         <Route path="/journey" element={<Gate><JourneyScreen /></Gate>} />
         <Route path="/completion" element={<Gate><CompletionScreen /></Gate>} />
+        <Route path="/preview-completion" element={<PreviewCompletion />} />
         <Route path="/checkin" element={<Gate><CheckInScreen /></Gate>} />
         <Route path="/practices" element={<Gate><PracticesScreen /></Gate>} />
         <Route path="/admin" element={<AdminScreen />} />
