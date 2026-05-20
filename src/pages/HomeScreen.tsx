@@ -9,15 +9,10 @@ import { greetingFor, getDayPhrase, CHRONOTYPE_EMOJI, CHRONOTYPE_LABEL, type Chr
 import BottomNav from "@/components/layout/BottomNav";
 import TopBar from "@/components/layout/TopBar";
 import Mandala from "@/components/home/Mandala";
-import { useSubscription } from "@/hooks/useSubscription";
-
- import { PremiumLockBanner } from "@/components/PremiumGate";
- 
 const HomeScreen = () => {
   const nav = useNavigate();
   const { user, signOut } = useAuth();
    const { profile, loading } = useProfile();
-   const { isPastDue, isActive } = useSubscription();
   const [todayChecked, setTodayChecked] = useState<boolean | null>(null);
   const [detectedState, setDetectedState] = useState<string | null>(null);
   const [testMode, setTestMode] = useState(false);
@@ -117,12 +112,6 @@ const HomeScreen = () => {
       className="phone-frame min-h-screen pb-28" style={{ paddingTop: 44 }}>
       <TopBar />
       <div className="px-5 pt-10">
-        {isPastDue && (
-          <div className="mb-4 rounded-xl p-3 bg-amber-500/15 border border-amber-400/40 text-amber-100 text-[13px]">
-            Your last payment didn't go through. We're retrying — please update your payment method to keep your access.
-            <button onClick={() => nav("/pricing")} className="block mt-1 underline text-amber-50">Manage billing →</button>
-          </div>
-        )}
         {/* Greeting */}
         <h1 className="text-[24px] font-bold text-white">{greetingFor(profile?.name)}</h1>
         <p className="text-[14px] text-rs-muted mt-1">{getDayPhrase(day)}</p>
@@ -171,20 +160,7 @@ const HomeScreen = () => {
         )}
 
          {/* Daily Loop card */}
-         {day > 7 && !isActive ? (
-           <div className="rounded-2xl p-6 bg-white/13 border border-white/25 relative overflow-hidden">
-             <div className="absolute inset-0 bg-rs-navy/40 backdrop-blur-[2px]" />
-             <div className="relative z-10">
-               <p className="text-[10px] tracking-[0.18em] uppercase text-rs-cream font-semibold opacity-50">Today's check-in</p>
-               <h3 className="text-white text-[18px] font-bold mt-2">Phase 2: Integration</h3>
-               <p className="text-white/60 text-[14px] mt-2 leading-snug">
-                 Phase 1 (Days 1-7) was about resetting. To continue your journey and unlock Phase 2, upgrade to Pro.
-               </p>
-               <PremiumLockBanner feature="Phase 2 and 3 of the Reset" />
-             </div>
-           </div>
-         ) : (
-           <div className="rounded-2xl p-5 bg-white/13 border border-white/25">
+         <div className="rounded-2xl p-5 bg-white/13 border border-white/25">
              <p className="text-[10px] tracking-[0.18em] uppercase text-rs-cream font-semibold">Today's check-in</p>
  
              {!todayChecked ? (
@@ -223,15 +199,6 @@ const HomeScreen = () => {
                </>
              )}
            </div>
-         )}
-
-        {/* Day-18 nudge */}
-        {day >= 18 && day <= 21 && (
-          <button onClick={() => nav("/pricing")}
-            className="w-full mt-4 rounded-xl p-4 text-left bg-rs-cream/15 border border-rs-cream text-white text-[13px]">
-            Your reset ends in {22 - day} days. See what continuing looks like →
-          </button>
-        )}
 
         {testMode && (
           <div className="mt-6 flex flex-col items-center gap-2">

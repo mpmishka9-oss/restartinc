@@ -504,7 +504,7 @@ const JourneyScreen = () => {
               completedDays={completedDays}
               isPro={isPro}
               onClose={() => setOpenMilestone(null)}
-              onUpgrade={() => { setOpenMilestone(null); nav("/pricing"); }}
+              onUpgrade={() => { setOpenMilestone(null); }}
             />
           </>
         )}
@@ -534,7 +534,7 @@ const JourneyScreen = () => {
                 setCompletedDays(getCompletedDays());
                 setDayCardOpen(next);
               }}
-              onUpgrade={() => { setDayCardOpen(null); nav("/pricing"); }}
+              onUpgrade={() => { setDayCardOpen(null); }}
             />
           </>
         )}

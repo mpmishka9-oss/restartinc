@@ -5,7 +5,7 @@ export function PremiumLockBanner({ feature }: { feature: string }) {
   const nav = useNavigate();
   return (
     <button
-      onClick={() => nav("/pricing")}
+      onClick={() => nav("/home")}
       className="w-full mt-4 rounded-xl p-3 bg-rs-cream/15 border border-rs-cream text-left flex items-center gap-3"
     >
       <Lock className="w-4 h-4 text-rs-navy flex-shrink-0" />
