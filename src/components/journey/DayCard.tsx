@@ -320,7 +320,7 @@ const DayCard = ({
                 }}
               >
                 <p className="text-[12px]" style={{
-                  color: windowState === "peak" ? "#F5E1A0" : "rgba(255,255,255,0.8)",
+                  color: windowState === "peak" ? BUTTER : "#ffffff",
                 }}>
                   {banner}
                 </p>
@@ -353,6 +353,10 @@ const DayCard = ({
               className="mt-2 w-full py-3.5 rounded-xl font-bold btn-press flex items-center justify-center gap-2"
               style={{
                 ...nextStyle,
+                // Lock-bar text (disabled state) → butter yellow per spec.
+                color: nextDisabled
+                  ? BUTTER
+                  : (nextStyle.color as string | undefined) ?? "#1A2A4A",
                 fontSize: 14,
                 cursor: nextDisabled ? "not-allowed" : "pointer",
               }}
