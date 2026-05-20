@@ -14,7 +14,6 @@ import HomeScreen from "./pages/HomeScreen";
 import JourneyScreen from "./pages/JourneyScreen";
 import CheckInScreen from "./pages/CheckInScreen";
 import PracticesScreen from "./pages/PracticesScreen";
-import PricingScreen from "./pages/PricingScreen";
 import ProfileScreen from "./pages/ProfileScreen";
 import CommunityScreen from "./pages/CommunityScreen";
 import ResetPassword from "./pages/ResetPassword";
@@ -71,7 +70,6 @@ const RoutedApp = () => {
         <Route path="/completion" element={<Gate><CompletionScreen /></Gate>} />
         <Route path="/checkin" element={<Gate><CheckInScreen /></Gate>} />
         <Route path="/practices" element={<Gate><PracticesScreen /></Gate>} />
-        <Route path="/pricing" element={<PricingScreen />} />
         <Route path="/admin" element={<AdminScreen />} />
          <Route path="/terms" element={<Terms />} />
          <Route path="/privacy" element={<Privacy />} />

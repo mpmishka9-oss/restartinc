@@ -1,4 +1,10 @@
-// 7-segment circular mandala using filled ring segments.
+// 6-segment circular mandala: tracks practices completed across the 3-day
+// reset (2 practices per day × 3 days = 6).
+import { useEffect, useState } from "react";
+import { getCompletedPracticesCount, TOTAL_PRACTICES } from "@/lib/dayProgression";
+
+const SEGMENTS = TOTAL_PRACTICES; // 6
+
 const Mandala = ({ day, size = 120 }: { day?: number; size?: number }) => {
   const currentDay = (() => {
     if (typeof window === "undefined") return day ?? 1;
@@ -6,22 +12,28 @@ const Mandala = ({ day, size = 120 }: { day?: number; size?: number }) => {
     return Number.isFinite(v) && v > 0 ? v : day ?? 1;
   })();
 
-  const phaseStart = currentDay <= 7 ? 1 : currentDay <= 14 ? 8 : 15;
-  const phaseEnd = phaseStart + 6;
+  const [completedCount, setCompletedCount] = useState<number>(() =>
+    Math.min(SEGMENTS, getCompletedPracticesCount()),
+  );
 
-  let completedDays: number[] = [];
-  try {
-    const raw =
-      typeof window !== "undefined" ? localStorage.getItem("restart_completed_days") : null;
-    const parsed = raw ? JSON.parse(raw) : [];
-    if (Array.isArray(parsed)) completedDays = parsed.filter((n) => typeof n === "number");
-  } catch {}
-  const phaseCompleted = completedDays.filter((d) => d >= phaseStart && d <= phaseEnd);
-  const completedCount = Math.min(7, phaseCompleted.length);
+  useEffect(() => {
+    const refresh = () =>
+      setCompletedCount(Math.min(SEGMENTS, getCompletedPracticesCount()));
+    refresh();
+    window.addEventListener("restart:practice-completed", refresh);
+    window.addEventListener("storage", refresh);
+    window.addEventListener("focus", refresh);
+    return () => {
+      window.removeEventListener("restart:practice-completed", refresh);
+      window.removeEventListener("storage", refresh);
+      window.removeEventListener("focus", refresh);
+    };
+  }, []);
 
   const cx = 60, cy = 60, rOuter = 52, rInner = 42;
-  const segSpan = 48.4;
-  const step = 51.4;
+  const gapDeg = 3;
+  const step = 360 / SEGMENTS;
+  const segSpan = step - gapDeg;
 
   const segPath = (i: number) => {
     const start = (-90 + i * step) * (Math.PI / 180);
@@ -43,16 +55,16 @@ const Mandala = ({ day, size = 120 }: { day?: number; size?: number }) => {
   const phaseLine =
     completedCount === 0
       ? `Day ${currentDay} of your reset`
-      : completedCount === 3
-      ? "3 days in — habit forming 🌱"
-      : completedCount === 7
-      ? "Phase complete ✓"
+      : completedCount >= SEGMENTS
+      ? "Reset complete ✓"
+      : completedCount >= SEGMENTS / 2
+      ? "Halfway there — keep going 🌱"
       : `Day ${currentDay} of your reset`;
 
   return (
     <div className="flex flex-col items-center">
       <svg width={size} height={size} viewBox="0 0 120 120">
-        {Array.from({ length: 7 }).map((_, i) => (
+        {Array.from({ length: SEGMENTS }).map((_, i) => (
           <path
             key={i}
             d={segPath(i)}
@@ -65,7 +77,7 @@ const Mandala = ({ day, size = 120 }: { day?: number; size?: number }) => {
           {completedCount}
         </text>
         <text x="60" y="70" textAnchor="middle" fontSize="9" fill="rgba(26,42,74,0.5)">
-          of 7
+          of {SEGMENTS}
         </text>
       </svg>
       <p style={{ marginTop: 4, fontSize: 11, color: "rgba(26,42,74,0.5)", textAlign: "center" }}>

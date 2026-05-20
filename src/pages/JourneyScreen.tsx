@@ -39,18 +39,18 @@ interface Milestone {
 }
 
 const MILESTONES: Milestone[] = [
-  { id: "m1", title: "Regulate", sublabel: "Calm the nervous system",  dayStart: 1, dayEnd: 1, x: 70,  y: 740, side: "right",  requiresPro: false },
-  { id: "m2", title: "Reframe",  sublabel: "Shift the story",          dayStart: 2, dayEnd: 2, x: 80,  y: 410, side: "right",  requiresPro: false },
+  { id: "m1", title: "Regulate", sublabel: "Calm the nervous system",  dayStart: 1, dayEnd: 1, x: 70,  y: 500, side: "right",  requiresPro: false },
+  { id: "m2", title: "Reframe",  sublabel: "Shift the story",          dayStart: 2, dayEnd: 2, x: 80,  y: 290, side: "right",  requiresPro: false },
   { id: "m3", title: "Restart",  sublabel: "This is just the beginning", dayStart: 3, dayEnd: 3, x: 200, y: 80,  side: "center", requiresPro: false },
 ];
 
 /* The winding path expressed as a single SVG <path d="…"/> – passes through every milestone. */
 const PATH_D =
-  "M 70 740 " +
-  "C 200 730, 360 700, 320 580 " +
-  "C 280 480, 60 500, 80 410 " +
-  "C 100 330, 360 360, 310 250 " +
-  "C 270 170, 160 180, 200 80";
+  "M 70 500 " +
+  "C 200 493, 360 475, 320 398 " +
+  "C 280 335, 60 347, 80 290 " +
+  "C 100 239, 360 258, 310 188 " +
+  "C 270 137, 160 144, 200 80";
 
 /* ── Background mountain illustration ─────────────────────────── */
 const MountainBackdrop = () => (
@@ -268,6 +268,14 @@ const JourneyScreen = () => {
 
   const [openMilestone, setOpenMilestone] = useState<Milestone | null>(null);
   const [dayCardOpen, setDayCardOpen] = useState<number | null>(null);
+  const [glowPulse, setGlowPulse] = useState(0);
+
+  // Soft golden glow when a practice is marked done anywhere in the app.
+  useEffect(() => {
+    const onDone = () => setGlowPulse((n) => n + 1);
+    window.addEventListener("restart:practice-completed", onDone);
+    return () => window.removeEventListener("restart:practice-completed", onDone);
+  }, []);
 
   const handleNodeTap = (m: Milestone) => {
     if (day < m.dayStart) {
@@ -311,7 +319,7 @@ const JourneyScreen = () => {
       {/* Path + nodes layered SVG */}
       <div className="relative z-10 mx-auto" style={{ width: "100%", maxWidth: 430 }}>
         <svg
-          viewBox="0 0 400 820"
+          viewBox="0 0 400 560"
           className="w-full h-auto"
           style={{ display: "block", filter: "drop-shadow(0 4px 12px rgba(0,0,0,0.18))" }}
         >
@@ -351,7 +359,9 @@ const JourneyScreen = () => {
             const status = milestoneStatus(m, day);
             const locked = m.requiresPro && !isPro;
             const isPeak = m.id === "m3";
-            const r = isPeak ? 26 : 22;
+            const isDay1 = m.id === "m1";
+            const r = isPeak ? 26 : isDay1 ? 28 : 22;
+            const hitR = isDay1 ? 56 : r + 14;
             const fill =
               status === "done"
                 ? "#F5E1A0"
@@ -366,6 +376,8 @@ const JourneyScreen = () => {
                 style={{ cursor: "pointer" }}
                 onClick={() => handleNodeTap(m)}
               >
+                {/* Invisible larger tap target — especially generous for Day 1 */}
+                <circle cx={m.x} cy={m.y} r={hitR} fill="rgba(0,0,0,0)" />
                 {/* outer halo for current */}
                 {status === "current" && (
                   <circle cx={m.x} cy={m.y} r={r + 10} fill="#FFFFFF" opacity="0.25">
@@ -444,13 +456,19 @@ const JourneyScreen = () => {
                 : m.side === "right"
                 ? { left: `${xPct + 7}%`, textAlign: "left" as const }
                 : { left: "50%", transform: "translateX(-50%)", textAlign: "center" as const };
+            // For "center" labels (e.g. Day 3 peak) position ABOVE the node
+            // so the title/subtitle don't overlap the numeral.
+            const isCenter = m.side === "center";
+            const topStyle = isCenter
+              ? { top: `calc(${yPct}% - 78px)` }
+              : { top: `calc(${yPct}% - 18px)` };
 
             return (
               <div
                 key={m.id}
                 className="absolute"
                 style={{
-                  top: `calc(${yPct}% - 18px)`,
+                  ...topStyle,
                   ...align,
                   maxWidth: "44%",
                   opacity: locked && status !== "current" ? 0.55 : 1,
@@ -480,28 +498,24 @@ const JourneyScreen = () => {
         </div>
       </div>
 
-      {/* "You are here" footer */}
-      <div
-        className="fixed left-0 right-0 z-40 flex justify-center pointer-events-none"
-        style={{ bottom: 76 }}
-      >
-        <div
-          className="flex items-center gap-2 px-4 py-2 rounded-full pointer-events-auto"
-          style={{
-            background: "rgba(15,12,40,0.7)",
-            backdropFilter: "blur(14px)",
-            border: "1px solid rgba(255,255,255,0.18)",
-          }}
-        >
-          <span
-            className="w-2 h-2 rounded-full"
-            style={{ background: "#F5E1A0", boxShadow: "0 0 10px #F5E1A0" }}
+      {/* Practice-completion glow — soft warm golden, fades out in ~1s */}
+      <AnimatePresence>
+        {glowPulse > 0 && (
+          <motion.div
+            key={glowPulse}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 1, ease: "easeOut" }}
+            className="pointer-events-none fixed inset-0 z-30"
+            style={{
+              background:
+                "radial-gradient(circle at 50% 55%, rgba(245,225,160,0.55) 0%, rgba(245,225,160,0.18) 35%, rgba(245,225,160,0) 70%)",
+              mixBlendMode: "screen",
+            }}
           />
-          <span className="text-[12px] font-semibold tracking-wide text-amber-100 font-serif">
-            You are here · {currentMilestone.title}
-          </span>
-        </div>
-      </div>
+        )}
+      </AnimatePresence>
 
       <BottomNav />
 

@@ -41,8 +41,21 @@ export function getDayState(day: number): DayState {
 }
 
 export function setDayState(day: number, patch: Partial<DayState>): DayState {
-  const next = { ...getDayState(day), ...patch };
+  const prev = getDayState(day);
+  const next = { ...prev, ...patch };
   try { localStorage.setItem(keyFor(day), JSON.stringify(next)); } catch {}
+  // Fire a window event when a practice transitions to "done" so the inner
+  // progress ring (Mandala) and journey-screen glow can react in realtime.
+  if (typeof window !== "undefined") {
+    const justCompleted =
+      (!prev.neuroDone && next.neuroDone) ||
+      (!prev.ayurvedaDone && next.ayurvedaDone);
+    if (justCompleted) {
+      try {
+        window.dispatchEvent(new CustomEvent("restart:practice-completed", { detail: { day } }));
+      } catch {}
+    }
+  }
   return next;
 }
 
@@ -93,6 +106,21 @@ function writeCompletedDays(arr: number[]) {
 }
 
 export function getCompletedDays(): number[] { return readCompletedDays(); }
+
+/**
+ * Total practices completed across the whole 3-day reset (max = TOTAL_DAYS * 2 = 6).
+ */
+export function getCompletedPracticesCount(): number {
+  let count = 0;
+  for (let d = 1; d <= TOTAL_DAYS; d++) {
+    const s = getDayState(d);
+    if (s.neuroDone) count++;
+    if (s.ayurvedaDone) count++;
+  }
+  return Math.min(count, TOTAL_DAYS * 2);
+}
+
+export const TOTAL_PRACTICES = TOTAL_DAYS * 2;
 
 export function markDayComplete(day: number) {
   const list = readCompletedDays();
