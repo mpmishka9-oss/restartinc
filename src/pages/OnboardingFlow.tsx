@@ -14,6 +14,7 @@ import ChronotypeReveal from "@/components/onboarding/ChronotypeReveal";
 import DidiIntro from "@/components/onboarding/DidiIntro";
 import ConsentForm from "@/components/ConsentForm";
 import DoshaQuiz from "@/components/onboarding/DoshaQuiz";
+import BackButton from "@/components/onboarding/BackButton";
 import type { Dosha } from "@/data/practices";
 
 const OnboardingFlow = () => {
@@ -118,11 +119,12 @@ const OnboardingFlow = () => {
   };
 
   if (reveal && showDidiIntro) {
-    return <DidiIntro onContinue={() => setShowDidiIntro(false)} />;
+    return <DidiIntro onContinue={() => setShowDidiIntro(false)} onBack={() => setShowDidiIntro(false)} />;
   }
   if (reveal && showDoshaQuiz) {
     return (
       <DoshaQuiz
+        onBack={() => { setShowDoshaQuiz(false); setShowDidiIntro(true); }}
         onComplete={async (dosha: Dosha) => {
           if (user) {
             await supabase.from("profiles").update({ dosha }).eq("id", user.id);
@@ -142,6 +144,11 @@ const OnboardingFlow = () => {
             "radial-gradient(circle at 50% 30%, #fdfcb8 0%, #e6d68f 14%, #7B9BD6 55%, #1A2A4A 100%)",
         }}
       >
+        <BackButton
+          tone="dark"
+          onClick={() => { setShowWelcome(false); setShowDoshaQuiz(true); }}
+          className="absolute top-4 left-4"
+        />
         <div className="w-full max-w-sm">
           <h1 className="text-[34px] font-bold leading-tight" style={{ color: "#1A2A4A" }}>
             You're in.
@@ -161,11 +168,18 @@ const OnboardingFlow = () => {
       </div>
     );
   }
-  if (reveal) return <ChronotypeReveal {...reveal} onContinue={() => setShowDoshaQuiz(true)} />;
+  if (reveal) return (
+    <ChronotypeReveal
+      {...reveal}
+      onContinue={() => setShowDoshaQuiz(true)}
+      onBack={() => { setReveal(null); setConsentStep(true); }}
+    />
+  );
 
   if (consentStep && !assigning) {
     return (
       <ConsentForm
+        onBack={() => { setConsentStep(false); setIdx(questions.length - 1); }}
         onAccept={() => {
           setConsentStep(false);
           if (pendingAnswers) finish(pendingAnswers);
@@ -188,9 +202,11 @@ const OnboardingFlow = () => {
     <div className="phone-frame min-h-screen flex flex-col px-5 py-6">
       {/* Top bar */}
       <div className="flex items-center gap-3 mb-4">
-        <button onClick={back} className="p-2 -ml-2 btn-press">
-          <ArrowLeft className="w-5 h-5 text-white" />
-        </button>
+        {idx > 0 ? (
+          <BackButton onClick={back} className="-ml-1" />
+        ) : (
+          <span className="w-[52px]" aria-hidden />
+        )}
         <div className="flex-1 h-1.5 bg-white/15 rounded-full overflow-hidden">
           <div className="h-full bg-rs-cream transition-all duration-500" style={{ width: `${progress}%` }} />
         </div>
