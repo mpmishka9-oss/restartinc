@@ -250,6 +250,57 @@ export type Database = {
         }
         Relationships: []
       }
+      restart_feedback: {
+        Row: {
+          chronotype: string | null
+          created_at: string
+          dosha: string | null
+          id: string
+          mood_d1: number | null
+          mood_d2: number | null
+          mood_d3: number | null
+          q1_felt_difference: string | null
+          q2_practice_hit_hardest: string | null
+          q3_pay_monthly: string | null
+          q4_focus_vote: string | null
+          q5_message: string | null
+          user_id: string
+          user_name: string | null
+        }
+        Insert: {
+          chronotype?: string | null
+          created_at?: string
+          dosha?: string | null
+          id?: string
+          mood_d1?: number | null
+          mood_d2?: number | null
+          mood_d3?: number | null
+          q1_felt_difference?: string | null
+          q2_practice_hit_hardest?: string | null
+          q3_pay_monthly?: string | null
+          q4_focus_vote?: string | null
+          q5_message?: string | null
+          user_id: string
+          user_name?: string | null
+        }
+        Update: {
+          chronotype?: string | null
+          created_at?: string
+          dosha?: string | null
+          id?: string
+          mood_d1?: number | null
+          mood_d2?: number | null
+          mood_d3?: number | null
+          q1_felt_difference?: string | null
+          q2_practice_hit_hardest?: string | null
+          q3_pay_monthly?: string | null
+          q4_focus_vote?: string | null
+          q5_message?: string | null
+          user_id?: string
+          user_name?: string | null
+        }
+        Relationships: []
+      }
       subscriptions: {
         Row: {
           cancel_at_period_end: boolean | null
