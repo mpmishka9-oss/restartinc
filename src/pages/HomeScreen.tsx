@@ -15,15 +15,32 @@ import { useSubscription } from "@/hooks/useSubscription";
  
 const HomeScreen = () => {
   const nav = useNavigate();
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
    const { profile, loading } = useProfile();
    const { isPastDue, isActive } = useSubscription();
   const [todayChecked, setTodayChecked] = useState<boolean | null>(null);
   const [detectedState, setDetectedState] = useState<string | null>(null);
+  const [testMode, setTestMode] = useState(false);
   const [doshaPromptDismissed, setDoshaPromptDismissed] = useState<boolean>(() => {
     try { return localStorage.getItem("restart_dosha_prompt_dismissed") === "1"; }
     catch { return false; }
   });
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const { data } = await supabase.functions.invoke("test-mode-status");
+        setTestMode(!!(data as any)?.enabled);
+      } catch { setTestMode(false); }
+    })();
+  }, []);
+
+  const handleResetApp = async () => {
+    try { localStorage.clear(); } catch {}
+    try { sessionStorage.clear(); } catch {}
+    try { await signOut(); } catch {}
+    nav("/", { replace: true });
+  };
 
   useEffect(() => {
     if (!user) return;
@@ -188,6 +205,17 @@ const HomeScreen = () => {
             See plans →
           </button>
         </div>
+
+        {testMode && (
+          <div className="mt-6 flex justify-center">
+            <button
+              onClick={handleResetApp}
+              className="text-[11px] text-white/50 hover:text-white/80 hover:underline"
+            >
+              Reset App
+            </button>
+          </div>
+        )}
       </div>
       <BottomNav />
     </motion.div>
