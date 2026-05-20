@@ -82,7 +82,7 @@ const CompletionStep = ({ onNext, d1, d2, d3 }: { onNext: () => void; d1: number
     <h1 className="text-[34px] font-bold text-center mt-3 leading-tight" style={{ color: NAVY }}>
       You restarted.
     </h1>
-    <p className="text-[15px] text-center mt-3 leading-relaxed" style={{ color: "#ffffff" }}>
+    <p className="text-[15px] text-center mt-3 leading-relaxed text-slate-500">
       3 days. 6 practices. One nervous system that knows the difference now.
     </p>
 
