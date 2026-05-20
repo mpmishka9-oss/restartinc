@@ -12,7 +12,6 @@ import {
   isNextDayUnlocked,
   formatCountdown,
   getPracticesForDay,
-  dayRequiresPro,
   TOTAL_DAYS,
   type DayPractices,
 } from "@/lib/dayProgression";
