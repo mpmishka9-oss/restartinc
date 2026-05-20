@@ -38,7 +38,7 @@ const Typewriter = ({ text, onDone }: { text: string; onDone: () => void }) => {
   );
 };
 
-const DidiIntro = ({ onContinue }: { onContinue: () => void }) => {
+const DidiIntro = ({ onContinue, onBack }: { onContinue: () => void; onBack?: () => void }) => {
   const [lineIdx, setLineIdx] = useState(0);
   const [done, setDone] = useState(false);
 
@@ -49,6 +49,17 @@ const DidiIntro = ({ onContinue }: { onContinue: () => void }) => {
 
   return (
     <div className="phone-frame min-h-screen flex flex-col items-center justify-between px-6 py-12 bg-rs-navy relative overflow-hidden">
+      {onBack && (
+        <button
+          type="button"
+          onClick={onBack}
+          className="absolute top-4 left-4 z-20 inline-flex items-center gap-1.5 text-[13px] font-medium btn-press"
+          style={{ color: "#F5F0A0", opacity: 0.7 }}
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+          Back
+        </button>
+      )}
       {/* Glowing orb */}
       <div className="flex-1 flex items-center justify-center w-full">
         <motion.div
