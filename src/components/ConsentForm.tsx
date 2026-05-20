@@ -3,12 +3,14 @@ import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import logo from "@/assets/logo.png";
+import BackButton from "@/components/onboarding/BackButton";
 
 interface Props {
   onAccept: () => void;
+  onBack?: () => void;
 }
 
-const ConsentForm = ({ onAccept }: Props) => {
+const ConsentForm = ({ onAccept, onBack }: Props) => {
   const { user } = useAuth();
   const [agreed, setAgreed] = useState(false);
   const [error, setError] = useState(false);
@@ -116,9 +118,10 @@ const ConsentForm = ({ onAccept }: Props) => {
   return (
     <motion.div
       initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}
-      className="min-h-screen flex flex-col items-center pt-10 pb-6"
+      className="min-h-screen flex flex-col items-center pt-10 pb-6 relative"
       style={{ background: "radial-gradient(circle at top, #B8D4E0, #F0EDE6)" }}
     >
+      {onBack && <BackButton tone="dark" onClick={onBack} className="absolute top-4 left-4" />}
       <img src={logo} alt="ReStart" style={{ width: 80 }} className="mb-4" />
       <h1 style={{ color: "#1A2A4A", fontWeight: 700, fontSize: 20 }}>Before we begin</h1>
       <p style={{ color: "rgba(26,42,74,0.6)", fontSize: 13, fontStyle: "italic", marginTop: 4 }}>
