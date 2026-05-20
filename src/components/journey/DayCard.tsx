@@ -236,20 +236,20 @@ const DayCard = ({
                  style={{ color: "rgba(245,225,160,0.85)" }}>
                 Day {day} of {TOTAL_DAYS}
               </p>
-              <h3 className="text-white text-[22px] font-bold mt-1 leading-tight">
-                {day <= 7 ? "Taking back control" : day <= 14 ? "Rewiring begins" : "Peak state"}
+              <h3 className="text-[22px] font-bold mt-1 leading-tight" style={{ color: BUTTER }}>
+                {DAY_THEME[day] ?? "Restart"}
               </h3>
               {inPeak ? (
-                <p className="text-[11px] mt-1.5 font-semibold" style={{ color: "#F5E1A0" }}>
+                <p className="text-[11px] mt-1.5 font-semibold" style={{ color: BUTTER }}>
                   ✦ You're in your peak window right now
                 </p>
               ) : (
-                <p className="text-[11px] mt-1.5" style={{ color: "rgba(255,255,255,0.5)" }}>
+                <p className="text-[11px] mt-1.5" style={{ color: "#ffffff" }}>
                   ⏱ Best time for your practices: {peakLine}
                 </p>
               )}
               {practices.isDefaultMood && (
-                <p className="text-[11px] mt-1" style={{ color: "rgba(255,255,255,0.5)" }}>
+                <p className="text-[11px] mt-1" style={{ color: "#ffffff" }}>
                   No check-in today — using your baseline.
                 </p>
               )}
@@ -295,6 +295,18 @@ const DayCard = ({
             className="mt-5 space-y-3"
             style={paywall ? { filter: "blur(6px)", pointerEvents: "none" } : undefined}
           >
+            {/* Daily motivational quote */}
+            <div
+              className="rounded-xl px-3 py-3"
+              style={{
+                background: "rgba(245,225,160,0.10)",
+                border: "1px solid rgba(245,225,160,0.30)",
+              }}
+            >
+              <p className="text-[13px] italic leading-snug" style={{ color: BUTTER }}>
+                "{DAY_QUOTE[day] ?? DAY_QUOTE[3]}"
+              </p>
+            </div>
             {banner && (
               <div
                 className="rounded-xl px-3 py-2.5"
