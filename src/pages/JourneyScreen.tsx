@@ -268,6 +268,14 @@ const JourneyScreen = () => {
 
   const [openMilestone, setOpenMilestone] = useState<Milestone | null>(null);
   const [dayCardOpen, setDayCardOpen] = useState<number | null>(null);
+  const [glowPulse, setGlowPulse] = useState(0);
+
+  // Soft golden glow when a practice is marked done anywhere in the app.
+  useEffect(() => {
+    const onDone = () => setGlowPulse((n) => n + 1);
+    window.addEventListener("restart:practice-completed", onDone);
+    return () => window.removeEventListener("restart:practice-completed", onDone);
+  }, []);
 
   const handleNodeTap = (m: Milestone) => {
     if (day < m.dayStart) {
@@ -311,7 +319,7 @@ const JourneyScreen = () => {
       {/* Path + nodes layered SVG */}
       <div className="relative z-10 mx-auto" style={{ width: "100%", maxWidth: 430 }}>
         <svg
-          viewBox="0 0 400 820"
+          viewBox="0 0 400 560"
           className="w-full h-auto"
           style={{ display: "block", filter: "drop-shadow(0 4px 12px rgba(0,0,0,0.18))" }}
         >
@@ -351,7 +359,9 @@ const JourneyScreen = () => {
             const status = milestoneStatus(m, day);
             const locked = m.requiresPro && !isPro;
             const isPeak = m.id === "m3";
-            const r = isPeak ? 26 : 22;
+            const isDay1 = m.id === "m1";
+            const r = isPeak ? 26 : isDay1 ? 28 : 22;
+            const hitR = isDay1 ? 56 : r + 14;
             const fill =
               status === "done"
                 ? "#F5E1A0"
@@ -366,6 +376,8 @@ const JourneyScreen = () => {
                 style={{ cursor: "pointer" }}
                 onClick={() => handleNodeTap(m)}
               >
+                {/* Invisible larger tap target — especially generous for Day 1 */}
+                <circle cx={m.x} cy={m.y} r={hitR} fill="rgba(0,0,0,0)" />
                 {/* outer halo for current */}
                 {status === "current" && (
                   <circle cx={m.x} cy={m.y} r={r + 10} fill="#FFFFFF" opacity="0.25">
