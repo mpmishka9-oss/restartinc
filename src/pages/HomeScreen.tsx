@@ -42,6 +42,46 @@ const HomeScreen = () => {
     nav("/", { replace: true });
   };
 
+  const handleTestNewUser = async () => {
+    try {
+      if (user) {
+        // Wipe user-generated rows
+        await Promise.all([
+          supabase.from("check_ins").delete().eq("user_id", user.id),
+          supabase.from("plans").delete().eq("user_id", user.id),
+          supabase.from("practice_history").delete().eq("user_id", user.id),
+          supabase.from("user_journey_progress").delete().eq("user_id", user.id),
+          supabase.from("restart_feedback").delete().eq("user_id", user.id),
+        ]);
+        // Reset profile to brand-new state
+        await supabase.from("profiles").update({
+          name: null,
+          path: null,
+          chronotype: null,
+          chronotype_headline: null,
+          chronotype_description: null,
+          onboarding_answers: {},
+          completed_practices: 0,
+          streak_days: 0,
+          onboarding_completed: false,
+          current_day: 1,
+          journey_started_at: null,
+          whatsapp_phone: null,
+          age: null,
+          goal: null,
+          consent_given_at: null,
+          consent_signature: null,
+          didi_xp: 0,
+          dosha: null,
+        } as any).eq("id", user.id);
+      }
+    } catch {}
+    try { localStorage.clear(); } catch {}
+    try { sessionStorage.clear(); } catch {}
+    try { await signOut(); } catch {}
+    nav("/", { replace: true });
+  };
+
   useEffect(() => {
     if (!user) return;
     (async () => {
@@ -207,12 +247,18 @@ const HomeScreen = () => {
         </div>
 
         {testMode && (
-          <div className="mt-6 flex justify-center">
+          <div className="mt-6 flex flex-col items-center gap-2">
             <button
               onClick={handleResetApp}
               className="text-[11px] text-white/50 hover:text-white/80 hover:underline"
             >
               Reset App
+            </button>
+            <button
+              onClick={handleTestNewUser}
+              className="text-[11px] text-white/50 hover:text-white/80 hover:underline"
+            >
+              Test new user flow
             </button>
           </div>
         )}
