@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ArrowLeft } from "lucide-react";
 import {
   type Chronotype, CHRONOTYPE_EMOJI, CHRONOTYPE_LABEL,
   CHRONOTYPE_TAGLINE, CHRONOTYPE_STRENGTH, CHRONOTYPE_CHALLENGE,
@@ -12,16 +12,27 @@ interface Props {
   headline: string;
   description: string;
   onContinue: () => void;
+  onBack?: () => void;
 }
 
-const ChronotypeReveal = ({ chronotype, headline, description, onContinue }: Props) => {
+const ChronotypeReveal = ({ chronotype, headline, description, onContinue, onBack }: Props) => {
   const { name } = useApp();
   const heroBg = CHRONOTYPE_HERO_BG[chronotype];
   const heroText = CHRONOTYPE_HERO_TEXT[chronotype];
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }}
-      className="phone-frame min-h-screen flex flex-col">
+      className="phone-frame min-h-screen flex flex-col relative">
+      {onBack && (
+        <button
+          type="button"
+          onClick={onBack}
+          className="absolute top-4 left-4 z-10 inline-flex items-center gap-1.5 text-[13px] font-medium btn-press"
+          style={{ color: heroText, opacity: 0.7 }}
+        >
+          <ArrowLeft className="w-4 h-4" /> Back
+        </button>
+      )}
       {/* Hero */}
       <div className="px-6 pt-12 pb-8 text-center bg-[rs-bg-dark]" style={{ background: heroBg, color: heroText }}>
         <p className="text-[10px] tracking-[0.2em] uppercase opacity-70 font-semibold">Your chronotype</p>
