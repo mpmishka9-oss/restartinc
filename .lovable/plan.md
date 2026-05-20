@@ -1,75 +1,89 @@
-# Chronotype timing + no-repeat + Didi guidance
+# 3-Day Reset Restructure + Day 3 Completion + Google Sheets Feedback
 
-Three additive changes to the existing Day Card flow. No visual redesign of the card, timer, or practice library.
+## Scope (one consolidated pass)
 
-## 1. Chronotype timing engine
+### 1. Text color sweep (dark surfaces only)
+Targeted files: `JourneyScreen.tsx`, `DayCard.tsx`, `DidiGuidance.tsx` (the only places using inline rgba/white text on the dark journey surfaces).
 
-New file: `src/lib/chronotype.ts`
+Rules applied:
+- `color: "white"` / `rgba(255,255,255,0.9+)` on **titles/practice names/quote/start button/lock bar text** → `#fdfcb8`
+- `rgba(255,255,255,0.4–0.7)` and grey-ish (#6a7090, #8a90a8) used for **descriptions, metadata, timestamps, best-time labels** → `#ffffff`
+- Preserved as-is: category tag color (`rgba(245,225,160,0.85)`), "Mark done" button styling, "DAY X OF Y" label, all icons, navy/cream gradient backgrounds.
 
-- `CHRONOTYPE_WINDOWS` map for `lion | bear | wolf | dolphin` → `{ peak: [h,h], second: [h,h], windDown: [h,h] }` per the spec.
-- `getChronotypeWindow(chronotype)` — defaults to `bear` when missing.
-- `getCurrentWindow(chronotype, date=new Date())` → `"peak" | "between" | "second" | "windDown" | "off"`. Rounds boundary times in user's favour.
-- `formatPeakWindow(chronotype)` → "6am – 10am (Lion)" string.
-- `BANNER_COPY` per window state.
-- `PRACTICE_TIMING_TAGS: Record<practiceId, "morning" | "anytime" | "evening">` per the spec lists. Practices not listed default to `"anytime"`.
-- `getTimingMismatchNote(practice, chronotype)` → returns "This works best in your morning window — but doing it now still counts." or `null`.
+I will NOT touch global tokens in `index.css` (would bleed into onboarding/home which user said don't touch).
 
-Practice timing does NOT swap the assignment — mood/dosha picks still win.
+### 2. Restructure 21 → 3 days
+- `src/lib/dayProgression.ts`: `TOTAL_DAYS = 3`. Remove `dayRequiresPro` paywall gating from Day 4+ (no longer relevant since whole journey is 3 days and paywall now sits BEFORE Day 1). `getPracticesForDay` already calls into existing personalisation engine — leave that logic intact (dosha + mood + chronotype mapping unchanged).
+- `src/pages/JourneyScreen.tsx`: 3 milestone nodes (Regulate / Reframe / Restart) evenly spaced on the existing path. Header "Your 3-Day Reset", subtitle "Day X of 3 — keep climbing". Keep mountain SVG, path, peak star untouched.
+- `DayCard.tsx`: pill tracker shows D1/D2/D3. Theme titles per day:
+  - Day 1 → "Regulate"
+  - Day 2 → "Reframe"
+  - Day 3 → "Restart"
+- Add motivational quote block per day (rendered above practices, butter-yellow text):
+  - D1: "You showed up. That's already the hardest part done."
+  - D2: "Something shifted yesterday. Today it goes deeper."
+  - D3: "Three days. Real change. This is just where it begins."
+- Day 3 "Continue" button becomes "See your reset →" → routes to new completion screen instead of Day 4.
 
-## 2. No-repeat practice rule
+### 3. Razorpay ₹79 gate BEFORE Day 1
+- New route `/paywall` rendering existing Razorpay checkout (`src/lib/razorpay.ts`) at ₹79 (amount = 7900 paise).
+- `Gate` in `App.tsx`: after onboarding_completed, if `localStorage.restartPaid !== "true"` AND target route is `/journey` or `/home`, redirect to `/paywall`. (Allow `/profile` etc through.)
+- On payment success: `localStorage.setItem("restartPaid","true")` → navigate `/journey`.
+- Bypass for demo users (existing demo flag).
 
-Edit `src/lib/dayProgression.ts`:
+### 4. Day 3 completion flow (2 screens + thank you)
+New file `src/pages/CompletionScreen.tsx` handling 3 internal steps via local state:
 
-- Persist `restart_practices_used` as `{ neuro: string[], ayurveda: string[] }` in localStorage.
-- New helpers:
-  - `getUsedPractices()` / `markPracticeUsed(category, id)`
-  - `pickUnusedFromPool(pool, usedIds, lastShownId)` — returns first unused; if pool exhausted, reset only that category's used list but exclude `lastShownId` so no back-to-back repeat.
-- Update `getNeuroPractice(mood, level)` and `getAyurvedaPractice(dosha, day)`:
-  - Compute the spec's first choice as today.
-  - If already in used list, walk the rest of that mood row (neuro) or dosha pool (ayurveda) for an unused id; on full exhaustion, reset that category and exclude the previous day's id.
-  - Mark the final pick used inside `getPracticesForDay` (single call site, so we don't double-mark).
-- `lastShownId` tracked via `restart_last_practice_{category}` to enforce no back-to-back.
+**Step A — Completion**
+- "DAY 3 COMPLETE" label
+- "You restarted." headline (navy)
+- White subtext
+- Mood arc: 3 bars from `localStorage.restart_mood_d1/d2/d3` (collapsed from existing 1–10 intensity to 1–5). D3 always #fdfcb8 + tallest, D1/D2 muted navy.
+- Didi card with italic butter-yellow quote
+- Cream CTA → step B
 
-## 3. Day Card UI additions
+**Step B — Feedback form**
+- 5 questions exactly as specified (Q1 radio, Q2 text, Q3 radio, Q4 radio, Q5 textarea)
+- Submit → save to Supabase + call edge function for Sheets → step C
+- Inline error if fails (preserves responses)
 
-Edit `src/components/journey/DayCard.tsx` (presentation only):
+**Step C — Thank you**
+- Navy headline "Thank you.", white subtext, muted small text. No CTA.
 
-- Read `profile.chronotype` (default `"bear"`).
-- Under the "DAY X" heading, render timing line:
-  - In peak window: gold `✦ You're in your peak window right now`
-  - Otherwise: muted grey `⏱ Best time for your practices: {window} ({Chronotype})`
-- One banner above the practice list driven by `getCurrentWindow`:
-  - peak / second / windDown → spec copy (use profile name)
-  - between → no banner
-- Per practice card, if `PRACTICE_TIMING_TAGS[practice.id]` doesn't match current window state, show small muted note under the card: "This works best in your morning/evening window — but doing it now still counts."
+Routing: `Day 3 complete + tasks done` → "See your reset" button navigates to `/completion`.
 
-## 4. Didi guided overlay
+### 5. Database
+New migration:
+- `restart_feedback` table: id, user_id, q1, q2, q3, q4, q5, mood_d1, mood_d2, mood_d3, created_at + RLS (user can insert/select own).
 
-New file: `src/components/journey/DidiGuidance.tsx`
+### 6. Google Sheets edge function
+New `supabase/functions/sheets-feedback/index.ts`:
+- Accepts POST with user name, dosha, chronotype, mood scores, 5 answers
+- Authenticates with Google service account (JWT → access token, no SDK needed — pure fetch with `jose` via npm: specifier for signing).
+- Appends row to spreadsheet via Sheets API `values:append`.
+- Requires secrets: `GOOGLE_SHEET_ID`, `GOOGLE_SERVICE_ACCOUNT_EMAIL`, `GOOGLE_PRIVATE_KEY`.
+- I will request these via add_secret AFTER you approve the plan.
+- `verify_jwt = true` (user is authenticated when submitting).
 
-- Props: `practice, open, onClose`.
-- Reads script from `src/data/didiScripts.ts`.
-- Bottom sheet overlay (above existing timer). Shows one line at a time with Before → During[] → After phases.
-- Auto-advances during DURING phase pacing the practice's `durationSec` evenly across `during` lines; tap-to-advance also works. BEFORE shown until user taps "Begin", AFTER shown after timer completes (or user taps next on last DURING line).
-- Does not replace or modify existing timer/start UI — overlays on top.
+Client calls `supabase.functions.invoke("sheets-feedback", { body: {...} })`. On error, still persists to `restart_feedback` table so data isn't lost, and surfaces inline retry message.
 
-New file: `src/data/didiScripts.ts`
-
-- `DIDI_SCRIPTS: Record<practiceId, { before: string; during: string[]; after: string }>` populated with all 35 scripts from the spec.
-- `getDidiScript(practiceId)` returns script or `null` (no overlay if missing).
-
-Wire into `DayCard`:
-
-- When user taps "Start" on a practice card and a script exists, mount `<DidiGuidance>` for that practice. Keep existing Start flow intact — overlay is purely additive.
+### 7. Mood capture
+To populate D1/D2/D3 bars and Sheet columns E/F/G: in `CheckInScreen.tsx`, when a check-in is saved, also write `restart_mood_d{currentDay}` = intensity (1–5 normalised) to localStorage. (Minimal addition, no flow change.)
 
 ## Files touched
+- `src/App.tsx` (gate + /paywall + /completion routes)
+- `src/pages/JourneyScreen.tsx`
+- `src/components/journey/DayCard.tsx`
+- `src/components/journey/DidiGuidance.tsx` (color sweep only)
+- `src/lib/dayProgression.ts` (TOTAL_DAYS=3, remove paywall)
+- `src/pages/CheckInScreen.tsx` (1 line: persist mood for day)
+- **new** `src/pages/PaywallScreen.tsx`
+- **new** `src/pages/CompletionScreen.tsx`
+- **new** `supabase/functions/sheets-feedback/index.ts`
+- **new** migration for `restart_feedback`
 
-- new `src/lib/chronotype.ts`
-- new `src/data/didiScripts.ts`
-- new `src/components/journey/DidiGuidance.tsx`
-- edit `src/lib/dayProgression.ts` (no-repeat rule + mark used)
-- edit `src/components/journey/DayCard.tsx` (timing line, banner, mismatch note, mount DidiGuidance)
+## NOT touched
+Onboarding, Didi chat/scripts, check-in flow logic, personalisation engine (`getPracticesForState`, dosha/chronotype/mood mapping), mountain visuals, navigation, fonts, sources, source links, home screen.
 
-## Out of scope (flagged for follow-up)
-
-- Push notifications (LION 6am etc.) — this app has no notification infrastructure yet. I'll add the chronotype-to-notification mapping as a constant in `chronotype.ts` but won't wire delivery. Confirm if you want me to scaffold a notifications service (web push / FCM) in a separate pass.
+## Secrets needed after approval
+`GOOGLE_SHEET_ID`, `GOOGLE_SERVICE_ACCOUNT_EMAIL`, `GOOGLE_PRIVATE_KEY` — I'll prompt via add_secret once you approve.
