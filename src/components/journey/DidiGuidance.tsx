@@ -99,7 +99,7 @@ const DidiGuidance = ({ practice, open, userName, onClose }: Props) => {
                      style={{ color: "rgba(245,225,160,0.85)" }}>
                     Didi · {practice.name}
                   </p>
-                  <p className="text-[10px]" style={{ color: "rgba(255,255,255,0.45)" }}>
+                  <p className="text-[10px]" style={{ color: "#ffffff" }}>
                     {phaseLabel}
                   </p>
                 </div>
