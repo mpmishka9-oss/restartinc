@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
 import { LogOut } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
@@ -8,12 +9,27 @@ import {
 import BottomNav from "@/components/layout/BottomNav";
 import TopBar from "@/components/layout/TopBar";
 import Mandala from "@/components/home/Mandala";
+import { getCompletedPracticesCount, TOTAL_PRACTICES } from "@/lib/dayProgression";
 
 const ProfileScreen = () => {
   const { signOut } = useAuth();
   const { profile } = useProfile();
   const ct = profile?.chronotype as Chronotype | null;
   const day = profile?.current_day ?? 1;
+  const [practicesDone, setPracticesDone] = useState(
+    Math.min(TOTAL_PRACTICES, getCompletedPracticesCount())
+  );
+  useEffect(() => {
+    const refresh = () =>
+      setPracticesDone(Math.min(TOTAL_PRACTICES, getCompletedPracticesCount()));
+    refresh();
+    window.addEventListener("restart:practice-completed", refresh);
+    window.addEventListener("focus", refresh);
+    return () => {
+      window.removeEventListener("restart:practice-completed", refresh);
+      window.removeEventListener("focus", refresh);
+    };
+  }, []);
 
   return (
     <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
@@ -34,7 +50,7 @@ const ProfileScreen = () => {
 
       <div className="mt-4 grid grid-cols-3 gap-3">
         <Stat label="Day" value={`${day} / 3`} />
-        <Stat label="Practices" value={`${profile?.completed_practices ?? 0}`} />
+        <Stat label="Practices" value={`${practicesDone} / ${TOTAL_PRACTICES}`} />
         <Stat label="Path" value={profile?.path === "ambitious" ? "Ambitious" : profile?.path === "emotional" ? "Stressed" : "—"} />
       </div>
 
