@@ -74,6 +74,39 @@ export type Database = {
         }
         Relationships: []
       }
+      cohort_2_waitlist: {
+        Row: {
+          chronotype: string | null
+          completed_at: string | null
+          created_at: string
+          dosha: string | null
+          email: string
+          id: string
+          name: string | null
+          user_id: string | null
+        }
+        Insert: {
+          chronotype?: string | null
+          completed_at?: string | null
+          created_at?: string
+          dosha?: string | null
+          email: string
+          id?: string
+          name?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          chronotype?: string | null
+          completed_at?: string | null
+          created_at?: string
+          dosha?: string | null
+          email?: string
+          id?: string
+          name?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       plans: {
         Row: {
           check_in_id: string | null

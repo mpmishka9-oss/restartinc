@@ -347,25 +347,131 @@ const FeedbackStep = ({
   );
 };
 
-/* ────────── Step C: Thank you ────────── */
-const ThankYouStep = () => (
-  <motion.div
-    initial={{ opacity: 0 }}
-    animate={{ opacity: 1 }}
-    className="phone-frame min-h-screen flex flex-col items-center justify-center px-8 text-center"
-    style={{
-      background:
-        "radial-gradient(circle at 50% 30%, #fdfcb8 0%, #e6d68f 14%, #7B9BD6 55%, #1A2A4A 100%)",
-    }}
-  >
-    <h1 className="text-[36px] font-bold leading-tight" style={{ color: BUTTER }}>
-      Thank you.
-    </h1>
-    <p className="text-[15px] mt-4 leading-relaxed max-w-xs" style={{ color: "#ffffff" }}>
-      Mishka will read every single one. Watch this space — what comes next is being built around your answers.
-    </p>
-  </motion.div>
-);
+/* ────────── Step C: Thank you + waitlist ────────── */
+const ThankYouStep = () => {
+  const { user } = useAuth();
+  const { profile } = useProfile();
+  const [email, setEmail] = useState<string>(
+    (profile as any)?.email || user?.email || ""
+  );
+  const [submitting, setSubmitting] = useState(false);
+  const [joined, setJoined] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+
+  const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()) && !submitting;
+
+  const join = async () => {
+    if (!valid) return;
+    setSubmitting(true);
+    setErr(null);
+    try {
+      const { data, error } = await supabase.functions.invoke("waitlist-signup", {
+        body: {
+          email: email.trim(),
+          name: (profile as any)?.name ?? null,
+          dosha: (profile as any)?.dosha ?? null,
+          chronotype: (profile as any)?.chronotype ?? null,
+          user_id: user?.id ?? null,
+        },
+      });
+      if (error || (data && data.ok === false)) {
+        throw new Error(error?.message || data?.error || "Failed");
+      }
+      setJoined(true);
+    } catch (e: any) {
+      setErr("Something went wrong, please try again");
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="phone-frame min-h-screen px-6 pt-20 pb-24"
+      style={{
+        background:
+          "radial-gradient(circle at 50% 22%, #fdfcb8 0%, #e6d68f 14%, #7B9BD6 55%, #1A2A4A 100%)",
+      }}
+    >
+      <div className="text-center">
+        <h1 className="text-[36px] font-bold leading-tight" style={{ color: BUTTER }}>
+          Thank you.
+        </h1>
+        <p className="text-[15px] mt-4 leading-relaxed" style={{ color: "#ffffff" }}>
+          Mishka will read every single one.
+        </p>
+      </div>
+
+      <div
+        className="my-8 h-px w-full"
+        style={{ background: "rgba(255,255,255,0.18)" }}
+      />
+
+      <p
+        className="text-[10px] tracking-[0.22em] uppercase font-bold text-center"
+        style={{ color: "rgba(255,255,255,0.65)" }}
+      >
+        What comes next
+      </p>
+      <h2
+        className="text-[22px] font-bold text-center mt-3 leading-snug"
+        style={{ color: BUTTER }}
+      >
+        The full 21-day journey is being built around your answers.
+      </h2>
+      <p className="text-[14px] text-center mt-3 leading-relaxed" style={{ color: "#ffffff" }}>
+        Join the next cohort and be the first to access it.
+      </p>
+
+      <div className="mt-6">
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Your email address"
+          disabled={joined || submitting}
+          maxLength={255}
+          className="w-full px-4 py-3 rounded-xl text-[14px] outline-none"
+          style={{
+            background: "rgba(255,255,255,0.08)",
+            border: "1px solid rgba(255,255,255,0.18)",
+            color: "#ffffff",
+          }}
+        />
+
+        {joined ? (
+          <div
+            className="mt-3 w-full py-3.5 rounded-xl text-center font-bold"
+            style={{ background: "rgba(253,252,184,0.18)", color: BUTTER, fontSize: 14, border: "1px solid rgba(253,252,184,0.35)" }}
+          >
+            You're on the list. We'll be in touch.
+          </div>
+        ) : (
+          <button
+            onClick={join}
+            disabled={!valid}
+            className="mt-3 w-full py-3.5 rounded-xl font-bold btn-press inline-flex items-center justify-center gap-2"
+            style={{
+              background: valid ? CREAM : "rgba(232,228,160,0.4)",
+              color: NAVY,
+              fontSize: 15,
+              cursor: valid ? "pointer" : "not-allowed",
+            }}
+          >
+            {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <>Join the waitlist <ArrowRight className="w-4 h-4" /></>}
+          </button>
+        )}
+
+        {err && !joined && (
+          <p className="text-[12px] mt-2 text-center" style={{ color: "#ff8a8a" }}>
+            {err}
+          </p>
+        )}
+      </div>
+    </motion.div>
+  );
+};
 
 /* ────────── Container ────────── */
 const CompletionScreen = () => {
