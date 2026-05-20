@@ -5,12 +5,14 @@ import {
   DOSHA_QUIZ, DOSHA_QUIZ_INTRO, DOSHA_RESULT_COPY,
   scoreDoshaQuiz, type Dosha,
 } from "@/data/practices";
+import BackButton from "@/components/onboarding/BackButton";
 
 interface Props {
   onComplete: (dosha: Dosha) => void | Promise<void>;
+  onBack?: () => void;
 }
 
-const DoshaQuiz = ({ onComplete }: Props) => {
+const DoshaQuiz = ({ onComplete, onBack }: Props) => {
   const [stage, setStage] = useState<"intro" | "quiz" | "result">("intro");
   const [idx, setIdx] = useState(0);
   const [answers, setAnswers] = useState<Dosha[]>([]);
@@ -20,7 +22,8 @@ const DoshaQuiz = ({ onComplete }: Props) => {
   if (stage === "intro") {
     return (
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
-        className="phone-frame min-h-screen flex flex-col items-center justify-center px-6 text-center">
+        className="phone-frame min-h-screen flex flex-col items-center justify-center px-6 text-center relative">
+        {onBack && <BackButton onClick={onBack} className="absolute top-4 left-4" />}
         <p className="text-[10px] tracking-[0.2em] uppercase text-rs-cream font-semibold">Step 2 of 2</p>
         <h1 className="text-[28px] font-bold text-white mt-3 leading-tight">{DOSHA_QUIZ_INTRO.title}</h1>
         <p className="text-rs-muted text-[14px] mt-3 max-w-xs leading-relaxed">{DOSHA_QUIZ_INTRO.subtitle}</p>
@@ -36,7 +39,11 @@ const DoshaQuiz = ({ onComplete }: Props) => {
     const copy = DOSHA_RESULT_COPY[result];
     return (
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-        className="phone-frame min-h-screen flex flex-col px-6 py-10">
+        className="phone-frame min-h-screen flex flex-col px-6 py-10 relative">
+        <BackButton
+          onClick={() => { setResult(null); setAnswers(answers.slice(0, -1)); setIdx(Math.max(0, DOSHA_QUIZ.length - 1)); setStage("quiz"); }}
+          className="absolute top-4 left-4"
+        />
         <div className="flex-1 flex flex-col justify-center text-center">
           <p className="text-[10px] tracking-[0.2em] uppercase text-rs-cream font-semibold">Your dosha</p>
           <h1 className="text-[30px] font-bold text-white mt-3">{copy.headline}</h1>
@@ -69,6 +76,14 @@ const DoshaQuiz = ({ onComplete }: Props) => {
   return (
     <div className="phone-frame min-h-screen flex flex-col px-5 py-6">
       <div className="flex items-center gap-3 mb-4">
+        <BackButton
+          onClick={() => {
+            if (idx === 0) { setStage("intro"); return; }
+            setAnswers(answers.slice(0, -1));
+            setIdx(idx - 1);
+          }}
+          className="-ml-1"
+        />
         <div className="flex-1 h-1.5 bg-white/15 rounded-full overflow-hidden">
           <div className="h-full bg-rs-cream transition-all duration-500" style={{ width: `${progress}%` }} />
         </div>
