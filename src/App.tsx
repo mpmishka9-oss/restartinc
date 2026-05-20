@@ -23,7 +23,6 @@ import DevTestPage from "./pages/DevTestPage";
 import AdminScreen from "./pages/AdminScreen";
 import DemoBanner from "@/components/DemoBanner";
 import DoshaQuizScreen from "./pages/DoshaQuizScreen";
-import PaywallScreen from "./pages/PaywallScreen";
 import CompletionScreen from "./pages/CompletionScreen";
 
  import Terms from "./pages/Terms";
@@ -32,19 +31,12 @@ import CompletionScreen from "./pages/CompletionScreen";
  
 const queryClient = new QueryClient();
 
-const Gate = ({ children, requirePaid = false }: { children: JSX.Element; requirePaid?: boolean }) => {
+const Gate = ({ children }: { children: JSX.Element }) => {
   const { user, loading } = useAuth();
   const { profile, loading: pl } = useProfile();
   if (loading || pl) return <div className="phone-frame min-h-screen flex items-center justify-center"><div className="dot-loader"><span/><span/><span/></div></div>;
   if (!user) return <AuthScreen />;
   if (!profile?.onboarding_completed) return <Navigate to="/" replace />;
-  if (requirePaid) {
-    let paid = false;
-    try { paid = localStorage.getItem("restartPaid") === "true"; } catch {}
-    let demo = false;
-    try { demo = sessionStorage.getItem("restart_demo_mode") === "1"; } catch {}
-    if (!paid && !demo) return <Navigate to="/paywall" replace />;
-  }
   return children;
 };
 
@@ -65,8 +57,7 @@ const RoutedApp = () => {
         <Route path="/" element={<Root />} />
         <Route path="/onboarding" element={<OnboardingFlow />} />
         <Route path="/home" element={<Gate><HomeScreen /></Gate>} />
-        <Route path="/paywall" element={<Gate><PaywallScreen /></Gate>} />
-        <Route path="/journey" element={<Gate requirePaid><JourneyScreen /></Gate>} />
+        <Route path="/journey" element={<Gate><JourneyScreen /></Gate>} />
         <Route path="/completion" element={<Gate><CompletionScreen /></Gate>} />
         <Route path="/checkin" element={<Gate><CheckInScreen /></Gate>} />
         <Route path="/practices" element={<Gate><PracticesScreen /></Gate>} />

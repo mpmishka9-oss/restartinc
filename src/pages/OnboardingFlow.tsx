@@ -39,6 +39,7 @@ const OnboardingFlow = () => {
   const [reveal, setReveal] = useState<{ chronotype: Chronotype; headline: string; description: string } | null>(null);
   const [showDidiIntro, setShowDidiIntro] = useState(false);
   const [showDoshaQuiz, setShowDoshaQuiz] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(false);
 
   const q = questions[idx];
   const total = totalOnboardingSteps(path);
@@ -126,9 +127,38 @@ const OnboardingFlow = () => {
           if (user) {
             await supabase.from("profiles").update({ dosha }).eq("id", user.id);
           }
-          nav("/home");
+          setShowDoshaQuiz(false);
+          setShowWelcome(true);
         }}
       />
+    );
+  }
+  if (reveal && showWelcome) {
+    return (
+      <div
+        className="phone-frame min-h-screen flex flex-col items-center justify-center px-6 text-center"
+        style={{
+          background:
+            "radial-gradient(circle at 50% 30%, #fdfcb8 0%, #e6d68f 14%, #7B9BD6 55%, #1A2A4A 100%)",
+        }}
+      >
+        <div className="w-full max-w-sm">
+          <h1 className="text-[34px] font-bold leading-tight" style={{ color: "#1A2A4A" }}>
+            You're in.
+          </h1>
+          <p className="text-[15px] mt-4 leading-relaxed" style={{ color: "rgba(26,42,74,0.7)" }}>
+            This is a free founding cohort.
+            <br />Your feedback builds what comes next.
+          </p>
+          <button
+            onClick={() => nav("/journey", { replace: true })}
+            className="mt-8 w-full py-3.5 rounded-xl font-bold btn-press inline-flex items-center justify-center gap-2"
+            style={{ background: "#1A2A4A", color: "#fdfcb8", fontSize: 15 }}
+          >
+            Begin my reset <ArrowRight className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
     );
   }
   if (reveal) return <ChronotypeReveal {...reveal} onContinue={() => setShowDoshaQuiz(true)} />;
