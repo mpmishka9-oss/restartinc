@@ -391,7 +391,7 @@ const JourneyScreen = () => {
                   fontWeight="700"
                   fill="#1A2A4A"
                 >
-                  {isPeak ? "★" : String(m.dayStart)}
+                  {String(m.dayStart)}
                 </text>
                 {/* crown for locked */}
                 {locked && !isPeak && (
