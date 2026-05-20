@@ -32,9 +32,8 @@ const ProfileScreen = () => {
         {!ct && <p className="text-rs-muted text-[14px]">Complete onboarding to see your chronotype.</p>}
       </div>
 
-      <div className="mt-4 grid grid-cols-2 gap-3">
-        <Stat label="Day" value={`${day} / 21`} />
-        <Stat label="Streak" value={`${profile?.streak_days ?? 0} 🔥`} />
+      <div className="mt-4 grid grid-cols-3 gap-3">
+        <Stat label="Day" value={`${day} / 3`} />
         <Stat label="Practices" value={`${profile?.completed_practices ?? 0}`} />
         <Stat label="Path" value={profile?.path === "ambitious" ? "Ambitious" : profile?.path === "emotional" ? "Stressed" : "—"} />
       </div>
