@@ -21,7 +21,7 @@ import {
    "Your Ascent" — milestone-based mountain journey
    ────────────────────────────────────────────────────────────── */
 
-type MilestoneId = "m1" | "m2" | "m3" | "m4" | "peak";
+type MilestoneId = "m1" | "m2" | "m3";
 
 interface Milestone {
   id: MilestoneId;
@@ -39,11 +39,9 @@ interface Milestone {
 }
 
 const MILESTONES: Milestone[] = [
-  { id: "m1",   title: "In Control",        sublabel: "Noticing your patterns",  dayStart: 1,  dayEnd: 7,  x: 70,  y: 740, side: "right", requiresPro: false },
-  { id: "m2",   title: "Rewiring Begins",   sublabel: "New patterns take root",  dayStart: 8,  dayEnd: 14, x: 320, y: 580, side: "left",  requiresPro: true  },
-  { id: "m3",   title: "7 Days Consistency",sublabel: "Focused mind",            dayStart: 15, dayEnd: 18, x: 80,  y: 410, side: "right", requiresPro: true  },
-  { id: "m4",   title: "Focused Mind",      sublabel: "Pro versions and beyond", dayStart: 19, dayEnd: 21, x: 310, y: 250, side: "left",  requiresPro: true  },
-  { id: "peak", title: "Peak State",        sublabel: "Completion",              dayStart: 21, dayEnd: 21, x: 200, y: 80,  side: "center", requiresPro: true  },
+  { id: "m1", title: "Regulate", sublabel: "Calm the nervous system",  dayStart: 1, dayEnd: 1, x: 70,  y: 740, side: "right",  requiresPro: false },
+  { id: "m2", title: "Reframe",  sublabel: "Shift the story",          dayStart: 2, dayEnd: 2, x: 80,  y: 410, side: "right",  requiresPro: false },
+  { id: "m3", title: "Restart",  sublabel: "This is just the beginning", dayStart: 3, dayEnd: 3, x: 200, y: 80,  side: "center", requiresPro: false },
 ];
 
 /* The winding path expressed as a single SVG <path d="…"/> – passes through every milestone. */
@@ -282,8 +280,8 @@ const JourneyScreen = () => {
 
   /* progress fraction along the path (0 → 1) for the brighter "completed" overlay */
   const progress = useMemo(() => {
-    // map currentDay 1→0, 21→1
-    const t = Math.min(Math.max((day - 1) / 20, 0), 1);
+    // map currentDay 1→0, 3→1
+    const t = Math.min(Math.max((day - 1) / 2, 0), 1);
     return t;
   }, [day]);
 
@@ -303,10 +301,10 @@ const JourneyScreen = () => {
       {/* Title */}
       <div className="relative z-10 pt-12 pb-2 text-center px-6">
         <h1 className="text-[28px] font-bold" style={{ color: "#1A1A2E", letterSpacing: "-0.02em" }}>
-          Your Ascent
+          Your 3-Day Reset
         </h1>
         <p className="text-[12px] mt-1" style={{ color: "rgba(26,26,46,0.55)" }}>
-          Day {day} of 21 — keep climbing
+          Day {day} of 3 — keep climbing
         </p>
       </div>
 
