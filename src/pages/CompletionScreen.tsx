@@ -398,7 +398,7 @@ const ThankYouStep = () => {
         <h1 className="text-[36px] font-bold leading-tight" style={{ color: BUTTER }}>
           Thank you.
         </h1>
-        <p className="text-[15px] mt-4 leading-relaxed" style={{ color: "#ffffff" }}>
+        <p className="text-[15px] mt-4 leading-relaxed text-slate-800">
           Mishka will read every single one.
         </p>
       </div>
@@ -408,10 +408,7 @@ const ThankYouStep = () => {
         style={{ background: "rgba(255,255,255,0.18)" }}
       />
 
-      <p
-        className="text-[10px] tracking-[0.22em] uppercase font-bold text-center"
-        style={{ color: "rgba(255,255,255,0.65)" }}
-      >
+      <p className="text-[10px] tracking-[0.22em] uppercase font-bold text-center text-slate-600">
         What comes next
       </p>
       <h2
