@@ -350,7 +350,7 @@ const JourneyScreen = () => {
           {MILESTONES.map((m) => {
             const status = milestoneStatus(m, day);
             const locked = m.requiresPro && !isPro;
-            const isPeak = m.id === "peak";
+            const isPeak = m.id === "m3";
             const r = isPeak ? 26 : 22;
             const fill =
               status === "done"
@@ -391,7 +391,7 @@ const JourneyScreen = () => {
                   fontWeight="700"
                   fill="#1A2A4A"
                 >
-                  {isPeak ? "★" : m.dayEnd}
+                  {isPeak ? "★" : String(m.dayStart)}
                 </text>
                 {/* crown for locked */}
                 {locked && !isPeak && (
@@ -458,7 +458,7 @@ const JourneyScreen = () => {
               >
                 <p
                   className="text-[13px] font-bold leading-tight"
-                  style={{ color: m.id === "peak" ? "#1A1A2E" : "#FFFFFF", textShadow: "0 1px 6px rgba(0,0,0,0.35)" }}
+                  style={{ color: m.id === "m3" ? "#1A1A2E" : "#FFFFFF", textShadow: "0 1px 6px rgba(0,0,0,0.35)" }}
                 >
                   {m.title}
                 </p>
