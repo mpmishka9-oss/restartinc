@@ -89,6 +89,24 @@ const PaywallScreen = () => {
         <p className="text-[11px] mt-3" style={{ color: "#ffffff" }}>
           Secure payment via Razorpay
         </p>
+        {import.meta.env.VITE_TEST_MODE === "true" && (
+          <button
+            onClick={async () => {
+              try { localStorage.setItem("restartPaid", "true"); } catch {}
+              if (user) {
+                try {
+                  const { supabase } = await import("@/integrations/supabase/client");
+                  await supabase.from("profiles").update({ restart_paid: true } as any).eq("id", user.id);
+                } catch {}
+              }
+              nav("/journey", { replace: true });
+            }}
+            className="mt-3 mx-auto block text-[11px] hover:underline"
+            style={{ color: "rgba(255,255,255,0.55)" }}
+          >
+            Skip payment (test mode)
+          </button>
+        )}
       </div>
     </div>
   );
