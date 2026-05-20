@@ -1,7 +1,9 @@
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
 import { initiateRazorpayCheckout } from "@/lib/razorpay";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Lock, ArrowRight } from "lucide-react";
 
@@ -14,6 +16,18 @@ const PaywallScreen = () => {
   const nav = useNavigate();
   const { user } = useAuth();
   const { profile } = useProfile();
+  const [testMode, setTestMode] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    supabase.functions
+      .invoke("test-mode-status")
+      .then(({ data }) => {
+        if (!cancelled && data?.enabled === true) setTestMode(true);
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, []);
 
   const startCheckout = () => {
     initiateRazorpayCheckout({
@@ -89,14 +103,16 @@ const PaywallScreen = () => {
         <p className="text-[11px] mt-3" style={{ color: "#ffffff" }}>
           Secure payment via Razorpay
         </p>
-        {import.meta.env.VITE_TEST_MODE === "true" && (
+        {testMode && (
           <button
             onClick={async () => {
               try { localStorage.setItem("restartPaid", "true"); } catch {}
               if (user) {
                 try {
-                  const { supabase } = await import("@/integrations/supabase/client");
-                  await supabase.from("profiles").update({ restart_paid: true } as any).eq("id", user.id);
+                  await supabase
+                    .from("profiles")
+                    .update({ payment_status: true } as any)
+                    .eq("id", user.id);
                 } catch {}
               }
               nav("/journey", { replace: true });
