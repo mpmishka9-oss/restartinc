@@ -39,18 +39,18 @@ interface Milestone {
 }
 
 const MILESTONES: Milestone[] = [
-  { id: "m1", title: "Regulate", sublabel: "Calm the nervous system",  dayStart: 1, dayEnd: 1, x: 70,  y: 740, side: "right",  requiresPro: false },
-  { id: "m2", title: "Reframe",  sublabel: "Shift the story",          dayStart: 2, dayEnd: 2, x: 80,  y: 410, side: "right",  requiresPro: false },
+  { id: "m1", title: "Regulate", sublabel: "Calm the nervous system",  dayStart: 1, dayEnd: 1, x: 70,  y: 500, side: "right",  requiresPro: false },
+  { id: "m2", title: "Reframe",  sublabel: "Shift the story",          dayStart: 2, dayEnd: 2, x: 80,  y: 290, side: "right",  requiresPro: false },
   { id: "m3", title: "Restart",  sublabel: "This is just the beginning", dayStart: 3, dayEnd: 3, x: 200, y: 80,  side: "center", requiresPro: false },
 ];
 
 /* The winding path expressed as a single SVG <path d="…"/> – passes through every milestone. */
 const PATH_D =
-  "M 70 740 " +
-  "C 200 730, 360 700, 320 580 " +
-  "C 280 480, 60 500, 80 410 " +
-  "C 100 330, 360 360, 310 250 " +
-  "C 270 170, 160 180, 200 80";
+  "M 70 500 " +
+  "C 200 493, 360 475, 320 398 " +
+  "C 280 335, 60 347, 80 290 " +
+  "C 100 239, 360 258, 310 188 " +
+  "C 270 137, 160 144, 200 80";
 
 /* ── Background mountain illustration ─────────────────────────── */
 const MountainBackdrop = () => (
