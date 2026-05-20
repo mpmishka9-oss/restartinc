@@ -82,11 +82,12 @@ Deno.serve(async (req) => {
       send(ADMIN_RECIPIENT, `New Cohort 2 signup — ${name}`, adminHtml),
     ]);
 
+    // Best-effort: Resend sandbox only allows sending to the account owner
+    // until a domain is verified at resend.com/domains. Don't fail the signup
+    // just because the confirmation couldn't be delivered.
     if (!userRes.ok) {
-      const t = await userRes.text();
-      throw new Error(`Confirmation email failed [${userRes.status}]: ${t}`);
+      console.error("User confirmation failed:", userRes.status, await userRes.text());
     }
-    // Admin failure shouldn't block — user already saved + confirmed.
     if (!adminRes.ok) {
       console.error("Admin notify failed:", adminRes.status, await adminRes.text());
     }
