@@ -14,6 +14,7 @@ const DoshaQuizScreen = () => {
 
   return (
     <DoshaQuiz
+      onBack={() => nav(-1)}
       onComplete={async (dosha: Dosha) => {
         if (isDemoMode()) {
           await update({ dosha } as any);
