@@ -78,7 +78,7 @@ Deno.serve(async (req) => {
       });
 
     const [userRes, adminRes] = await Promise.all([
-      send(email, "You're on the list.", userHtml),
+      send(ADMIN_RECIPIENT, "You're on the list.", userHtml),
       send(ADMIN_RECIPIENT, `New Cohort 2 signup — ${name}`, adminHtml),
     ]);
 
