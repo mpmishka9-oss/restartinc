@@ -497,7 +497,7 @@ const JourneyScreen = () => {
             className="w-2 h-2 rounded-full"
             style={{ background: "#F5E1A0", boxShadow: "0 0 10px #F5E1A0" }}
           />
-          <span className="text-white text-[12px] font-semibold tracking-wide">
+          <span className="text-[12px] font-semibold tracking-wide text-amber-100 font-serif">
             You are here · {currentMilestone.title}
           </span>
         </div>
