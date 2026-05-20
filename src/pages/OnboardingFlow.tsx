@@ -151,7 +151,7 @@ const OnboardingFlow = () => {
             <br />Your feedback builds what comes next.
           </p>
           <button
-            onClick={() => nav("/journey", { replace: true })}
+            onClick={() => nav("/home", { replace: true })}
             className="mt-8 w-full py-3.5 rounded-xl font-bold btn-press inline-flex items-center justify-center gap-2"
             style={{ background: "#1A2A4A", color: "#fdfcb8", fontSize: 15 }}
           >
