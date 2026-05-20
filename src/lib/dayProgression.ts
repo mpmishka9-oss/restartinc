@@ -8,7 +8,7 @@
  */
 import { PRACTICES, PRACTICE_BY_ID, type Dosha, type Practice } from "@/data/practices";
 
-export const TOTAL_DAYS = 21;
+export const TOTAL_DAYS = 3;
 export const FREE_DAYS = 3;
 export const UNLOCK_WAIT_MS = 12 * 60 * 60 * 1000; // 12 hours
 
@@ -313,9 +313,9 @@ export function getPracticesForDay(dosha: Dosha | null | undefined, day: number)
   };
 }
 
-/** Days 1–3 are free; Day 4+ requires Pro. */
-export function dayRequiresPro(day: number): boolean {
-  return day > FREE_DAYS;
+/** Whole 3-day journey is gated by the up-front ₹79 paywall, not per-day Pro. */
+export function dayRequiresPro(_day: number): boolean {
+  return false;
 }
 
 /**

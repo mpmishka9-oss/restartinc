@@ -99,7 +99,7 @@ const DidiGuidance = ({ practice, open, userName, onClose }: Props) => {
                      style={{ color: "rgba(245,225,160,0.85)" }}>
                     Didi · {practice.name}
                   </p>
-                  <p className="text-[10px]" style={{ color: "rgba(255,255,255,0.45)" }}>
+                  <p className="text-[10px]" style={{ color: "#ffffff" }}>
                     {phaseLabel}
                   </p>
                 </div>
@@ -120,7 +120,8 @@ const DidiGuidance = ({ practice, open, userName, onClose }: Props) => {
                 initial={{ opacity: 0, y: 6 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -4 }}
-                className="text-white text-[16px] leading-relaxed mt-4"
+                className="text-[16px] leading-relaxed mt-4"
+                style={{ color: "#fdfcb8" }}
               >
                 {text}
               </motion.p>

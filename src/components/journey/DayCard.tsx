@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Check, X, Lock, Crown, ArrowRight, Play } from "lucide-react";
 import type { Practice, Dosha } from "@/data/practices";
@@ -11,7 +12,6 @@ import {
   isNextDayUnlocked,
   formatCountdown,
   getPracticesForDay,
-  dayRequiresPro,
   TOTAL_DAYS,
   type DayPractices,
 } from "@/lib/dayProgression";
@@ -43,6 +43,18 @@ const sectionStyle: React.CSSProperties = {
   padding: 16,
 };
 
+const BUTTER = "#fdfcb8";
+const DAY_THEME: Record<number, string> = {
+  1: "Regulate",
+  2: "Reframe",
+  3: "Restart",
+};
+const DAY_QUOTE: Record<number, string> = {
+  1: "You showed up. That's already the hardest part done.",
+  2: "Something shifted yesterday. Today it goes deeper.",
+  3: "Three days. Real change. This is just where it begins.",
+};
+
 const PracticeBlock = ({
   icon,
   label,
@@ -65,14 +77,14 @@ const PracticeBlock = ({
        style={{ color: "rgba(245,225,160,0.85)" }}>
       {icon} {label}
     </p>
-    <h4 className="text-white text-[17px] font-semibold mt-1.5 leading-tight">
+    <h4 className="text-[17px] font-semibold mt-1.5 leading-tight" style={{ color: BUTTER }}>
       {practice.name}
     </h4>
-    <p className="text-[11px] mt-1" style={{ color: "rgba(255,255,255,0.55)" }}>
+    <p className="text-[11px] mt-1" style={{ color: "#ffffff" }}>
       {practice.duration} · {practice.appFlow.split(".")[0]}.
     </p>
     {timingNote && (
-      <p className="text-[11px] mt-2 italic" style={{ color: "rgba(255,255,255,0.55)" }}>
+      <p className="text-[11px] mt-2 italic" style={{ color: "#ffffff" }}>
         ⏱ {timingNote}
       </p>
     )}
@@ -83,7 +95,7 @@ const PracticeBlock = ({
         className="flex-1 inline-flex items-center justify-center gap-1.5 py-2.5 rounded-xl btn-press"
         style={{
           background: "rgba(255,255,255,0.10)",
-          color: "white",
+          color: BUTTER,
           border: "1px solid rgba(255,255,255,0.18)",
           fontSize: 13,
           fontWeight: 600,
@@ -124,6 +136,7 @@ const DayCard = ({
   onAdvance,
   onUpgrade,
 }: DayCardProps) => {
+  const nav = useNavigate();
   const [state, setState] = useState(() => getDayState(day));
   const [now, setNow] = useState(Date.now());
   const [paywall, setPaywall] = useState(false);
@@ -152,11 +165,8 @@ const DayCard = ({
   const unlocked = isNextDayUnlocked(state);
   const isLastDay = day >= TOTAL_DAYS;
 
-  // Pills: current day + next 2 (clamped to 21)
-  const pillDays = useMemo(() => {
-    const start = Math.min(day, TOTAL_DAYS - 2);
-    return [start, start + 1, start + 2].filter((d) => d >= 1 && d <= TOTAL_DAYS);
-  }, [day]);
+  // Pills always show all 3 days of the reset.
+  const pillDays = useMemo(() => [1, 2, 3].filter((d) => d <= TOTAL_DAYS), []);
 
   const handleStart = (_label: string, p: Practice) => {
     setDidiPractice(p);
@@ -170,9 +180,8 @@ const DayCard = ({
   const ayurTimingNote = getTimingMismatchNote(practices.ayurveda.id, chronotype);
 
   const handleAdvance = () => {
-    const nextDay = day + 1;
-    if (dayRequiresPro(nextDay) && !isPro) {
-      setPaywall(true);
+    if (isLastDay) {
+      nav("/completion");
       return;
     }
     onAdvance();
@@ -182,10 +191,10 @@ const DayCard = ({
   let nextButtonLabel = `Continue to Day ${day + 1} →`;
   let nextDisabled = false;
   let nextStyle: React.CSSProperties = { background: "#F5E1A0", color: "#1A2A4A" };
-  if (isLastDay) {
-    nextButtonLabel = "You've reached the peak ★";
-    nextDisabled = true;
-    nextStyle = { background: "rgba(245,225,160,0.25)", color: "#F5E1A0" };
+  if (isLastDay && tasksDone) {
+    nextButtonLabel = "See your reset →";
+    nextDisabled = false;
+    nextStyle = { background: "#F5E1A0", color: "#1A2A4A" };
   } else if (!tasksDone) {
     nextButtonLabel = "Complete both practices first";
     nextDisabled = true;
@@ -226,20 +235,20 @@ const DayCard = ({
                  style={{ color: "rgba(245,225,160,0.85)" }}>
                 Day {day} of {TOTAL_DAYS}
               </p>
-              <h3 className="text-white text-[22px] font-bold mt-1 leading-tight">
-                {day <= 7 ? "Taking back control" : day <= 14 ? "Rewiring begins" : "Peak state"}
+              <h3 className="text-[22px] font-bold mt-1 leading-tight" style={{ color: BUTTER }}>
+                {DAY_THEME[day] ?? "Restart"}
               </h3>
               {inPeak ? (
-                <p className="text-[11px] mt-1.5 font-semibold" style={{ color: "#F5E1A0" }}>
+                <p className="text-[11px] mt-1.5 font-semibold" style={{ color: BUTTER }}>
                   ✦ You're in your peak window right now
                 </p>
               ) : (
-                <p className="text-[11px] mt-1.5" style={{ color: "rgba(255,255,255,0.5)" }}>
+                <p className="text-[11px] mt-1.5" style={{ color: "#ffffff" }}>
                   ⏱ Best time for your practices: {peakLine}
                 </p>
               )}
               {practices.isDefaultMood && (
-                <p className="text-[11px] mt-1" style={{ color: "rgba(255,255,255,0.5)" }}>
+                <p className="text-[11px] mt-1" style={{ color: "#ffffff" }}>
                   No check-in today — using your baseline.
                 </p>
               )}
@@ -285,6 +294,18 @@ const DayCard = ({
             className="mt-5 space-y-3"
             style={paywall ? { filter: "blur(6px)", pointerEvents: "none" } : undefined}
           >
+            {/* Daily motivational quote */}
+            <div
+              className="rounded-xl px-3 py-3"
+              style={{
+                background: "rgba(245,225,160,0.10)",
+                border: "1px solid rgba(245,225,160,0.30)",
+              }}
+            >
+              <p className="text-[13px] italic leading-snug" style={{ color: BUTTER }}>
+                "{DAY_QUOTE[day] ?? DAY_QUOTE[3]}"
+              </p>
+            </div>
             {banner && (
               <div
                 className="rounded-xl px-3 py-2.5"
@@ -298,7 +319,7 @@ const DayCard = ({
                 }}
               >
                 <p className="text-[12px]" style={{
-                  color: windowState === "peak" ? "#F5E1A0" : "rgba(255,255,255,0.8)",
+                  color: windowState === "peak" ? BUTTER : "#ffffff",
                 }}>
                   {banner}
                 </p>
@@ -331,6 +352,10 @@ const DayCard = ({
               className="mt-2 w-full py-3.5 rounded-xl font-bold btn-press flex items-center justify-center gap-2"
               style={{
                 ...nextStyle,
+                // Lock-bar text (disabled state) → butter yellow per spec.
+                color: nextDisabled
+                  ? BUTTER
+                  : (nextStyle.color as string | undefined) ?? "#1A2A4A",
                 fontSize: 14,
                 cursor: nextDisabled ? "not-allowed" : "pointer",
               }}

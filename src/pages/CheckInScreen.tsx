@@ -249,6 +249,12 @@ const CheckInScreen = () => {
         localStorage.setItem("restart_checkin_intensity", String(intensity));
         localStorage.setItem("restart_checkin_freetext", freeText);
         localStorage.setItem("restart_checkin_date", new Date().toDateString());
+        // Persist a normalised 1–5 mood score for THIS day so the Day 3
+        // completion screen can render the user's actual mood arc.
+        const mood5 = Math.max(1, Math.min(5, Math.round(intensity / 2)));
+        if (day >= 1 && day <= 3) {
+          localStorage.setItem(`restart_mood_d${day}`, String(mood5));
+        }
       } catch {}
 
       nav("/journey");
