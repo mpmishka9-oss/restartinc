@@ -456,13 +456,19 @@ const JourneyScreen = () => {
                 : m.side === "right"
                 ? { left: `${xPct + 7}%`, textAlign: "left" as const }
                 : { left: "50%", transform: "translateX(-50%)", textAlign: "center" as const };
+            // For "center" labels (e.g. Day 3 peak) position ABOVE the node
+            // so the title/subtitle don't overlap the numeral.
+            const isCenter = m.side === "center";
+            const topStyle = isCenter
+              ? { top: `calc(${yPct}% - 78px)` }
+              : { top: `calc(${yPct}% - 18px)` };
 
             return (
               <div
                 key={m.id}
                 className="absolute"
                 style={{
-                  top: `calc(${yPct}% - 18px)`,
+                  ...topStyle,
                   ...align,
                   maxWidth: "44%",
                   opacity: locked && status !== "current" ? 0.55 : 1,
