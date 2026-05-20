@@ -258,7 +258,7 @@ const DayCard = ({
             <div className="flex flex-col items-end gap-2">
               <button onClick={onClose} className="p-1.5 rounded-full btn-press"
                 style={{ background: "rgba(255,255,255,0.08)" }} aria-label="Close">
-                <X className="w-3.5 h-3.5 text-white" />
+                <X className="w-3.5 h-3.5 text-slate-50" />
               </button>
               <div className="flex gap-1">
                 {pillDays.map((d) => {
