@@ -170,7 +170,7 @@ const MilestoneSheet = ({
               <p className="text-[13px] mt-0.5" style={{ color: "rgba(255,255,255,0.65)" }}>{milestone.sublabel}</p>
             </div>
             <button onClick={onClose} className="p-2 rounded-full btn-press" style={{ background: "rgba(255,255,255,0.08)" }} aria-label="Close">
-              <X className="w-4 h-4 text-white" />
+              <X className="w-3.5 h-3.5 text-slate-50" />
             </button>
           </div>
 
