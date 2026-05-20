@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
+import { ArrowRight, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
