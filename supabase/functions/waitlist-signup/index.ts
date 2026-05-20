@@ -48,16 +48,7 @@ Deno.serve(async (req) => {
 
     const date = new Date().toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" });
 
-    // 1. Confirmation to user
-    const userHtml = `
-<div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;color:#1A2A4A;line-height:1.6;font-size:15px;">
-  <p>Hey ${esc(name)},</p>
-  <p>You're on the waitlist for RESTART's full 21-day journey.</p>
-  <p>We're building it around what you and the founding cohort told us. When it's ready — you'll be first to know.</p>
-  <p style="margin-top:24px;">— Mishka</p>
-</div>`;
-
-    // 2. Admin notification
+    // Admin notification only (no user confirmation until domain verified on Resend)
     const adminHtml = `
 <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;color:#1A2A4A;line-height:1.5;font-size:14px;">
   <h2 style="border-bottom:2px solid #fdfcb8;padding-bottom:8px;">New Cohort 2 signup</h2>
@@ -77,17 +68,8 @@ Deno.serve(async (req) => {
         body: JSON.stringify({ from: FROM, to: [to], subject, html }),
       });
 
-    const [userRes, adminRes] = await Promise.all([
-      send(ADMIN_RECIPIENT, "You're on the list.", userHtml),
-      send(ADMIN_RECIPIENT, `New Cohort 2 signup — ${name}`, adminHtml),
-    ]);
+    const adminRes = await send(ADMIN_RECIPIENT, `New Cohort 2 signup — ${name}`, adminHtml);
 
-    // Best-effort: Resend sandbox only allows sending to the account owner
-    // until a domain is verified at resend.com/domains. Don't fail the signup
-    // just because the confirmation couldn't be delivered.
-    if (!userRes.ok) {
-      console.error("User confirmation failed:", userRes.status, await userRes.text());
-    }
     if (!adminRes.ok) {
       console.error("Admin notify failed:", adminRes.status, await adminRes.text());
     }
