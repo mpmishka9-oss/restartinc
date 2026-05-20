@@ -305,8 +305,8 @@ const JourneyScreen = () => {
       <MountainBackdrop />
 
       {/* Title */}
-      <div className="relative z-10 pt-12 pb-2 text-center px-6">
-        <h1 className="text-[28px] font-bold" style={{ color: "#1A1A2E", letterSpacing: "-0.02em" }}>
+      <div className="relative z-10 pt-10 pb-6 text-center px-6">
+        <h1 className="text-[26px] font-bold" style={{ color: "#1A1A2E", letterSpacing: "-0.02em" }}>
           Your 3-Day Reset
         </h1>
         <p className="text-[12px] mt-1" style={{ color: "rgba(26,26,46,0.55)" }}>
@@ -315,17 +315,17 @@ const JourneyScreen = () => {
       </div>
 
       {/* Path + nodes layered SVG */}
-      <div className="relative z-10 mx-auto" style={{ width: "100%", maxWidth: 430 }}>
+      <div className="relative z-10 mx-auto pb-28" style={{ width: "100%", maxWidth: 380 }}>
         <svg
-          viewBox="0 0 400 560"
+          viewBox="0 0 400 520"
           className="w-full h-auto"
           style={{ display: "block", filter: "drop-shadow(0 4px 12px rgba(0,0,0,0.18))" }}
         >
           {/* Peak glow orb */}
-          <circle cx="200" cy="80" r="42" fill="#FFFFFF" opacity="0.35">
+          <circle cx="110" cy="90" r="38" fill="#FFFFFF" opacity="0.3">
             <animate attributeName="opacity" values="0.25;0.6;0.25" dur="3.5s" repeatCount="indefinite" />
           </circle>
-          <circle cx="200" cy="80" r="22" fill="#FFFFFF" opacity="0.95" />
+          <circle cx="110" cy="90" r="18" fill="#FFFFFF" opacity="0.85" />
 
           {/* Upcoming path — drawn first (full draw animation) */}
           <motion.path
@@ -414,52 +414,22 @@ const JourneyScreen = () => {
             );
           })}
 
-          {/* User avatar – sits on current milestone */}
-          <motion.g
-            initial={false}
-            animate={{ x: currentMilestone.x - 200, y: currentMilestone.y - 80 }}
-            transition={{ type: "spring", damping: 22, stiffness: 140 }}
-          >
-            <g transform="translate(200,80)">
-              <circle r="22" fill="#FFFFFF" opacity="0.45">
-                <animate attributeName="r" values="20;28;20" dur="2.6s" repeatCount="indefinite" />
-                <animate attributeName="opacity" values="0.5;0.1;0.5" dur="2.6s" repeatCount="indefinite" />
-              </circle>
-              <circle r="16" fill="#FFFFFF" stroke="#F5E1A0" strokeWidth="2.5" />
-              {avatarUrl ? (
-                <image
-                  href={avatarUrl}
-                  x="-14" y="-14" width="28" height="28"
-                  clipPath="circle(14px at 14px 14px)"
-                />
-              ) : (
-                <text x="0" y="4.5" textAnchor="middle" fontSize="11" fontWeight="700" fill="#1A2A4A">
-                  {initials.toUpperCase()}
-                </text>
-              )}
-            </g>
-          </motion.g>
         </svg>
 
         {/* HTML labels positioned over the SVG (percentage positioned to scale with width) */}
         <div className="absolute inset-0 pointer-events-none">
           {MILESTONES.map((m) => {
             const xPct = (m.x / 400) * 100;
-            const yPct = (m.y / 820) * 100;
+            const yPct = (m.y / 520) * 100;
             const status = milestoneStatus(m, day);
             const locked = m.requiresPro && !isPro;
             const align =
               m.side === "left"
-                ? { right: `${100 - xPct + 7}%`, textAlign: "right" as const }
+                ? { right: `${100 - xPct + 8}%`, textAlign: "right" as const, transform: "translateY(-50%)" }
                 : m.side === "right"
-                ? { left: `${xPct + 7}%`, textAlign: "left" as const }
-                : { left: "50%", transform: "translateX(-50%)", textAlign: "center" as const };
-            // For "center" labels (e.g. Day 3 peak) position ABOVE the node
-            // so the title/subtitle don't overlap the numeral.
-            const isCenter = m.side === "center";
-            const topStyle = isCenter
-              ? { top: `calc(${yPct}% - 78px)` }
-              : { top: `calc(${yPct}% - 18px)` };
+                ? { left: `${xPct + 8}%`, textAlign: "left" as const, transform: "translateY(-50%)" }
+                : { left: "50%", transform: "translate(-50%, -50%)", textAlign: "center" as const };
+            const topStyle = { top: `${yPct}%` };
 
             return (
               <div
@@ -468,25 +438,25 @@ const JourneyScreen = () => {
                 style={{
                   ...topStyle,
                   ...align,
-                  maxWidth: "44%",
+                  maxWidth: "46%",
                   opacity: locked && status !== "current" ? 0.55 : 1,
                 }}
               >
                 <p
                   className="text-[13px] font-bold leading-tight"
-                  style={{ color: m.id === "m3" ? "#1A1A2E" : "#FFFFFF", textShadow: "0 1px 6px rgba(0,0,0,0.35)" }}
+                  style={{ color: "#FFFFFF", textShadow: "0 1px 6px rgba(0,0,0,0.45)" }}
                 >
                   {m.title}
                 </p>
                 <p
-                  className="text-[11px] leading-tight"
-                  style={{ color: "rgba(255,255,255,0.8)", textShadow: "0 1px 4px rgba(0,0,0,0.4)" }}
+                  className="text-[11px] leading-tight mt-0.5"
+                  style={{ color: "rgba(255,255,255,0.85)", textShadow: "0 1px 4px rgba(0,0,0,0.45)" }}
                 >
                   {m.sublabel}
                 </p>
                 <p
-                  className="text-[10px] mt-0.5 font-semibold tracking-wide"
-                  style={{ color: "rgba(255,255,255,0.55)" }}
+                  className="text-[10px] mt-1 font-semibold tracking-wide uppercase"
+                  style={{ color: "rgba(255,255,255,0.6)" }}
                 >
                   Day {m.dayStart === m.dayEnd ? m.dayStart : `${m.dayStart}–${m.dayEnd}`}
                 </p>
