@@ -223,11 +223,13 @@ const FeedbackStep = ({
         if (dbErr) throw dbErr;
       }
 
-      // Best-effort mirror to Google Sheets via edge function.
-      try {
-        await supabase.functions.invoke("sheets-feedback", { body: payload });
-      } catch {
-        // Sheets is non-blocking; DB has the record.
+      // Send email to Mishka via Resend. DB save above ensures responses aren't lost.
+      const { data: emailData, error: emailErr } = await supabase.functions.invoke(
+        "send-feedback-email",
+        { body: payload }
+      );
+      if (emailErr || (emailData && emailData.ok === false)) {
+        throw new Error(emailErr?.message || emailData?.error || "Email failed");
       }
 
       onSubmitted();
