@@ -1,4 +1,4 @@
-import { ExternalLink, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import type { Practice } from "@/data/practices";
 
 interface PracticeCardProps {
@@ -83,75 +83,36 @@ const PracticeCard = ({ practice, whyForToday, onStart }: PracticeCardProps) => 
         Start now <ArrowRight size={15} />
       </button>
 
-      {practice.category === "Ayurveda" && (practice.traditionalSource || practice.modernSource) ? (
-        <div className="mt-3 flex items-center justify-between gap-2">
-          <button
-            type="button"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              const link = practice.traditionalSource?.link ?? practice.sourceLink;
-              window.open(link, "_blank", "noopener,noreferrer");
-            }}
-            className="flex-1 inline-flex items-center justify-center gap-1"
-            style={{
-              fontSize: 11,
-              color: "rgba(26,42,74,0.6)",
-              background: "none",
-              border: "none",
-              padding: "6px 4px",
-              cursor: "pointer",
-              fontWeight: 500,
-            }}
-          >
-            📜 Traditional source
-            <span className="sr-only">{practice.traditionalSource?.label ?? ""}</span>
-          </button>
-          <span style={{ color: "rgba(26,42,74,0.2)", fontSize: 11 }}>|</span>
-          <button
-            type="button"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              const link = practice.modernSource?.link ?? practice.sourceLink;
-              window.open(link, "_blank", "noopener,noreferrer");
-            }}
-            className="flex-1 inline-flex items-center justify-center gap-1"
-            style={{
-              fontSize: 11,
-              color: "rgba(26,42,74,0.6)",
-              background: "none",
-              border: "none",
-              padding: "6px 4px",
-              cursor: "pointer",
-              fontWeight: 500,
-            }}
-          >
-            🔬 Modern research
-            <span className="sr-only">{practice.modernSource?.label ?? ""}</span>
-          </button>
-        </div>
-      ) : (
-        <button
-          type="button"
+      <div className="mt-3 flex flex-col gap-1">
+        <a
+          href={practice.sourceLink}
+          target="_blank"
+          rel="noopener noreferrer"
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
             window.open(practice.sourceLink, "_blank", "noopener,noreferrer");
           }}
-          className="mt-3 inline-flex items-center gap-1"
-          style={{
-            fontSize: 11,
-            color: "rgba(26,42,74,0.55)",
-            background: "none",
-            border: "none",
-            padding: 0,
-            cursor: "pointer",
-          }}
+          style={{ fontSize: 11, color: "rgba(26,42,74,0.55)", textDecoration: "underline", cursor: "pointer" }}
         >
-          View research <ExternalLink size={11} /> <span className="sr-only">{practice.sourceLabel}</span>
-        </button>
-      )}
+          Source: {practice.sourceLabel}
+        </a>
+        {practice.sourceLink2 && (
+          <a
+            href={practice.sourceLink2}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              window.open(practice.sourceLink2, "_blank", "noopener,noreferrer");
+            }}
+            style={{ fontSize: 11, color: "rgba(26,42,74,1)", textDecoration: "underline", cursor: "pointer" }}
+          >
+            Source: {practice.sourceLabel2}
+          </a>
+        )}
+      </div>
     </div>
   );
 };
