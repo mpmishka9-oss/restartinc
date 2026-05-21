@@ -140,6 +140,31 @@ const DidiGuidance = ({ practice, open, userName, onClose }: Props) => {
               ))}
             </div>
 
+            {isLast && (
+              <div className="mt-3 flex flex-col gap-1">
+                <a
+                  href={practice.sourceLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  style={{ fontSize: 11, color: "rgba(245,225,160,0.55)", textDecoration: "underline" }}
+                >
+                  Source: {practice.sourceLabel}
+                </a>
+                {practice.sourceLink2 && (
+                  <a
+                    href={practice.sourceLink2}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    style={{ fontSize: 11, color: "rgba(245,225,160,0.55)", textDecoration: "underline" }}
+                  >
+                    Source: {practice.sourceLabel2}
+                  </a>
+                )}
+              </div>
+            )}
+
             <button
               type="button"
               onClick={advance}
