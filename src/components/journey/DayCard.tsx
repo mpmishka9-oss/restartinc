@@ -88,6 +88,36 @@ const PracticeBlock = ({
         ⏱ {timingNote}
       </p>
     )}
+    <div className="mt-2 flex flex-col gap-1">
+      <a
+        href={practice.sourceLink}
+        target="_blank"
+        rel="noopener noreferrer"
+        onClick={(e) => {
+          e.stopPropagation();
+          e.preventDefault();
+          window.open(practice.sourceLink, "_blank", "noopener,noreferrer");
+        }}
+        style={{ fontSize: 11, color: "rgba(255,255,255,0.6)", textDecoration: "underline", cursor: "pointer" }}
+      >
+        Source: {practice.sourceLabel}
+      </a>
+      {practice.sourceLink2 && (
+        <a
+          href={practice.sourceLink2}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            window.open(practice.sourceLink2, "_blank", "noopener,noreferrer");
+          }}
+          style={{ fontSize: 11, color: "rgba(255,255,255,0.6)", textDecoration: "underline", cursor: "pointer" }}
+        >
+          Source: {practice.sourceLabel2}
+        </a>
+      )}
+    </div>
     <div className="mt-3 flex gap-2">
       <button
         type="button"
