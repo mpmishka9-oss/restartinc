@@ -248,9 +248,16 @@ const CheckInScreen = () => {
           practices_shown: triadIds,
         } as any);
 
+        // Advance current_day after completing this day's check-in.
+        // Day 1 check-in → 2, Day 2 → 3, Day 3 stays at 3 (journey complete).
+        const currentDay = (profile as any)?.current_day ?? 1;
+        const nextDay = Math.min(3, Math.max(currentDay, day + 1));
         await supabase
           .from("profiles")
-          .update({ last_checkin_at: new Date().toISOString() } as any)
+          .update({
+            last_checkin_at: new Date().toISOString(),
+            current_day: nextDay,
+          } as any)
           .eq("id", user.id);
       }
 

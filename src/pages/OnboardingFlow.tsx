@@ -35,6 +35,7 @@ const OnboardingFlow = () => {
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [text, setText] = useState("");
   const [assigning, setAssigning] = useState(false);
+  const [assignError, setAssignError] = useState<string | null>(null);
   const [consentStep, setConsentStep] = useState(false);
   const [pendingAnswers, setPendingAnswers] = useState<Record<string, string> | null>(null);
   const [reveal, setReveal] = useState<{ chronotype: Chronotype; headline: string; description: string } | null>(null);
@@ -57,6 +58,7 @@ const OnboardingFlow = () => {
 
   const finish = async (allAnswers: Record<string, string>) => {
     setAssigning(true);
+    setAssignError(null);
     try {
       // Save profile data
       if (user) {
@@ -95,8 +97,9 @@ const OnboardingFlow = () => {
       setReveal({ chronotype: ct, headline: data.headline, description: data.description });
       setShowDidiIntro(true);
     } catch (e: any) {
-      toast.error(e.message ?? "Something felt off — try again?");
-      setAssigning(false);
+      const msg = e?.message ?? "Something felt off — try again?";
+      toast.error(msg);
+      setAssignError(msg);
     }
   };
 
@@ -191,6 +194,28 @@ const OnboardingFlow = () => {
           if (pendingAnswers) finish(pendingAnswers);
         }}
       />
+    );
+  }
+
+  if (assigning && assignError) {
+    return (
+      <div className="phone-frame min-h-screen flex flex-col items-center justify-center px-6 text-center">
+        <p className="text-white text-[16px] font-medium">We couldn't read your rhythm just now.</p>
+        <p className="text-rs-muted text-[13px] mt-2 max-w-xs">{assignError}</p>
+        <button
+          onClick={() => pendingAnswers && finish(pendingAnswers)}
+          className="mt-6 px-6 py-3 rounded-xl font-bold btn-press inline-flex items-center justify-center gap-2"
+          style={{ background: "#fdfcb8", color: "#1A2A4A", fontSize: 14 }}
+        >
+          Try again <ArrowRight className="w-4 h-4" />
+        </button>
+        <button
+          onClick={() => { setAssigning(false); setAssignError(null); setConsentStep(true); }}
+          className="mt-3 text-[12px] text-rs-muted underline-offset-4 hover:underline"
+        >
+          Go back
+        </button>
+      </div>
     );
   }
 
