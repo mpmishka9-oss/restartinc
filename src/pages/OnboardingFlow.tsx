@@ -42,6 +42,12 @@ const OnboardingFlow = () => {
   const [showDoshaQuiz, setShowDoshaQuiz] = useState(false);
   const [showWelcome, setShowWelcome] = useState(false);
 
+  useEffect(() => {
+    if (user) {
+      supabase.from("profiles").update({ onboarding_started_at: new Date().toISOString() }).eq("id", user.id).then(() => {});
+    }
+  }, []);
+
   const q = questions[idx];
   const total = totalOnboardingSteps(path);
   const progress = ((idx + 1) / total) * 100;

@@ -229,6 +229,7 @@ export type Database = {
           name: string | null
           onboarding_answers: Json
           onboarding_completed: boolean
+          onboarding_started_at: string | null
           path: Database["public"]["Enums"]["user_path"] | null
           streak_days: number
           updated_at: string
@@ -254,6 +255,7 @@ export type Database = {
           name?: string | null
           onboarding_answers?: Json
           onboarding_completed?: boolean
+          onboarding_started_at?: string | null
           path?: Database["public"]["Enums"]["user_path"] | null
           streak_days?: number
           updated_at?: string
@@ -279,6 +281,7 @@ export type Database = {
           name?: string | null
           onboarding_answers?: Json
           onboarding_completed?: boolean
+          onboarding_started_at?: string | null
           path?: Database["public"]["Enums"]["user_path"] | null
           streak_days?: number
           updated_at?: string
