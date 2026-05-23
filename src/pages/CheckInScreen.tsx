@@ -247,6 +247,11 @@ const CheckInScreen = () => {
           time_of_checkin: new Date().toISOString(),
           practices_shown: triadIds,
         } as any);
+
+        await supabase
+          .from("profiles")
+          .update({ last_checkin_at: new Date().toISOString() } as any)
+          .eq("id", user.id);
       }
 
       try {

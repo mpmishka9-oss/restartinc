@@ -45,6 +45,7 @@ export const DEMO_PROFILE: Tables<"profiles"> = {
   didi_xp: 0,
   goal: "Perform at my peak without burning out",
   journey_started_at: new Date().toISOString(),
+  last_checkin_at: null,
   onboarding_answers: {} as any,
   onboarding_completed: true,
   path: "ambitious" as any,
