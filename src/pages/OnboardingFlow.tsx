@@ -45,7 +45,7 @@ const OnboardingFlow = () => {
 
   useEffect(() => {
     if (user) {
-      supabase.from("profiles").update({ onboarding_started_at: new Date().toISOString() }).eq("id", user.id).then(() => {});
+      supabase.from("profiles").upsert({ id: user.id, email: user.email ?? null, onboarding_started_at: new Date().toISOString() }, { onConflict: "id" }).then(() => {});
     }
   }, []);
 
@@ -62,14 +62,15 @@ const OnboardingFlow = () => {
     try {
       // Save profile data
       if (user) {
-        await supabase.from("profiles").update({
+        await supabase.from("profiles").upsert({
+          id: user.id,
           name: allAnswers.name || null,
           age: allAnswers.age || null,
           email: user.email ?? null,
           goal: allAnswers.goal || null,
           path,
           onboarding_answers: allAnswers,
-        }).eq("id", user.id);
+        }, { onConflict: "id" });
       }
       app.setOnboardingData({
         name: allAnswers.name, age: allAnswers.age,
@@ -84,14 +85,16 @@ const OnboardingFlow = () => {
 
       const ct = data.chronotype as Chronotype;
       if (user) {
-        await supabase.from("profiles").update({
+        const { error: upErr } = await supabase.from("profiles").upsert({
+          id: user.id,
           chronotype: ct,
           chronotype_headline: data.headline,
           chronotype_description: data.description,
           onboarding_completed: true,
           journey_started_at: new Date().toISOString(),
           current_day: 1,
-        }).eq("id", user.id);
+        }, { onConflict: "id" });
+        if (upErr) throw upErr;
       }
       app.setOnboardingData({ chronotype: ct });
       setReveal({ chronotype: ct, headline: data.headline, description: data.description });
