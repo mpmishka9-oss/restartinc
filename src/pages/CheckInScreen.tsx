@@ -216,7 +216,13 @@ const CheckInScreen = () => {
       const triad = getPracticesForStateWithHistory(
         selected.key,
         day,
-        onboardingAnswers,
+        {
+          id: user?.id ?? null,
+          dosha: (profile as any)?.dosha ?? null,
+          chronotype: (profile as any)?.chronotype ?? null,
+          path: (profile as any)?.path ?? null,
+          onboardingAnswers,
+        },
         history,
       );
       const triadIds = [triad.neuro.id, triad.ayurveda.id, triad.breathwork.id];
