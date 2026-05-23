@@ -225,6 +225,7 @@ export type Database = {
           goal: string | null
           id: string
           journey_started_at: string | null
+          last_checkin_at: string | null
           name: string | null
           onboarding_answers: Json
           onboarding_completed: boolean
@@ -249,6 +250,7 @@ export type Database = {
           goal?: string | null
           id: string
           journey_started_at?: string | null
+          last_checkin_at?: string | null
           name?: string | null
           onboarding_answers?: Json
           onboarding_completed?: boolean
@@ -273,6 +275,7 @@ export type Database = {
           goal?: string | null
           id?: string
           journey_started_at?: string | null
+          last_checkin_at?: string | null
           name?: string | null
           onboarding_answers?: Json
           onboarding_completed?: boolean
