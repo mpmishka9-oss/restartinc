@@ -1,5 +1,6 @@
 import { SignJWT, importPKCS8 } from "npm:jose@5";
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
+import { createClient } from "npm:@supabase/supabase-js@2";
 
 /* ────────────────────────────────────────────────────────────────
    Day 3 feedback → Google Sheet append (1 row per submission).
@@ -59,6 +60,25 @@ Deno.serve(async (req) => {
     return new Response("ok", { headers: corsHeaders });
   }
   try {
+    const authHeader = req.headers.get("Authorization") ?? "";
+    if (!authHeader.startsWith("Bearer ")) {
+      return new Response(JSON.stringify({ ok: false, error: "Unauthorized" }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    const sb = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_ANON_KEY")!,
+    );
+    const { data: claimData, error: claimErr } = await sb.auth.getClaims(
+      authHeader.replace("Bearer ", ""),
+    );
+    if (claimErr || !claimData?.claims) {
+      return new Response(JSON.stringify({ ok: false, error: "Unauthorized" }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const sheetId = Deno.env.get("GOOGLE_SHEET_ID");
     if (!sheetId) throw new Error("GOOGLE_SHEET_ID is not configured");
 
