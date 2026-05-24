@@ -151,6 +151,13 @@ const CheckInScreen = () => {
   const pickEmotion = (e: Emotion) => {
     setSelected(e);
     setDidiReply(e.reply);
+    // Auto-advance to intensity after a brief beat so the user can read
+    // Didi's reply. Previously this required clicking a "Continue" button
+    // that sat below the fold on mobile, which made the flow appear stuck
+    // and the intensity screen appear "skipped".
+    window.setTimeout(() => {
+      setStep((s) => (s === "emotion" ? "intensity" : s));
+    }, 1200);
   };
 
   const sendFreeText = async () => {
@@ -184,8 +191,22 @@ const CheckInScreen = () => {
           EMOTIONS[1]; // stressed default
         setSelected(inferred);
       }
+      // Same auto-advance as the chip path: don't leave the user staring
+      // at a reply with no obvious next step.
+      window.setTimeout(() => {
+        setStep((s) => (s === "emotion" ? "intensity" : s));
+      }, 1500);
     } catch (e: any) {
       toast.error(e.message ?? "Didi couldn't respond — try again?");
+      // Even on a Didi error, make sure the user can still progress: fall
+      // back to a canned reply + inferred emotion so the flow doesn't dead-end.
+      if (!didiReply) setDidiReply("I hear you. Let's stay with this for a moment.");
+      if (!selected) {
+        const lower = text.toLowerCase();
+        const inferred =
+          EMOTIONS.find((e) => lower.includes(e.key)) || EMOTIONS[1];
+        setSelected(inferred);
+      }
     } finally {
       setLoadingReply(false);
     }
