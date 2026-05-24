@@ -237,17 +237,7 @@ const JourneyScreen = () => {
   const { profile } = useProfile();
   const { user } = useAuth();
   const { isActive } = useSubscription();
-  const [localPro, setLocalPro] = useState<boolean>(() => {
-    try { return localStorage.getItem("restart_pro") === "true"; } catch { return false; }
-  });
-  useEffect(() => {
-    const onStorage = () => {
-      try { setLocalPro(localStorage.getItem("restart_pro") === "true"); } catch {}
-    };
-    window.addEventListener("storage", onStorage);
-    return () => window.removeEventListener("storage", onStorage);
-  }, []);
-  const isPro = isActive || localPro;
+  const isPro = isActive;
 
   const day = profile?.current_day ?? (() => {
     try { return parseInt(localStorage.getItem("restart_day") || "1"); } catch { return 1; }
