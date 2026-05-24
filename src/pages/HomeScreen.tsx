@@ -9,6 +9,8 @@ import { greetingFor, getDayPhrase, CHRONOTYPE_EMOJI, CHRONOTYPE_LABEL, type Chr
 import BottomNav from "@/components/layout/BottomNav";
 import TopBar from "@/components/layout/TopBar";
 import Mandala from "@/components/home/Mandala";
+import { ADMIN_EMAIL, startInvestorDemo, isInvestorDemoActive } from "@/lib/investorDemo";
+import { toast } from "sonner";
 const HomeScreen = () => {
   const nav = useNavigate();
   const { user, signOut } = useAuth();
@@ -16,6 +18,9 @@ const HomeScreen = () => {
   const [todayChecked, setTodayChecked] = useState<boolean | null>(null);
   const [detectedState, setDetectedState] = useState<string | null>(null);
   const [testMode, setTestMode] = useState(false);
+  const [demoBusy, setDemoBusy] = useState(false);
+  const isAdmin = (user?.email ?? "").toLowerCase() === ADMIN_EMAIL;
+  const demoActive = isInvestorDemoActive();
   const [doshaPromptDismissed, setDoshaPromptDismissed] = useState<boolean>(() => {
     try { return localStorage.getItem("restart_dosha_prompt_dismissed") === "1"; }
     catch { return false; }
@@ -75,6 +80,20 @@ const HomeScreen = () => {
     try { sessionStorage.clear(); } catch {}
     try { await signOut(); } catch {}
     nav("/", { replace: true });
+  };
+
+  const handleStartInvestorDemo = async () => {
+    if (!user || demoBusy) return;
+    if (!window.confirm("Start investor demo? Your current profile + history will be backed up and restored on exit.")) return;
+    setDemoBusy(true);
+    try {
+      await startInvestorDemo(user.id);
+      toast.success("Demo started — going through onboarding");
+      window.location.replace("/");
+    } catch (e: any) {
+      toast.error(e?.message ?? "Failed to start demo");
+      setDemoBusy(false);
+    }
   };
 
   useEffect(() => {
@@ -210,6 +229,17 @@ const HomeScreen = () => {
               className="text-[11px] text-white/50 hover:text-white/80 hover:underline"
             >
               Test new user flow
+            </button>
+          </div>
+        )}
+        {isAdmin && !demoActive && (
+          <div className="mt-6 flex flex-col items-center">
+            <button
+              onClick={handleStartInvestorDemo}
+              disabled={demoBusy}
+              className="text-[10px] text-white/30 hover:text-white/70 hover:underline tracking-wider"
+            >
+              {demoBusy ? "starting…" : "· demo mode ·"}
             </button>
           </div>
         )}
