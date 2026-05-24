@@ -22,6 +22,7 @@ import ConsentForm from "@/components/ConsentForm";
 import DevTestPage from "./pages/DevTestPage";
 import AdminScreen from "./pages/AdminScreen";
 import DemoBanner from "@/components/DemoBanner";
+import InvestorDemoBanner from "@/components/InvestorDemoBanner";
 import DoshaQuizScreen from "./pages/DoshaQuizScreen";
 import CompletionScreen from "./pages/CompletionScreen";
 import PreviewCompletion from "./pages/PreviewCompletion";
@@ -88,6 +89,7 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <DemoBanner />
+            <InvestorDemoBanner />
             <RoutedApp />
           </BrowserRouter>
         </TooltipProvider>
