@@ -70,7 +70,10 @@
   * { @apply border-border; }
   html, body, #root { min-height: 100%; }
   body {
-    background: var(--rs-bg-gradient);
+    background: #D6E8EF;
+    background: -webkit-radial-gradient(ellipse at center, #B8D4E0 0%, #D6E8EF 35%, #F0EDE6 100%);
+    background: -moz-radial-gradient(ellipse at center, #B8D4E0 0%, #D6E8EF 35%, #F0EDE6 100%);
+    background: radial-gradient(ellipse at center, #B8D4E0 0%, #D6E8EF 35%, #F0EDE6 100%);
     background-attachment: fixed;
     min-height: 100dvh;
     color: var(--rs-on-light);
@@ -85,9 +88,14 @@
   .font-serif { font-family: 'Playfair Display', serif; }
   .font-sans { font-family: 'DM Sans', sans-serif; }
 
-  .bg-app { background: var(--rs-bg-gradient); }
-  .bg-rs-bg { background: var(--rs-bg-gradient); }
-  .bg-rs-bg-dark { background: var(--rs-bg-gradient); }
+  .bg-app,
+  .bg-rs-bg,
+  .bg-rs-bg-dark {
+    background: #D6E8EF;
+    background: -webkit-radial-gradient(ellipse at center, #B8D4E0 0%, #D6E8EF 35%, #F0EDE6 100%);
+    background: -moz-radial-gradient(ellipse at center, #B8D4E0 0%, #D6E8EF 35%, #F0EDE6 100%);
+    background: radial-gradient(ellipse at center, #B8D4E0 0%, #D6E8EF 35%, #F0EDE6 100%);
+  }
   .bg-rs-navy { background: hsl(var(--rs-navy)); }
   .text-rs-navy { color: hsl(var(--rs-navy)); }
   .text-rs-cream { color: hsl(var(--rs-cream)); }
