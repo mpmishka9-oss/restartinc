@@ -1,13 +1,32 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { toast } from "sonner";
 import { lovable } from "@/integrations/lovable";
 import { supabase } from "@/integrations/supabase/client";
 import logo from "@/assets/logo-new.png";
 import authBg from "@/assets/auth-bg.jpeg";
 
+const detectInAppBrowser = (): string | null => {
+  if (typeof window === "undefined" || !navigator.userAgent) return null;
+  const ua = navigator.userAgent;
+  if (/WhatsApp/i.test(ua)) return "WhatsApp";
+  if (/Instagram/i.test(ua)) return "Instagram";
+  if (/FBAN|FBAV/i.test(ua)) return "Facebook";
+  if (/Line/i.test(ua)) return "Line";
+  if (/Telegram/i.test(ua)) return "Telegram";
+  if (/TikTok/i.test(ua)) return "TikTok";
+  if (/LinkedIn/i.test(ua)) return "LinkedIn";
+  return null;
+};
+
 const AuthScreen = () => {
   const [loading, setLoading] = useState<null | "google" | "apple">(null);
   const showDemo = typeof window !== "undefined" && new URLSearchParams(window.location.search).get("demo") === "true";
+  const inAppBrowser = useMemo(() => detectInAppBrowser(), []);
+
+  const openInBrowser = () => {
+    const url = window.location.href;
+    window.open(url, "_blank");
+  };
 
   const demoLogin = async () => {
     try {
@@ -80,6 +99,39 @@ const AuthScreen = () => {
         >
           Demo
         </button>
+      )}
+      {inAppBrowser && (
+        <div
+          style={{
+            width: "100%",
+            maxWidth: 380,
+            background: "rgba(255,255,255,0.9)",
+            borderRadius: 16,
+            padding: "16px 20px",
+            marginBottom: 16,
+            textAlign: "center",
+          }}
+        >
+          <p style={{ color: "#1A2A4A", fontSize: 13, fontWeight: 600, margin: 0, lineHeight: 1.5 }}>
+            You're viewing this in {inAppBrowser}'s browser. For the best experience, open this link in Chrome or Safari before signing in.
+          </p>
+          <button
+            onClick={openInBrowser}
+            style={{
+              marginTop: 12,
+              background: "#1A2A4A",
+              color: "#fff",
+              border: "none",
+              borderRadius: 10,
+              padding: "10px 20px",
+              fontSize: 13,
+              fontWeight: 600,
+              cursor: "pointer",
+            }}
+          >
+            Open in Browser
+          </button>
+        </div>
       )}
       <div style={{ background: "transparent", border: "none", marginBottom: 24 }} className="flex flex-col items-center">
         <img src={logo} alt="reStart" className="object-cover text-xl" style={{ width: 160, background: "transparent" }} />
