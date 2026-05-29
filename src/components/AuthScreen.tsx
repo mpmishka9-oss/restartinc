@@ -100,6 +100,39 @@ const AuthScreen = () => {
           Demo
         </button>
       )}
+      {inAppBrowser && (
+        <div
+          style={{
+            width: "100%",
+            maxWidth: 380,
+            background: "rgba(255,255,255,0.9)",
+            borderRadius: 16,
+            padding: "16px 20px",
+            marginBottom: 16,
+            textAlign: "center",
+          }}
+        >
+          <p style={{ color: "#1A2A4A", fontSize: 13, fontWeight: 600, margin: 0, lineHeight: 1.5 }}>
+            You're viewing this in {inAppBrowser}'s browser. For the best experience, open this link in Chrome or Safari before signing in.
+          </p>
+          <button
+            onClick={openInBrowser}
+            style={{
+              marginTop: 12,
+              background: "#1A2A4A",
+              color: "#fff",
+              border: "none",
+              borderRadius: 10,
+              padding: "10px 20px",
+              fontSize: 13,
+              fontWeight: 600,
+              cursor: "pointer",
+            }}
+          >
+            Open in Browser
+          </button>
+        </div>
+      )}
       <div style={{ background: "transparent", border: "none", marginBottom: 24 }} className="flex flex-col items-center">
         <img src={logo} alt="reStart" className="object-cover text-xl" style={{ width: 160, background: "transparent" }} />
         <div style={{ background: "rgba(26, 42, 74, 0.06)", padding: "8px 0", width: "100%", marginTop: 8, textAlign: "center" }}>
