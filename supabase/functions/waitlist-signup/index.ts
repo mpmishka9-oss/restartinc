@@ -16,17 +16,44 @@ Deno.serve(async (req) => {
     const key = Deno.env.get("RESEND_API_KEY");
     if (!key) throw new Error("RESEND_API_KEY not configured");
 
+    // Require a valid JWT
+    const authHeader = req.headers.get("Authorization") ?? "";
+    if (!authHeader.startsWith("Bearer ")) {
+      return new Response(JSON.stringify({ ok: false, error: "Unauthorized" }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    const authClient = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_ANON_KEY")!,
+    );
+    const token = authHeader.replace("Bearer ", "");
+    const { data: claimData, error: claimErr } = await authClient.auth.getClaims(token);
+    if (claimErr || !claimData?.claims) {
+      return new Response(JSON.stringify({ ok: false, error: "Unauthorized" }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    const authedUserId = claimData.claims.sub as string;
+    const authedEmail = String(claimData.claims.email ?? "").toLowerCase();
+
     const body = await req.json();
     const email = String(body.email || "").trim().toLowerCase();
     const name = String(body.name || "").trim().slice(0, 100) || "there";
     const dosha = body.dosha ? String(body.dosha).slice(0, 50) : null;
     const chronotype = body.chronotype ? String(body.chronotype).slice(0, 50) : null;
-    const user_id = body.user_id || null;
 
     if (!isEmail(email)) {
       return new Response(JSON.stringify({ ok: false, error: "Invalid email" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Email must match the authenticated user's email
+    if (authedEmail && email !== authedEmail) {
+      return new Response(JSON.stringify({ ok: false, error: "Email does not match authenticated user" }), {
+        status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
@@ -37,7 +64,7 @@ Deno.serve(async (req) => {
 
     const completed_at = new Date().toISOString();
     const { error: dbErr } = await supabase.from("cohort_2_waitlist").insert({
-      user_id,
+      user_id: authedUserId,
       name: body.name ? String(body.name).slice(0, 100) : null,
       email,
       dosha,
