@@ -5,9 +5,28 @@ import { supabase } from "@/integrations/supabase/client";
 import logo from "@/assets/logo-new.png";
 import authBg from "@/assets/auth-bg.jpeg";
 
+const detectInAppBrowser = (): string | null => {
+  if (typeof window === "undefined" || !navigator.userAgent) return null;
+  const ua = navigator.userAgent;
+  if (/WhatsApp/i.test(ua)) return "WhatsApp";
+  if (/Instagram/i.test(ua)) return "Instagram";
+  if (/FBAN|FBAV/i.test(ua)) return "Facebook";
+  if (/Line/i.test(ua)) return "Line";
+  if (/Telegram/i.test(ua)) return "Telegram";
+  if (/TikTok/i.test(ua)) return "TikTok";
+  if (/LinkedIn/i.test(ua)) return "LinkedIn";
+  return null;
+};
+
 const AuthScreen = () => {
   const [loading, setLoading] = useState<null | "google" | "apple">(null);
   const showDemo = typeof window !== "undefined" && new URLSearchParams(window.location.search).get("demo") === "true";
+  const inAppBrowser = useMemo(() => detectInAppBrowser(), []);
+
+  const openInBrowser = () => {
+    const url = window.location.href;
+    window.open(url, "_blank");
+  };
 
   const demoLogin = async () => {
     try {
